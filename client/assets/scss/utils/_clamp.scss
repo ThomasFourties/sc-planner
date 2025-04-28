@@ -1,0 +1,99 @@
+@use 'sass:math';
+
+$defaultWindowSize: 1440px;
+
+//////////////////////
+// Headline
+$headlineDefault: 44px;
+$headlineMin: $headlineDefault * 0.75;
+$headlineMax: $headlineDefault * 1;
+$headlineCoeff: math.div($headlineDefault, $defaultWindowSize) * 100vw;
+//////////////////////
+
+//////////////////////
+// Karaoke
+$karaokeDefault: 50px;
+$karaokeMin: $karaokeDefault * 0.6;
+$karaokeMax: $karaokeDefault * 1;
+$karaokeCoeff: math.div($karaokeDefault, $defaultWindowSize) * 100vw;
+//////////////////////
+
+//////////////////////
+// clientGridTitle
+$clientGridTitleDefault: 160px;
+$clientGridTitleMin: $clientGridTitleDefault * 0.38;
+$clientGridTitleMax: $clientGridTitleDefault * 1;
+$clientGridTitleCoeff: math.div($clientGridTitleDefault, $defaultWindowSize) * 100vw;
+//////////////////////////
+
+/////////////////////////
+// voletTitle
+$voletTitleDefault: 60px;
+$voletTitleMin: $voletTitleDefault * 0.5;
+$voletTitleMax: $voletTitleDefault * 1;
+$voletTitleCoeff: math.div($voletTitleDefault, $defaultWindowSize) * 100vw;
+//////////////////////
+
+////////////////////////////
+// voletTxt
+$voletTxtDefault: 22px;
+$voletTxtMin: $voletTxtDefault * 0.9;
+$voletTxtMax: $voletTxtDefault * 1;
+$voletTxtCoeff: math.div($voletTxtDefault, $defaultWindowSize) * 100vw;
+//////////////////////
+
+////////////////////////////
+// teamTitle
+$teamTitleDefault: 160px;
+$teamTitleMin: $teamTitleDefault * 0.35;
+$teamTitleMax: $teamTitleDefault * 1;
+$teamTitleCoeff: math.div($teamTitleDefault, $defaultWindowSize) * 100vw;
+//////////////////////
+
+////////////////////////////
+// prefooterTitle
+$prefooterTitleDefault: 50px;
+$prefooterTitleMin: $prefooterTitleDefault * 0.55;
+$prefooterTitleMax: $prefooterTitleDefault * 1;
+$prefooterTitleCoeff: math.div($prefooterTitleDefault, $defaultWindowSize) * 100vw;
+//////////////////////
+
+////////////////////////////
+// footerLeftTopTitle
+$footerLeftTopTitleDefault: 32px;
+$footerLeftTopTitleMin: $footerLeftTopTitleDefault * 0.8;
+$footerLeftTopTitleMax: $footerLeftTopTitleDefault * 1;
+$footerLeftTopTitleCoeff: math.div($footerLeftTopTitleDefault, $defaultWindowSize) * 100vw;
+//////////////////////
+
+.headline {
+  font-size: clamp(#{$headlineMin}, #{$headlineCoeff}, #{$headlineMax}) !important;
+}
+
+.karaoke {
+  font-size: clamp(#{$karaokeMin}, #{$karaokeCoeff}, #{$karaokeMax}) !important;
+}
+
+.section-client-grid .right-txt {
+  font-size: clamp(#{$clientGridTitleMin}, #{$clientGridTitleCoeff}, #{$clientGridTitleMax}) !important;
+}
+
+.section-volets .h2 {
+  font-size: clamp(#{$voletTitleMin}, #{$voletTitleCoeff}, #{$voletTitleMax}) !important;
+}
+
+.section-volets .txt {
+  font-size: clamp(#{$voletTxtMin}, #{$voletTxtCoeff}, #{$voletTxtMax}) !important;
+}
+
+.section-teams .team-title {
+  font-size: clamp(#{$teamTitleMin}, #{$teamTitleCoeff}, #{$teamTitleMax}) !important;
+}
+
+.prefooter .cta {
+  font-size: clamp(#{$prefooterTitleMin}, #{$prefooterTitleCoeff}, #{$prefooterTitleMax}) !important;
+}
+
+.footer-container .left-top-title {
+  font-size: clamp(#{$footerLeftTopTitleMin}, #{$footerLeftTopTitleCoeff}, #{$footerLeftTopTitleMax}) !important;
+}

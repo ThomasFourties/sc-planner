@@ -1,0 +1,11 @@
+@use '../utils/mixins' as *;
+
+.section {
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 80px;
+
+  @include down(lg) {
+    padding-bottom: 40px;
+  }
+}

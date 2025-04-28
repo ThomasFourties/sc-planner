@@ -1,0 +1,31 @@
+@use '../base/variables' as *;
+
+input,
+.input {
+  border: 1px solid $black;
+  background: $white;
+}
+
+.checkboxes-wp {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.checkbox-wp {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  input, label {
+    cursor: pointer;
+  }
+}
+
+input[type='checkbox'] {
+  padding: 4px;
+  border: 1px solid $black;
+
+  &:checked {
+    background: $green;
+  }
+}

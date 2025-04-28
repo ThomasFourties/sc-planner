@@ -1,0 +1,107 @@
+@use './variables' as *;
+@use '../utils/mixins' as *;
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  background: $beige;
+  font-family: $helvetica;
+  font-size: 16px;
+  line-height: 1.2;
+
+  @include down(md) {
+    font-size: 15px;
+  }
+
+  #__nuxt {
+    overflow: hidden;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+*::selection {
+  color: $yellow;
+  background-color: $blue;
+}
+
+a {
+  text-decoration: none;
+  color: $black;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+ul,
+ol {
+  margin-left: 20px;
+  margin-bottom: 20px;
+
+  &:not(ol) {
+    li {
+      margin-left: 0;
+
+      &::marker {
+        content: '';
+      }
+
+      &::before {
+        content: '•';
+        margin-right: 10px;
+      }
+    }
+  }
+
+  li {
+    margin: 0 0 10px 20px;
+    list-style: outside;
+  }
+}
+
+ol {
+  li {
+    list-style: auto;
+  }
+}
+
+img,
+svg,
+svg.nuxt-icon {
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  object-fit: contain;
+}
+
+.window-size {
+  position: fixed;
+  top: 98vh;
+  font-size: 12px;
+  left: 0;
+  padding: 4px 10px;
+  font-weight: 600;
+  border-radius: 0 2px 0 0;
+  background-color: $blue;
+  z-index: 999;
+  color: $white;
+  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  font-family: $helvetica;
+}
+
+.rte {
+  p {
+    &:not(:last-child) {
+      margin-bottom: 20px;
+    }
+  }
+}

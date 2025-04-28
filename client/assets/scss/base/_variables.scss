@@ -1,0 +1,36 @@
+$black: #000;
+$white: #fff;
+$beige: #f6f6f1;
+$green: #03a77f;
+$lightGreen: #03a77f;
+$red: #eb0045;
+$blue: #0c21d6;
+$yellow: #fff732;
+$orange: #f5760f;
+$pink: #ff748d;
+$purple: #221c35;
+
+$vinila: 'Vinila', 'Times New Roman', sans-serif;
+$helvetica: 'Helvetica', sans-serif;
+
+$breakpoints: (
+  xxs: 350px, // de 0 à 350px
+  xs: 375px, // de 350px à 375px
+  sm: 440px, // de 351px à 440px
+  md: 768px, // de 441px à 768px
+  lg: 1280px, // de 769px à 1024px
+  xl: 1440px, // de 1025px à 1440px
+  xxl: 2200px, // de 1441px à 2200px
+);
+
+$t100: 100ms;
+$t200: 200ms;
+$t300: 300ms;
+$t400: 400ms;
+$t500: 500ms;
+$t600: 600ms;
+$t700: 700ms;
+$t800: 800ms;
+
+$comingFast: cubic-bezier(0.25, 0, 0, 1);
+$leavingFast: cubic-bezier(1, 0, 0.745, 1);
