@@ -1,0 +1,55 @@
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build directories
+/dist
+/client/dist
+/server/dist
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+/pnpm-debug.log
+/pnpm-lock.yaml
+
+# Docker
+*.tgz
+docker-compose.override.yml
+*.dockerfile
+Dockerfile
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Coverage directory for code coverage reports
+coverage/
+
+# Build outputs
+/build
+/client/.nuxt
+
+# Temporary files
+*.swp
+*.swo
+
+# Misc
+*.bak
+*.tmp
+    
