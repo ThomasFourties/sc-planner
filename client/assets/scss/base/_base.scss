@@ -1,4 +1,4 @@
-@use './variables' as *;
+@use '../base/variables' as *;
 @use '../utils/mixins' as *;
 
 html {
@@ -6,7 +6,7 @@ html {
 }
 
 body {
-  background: $beige;
+  background: $lightGray;
   font-family: $helvetica;
   font-size: 16px;
   line-height: 1.2;
@@ -22,6 +22,10 @@ body {
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+.nuxt-icon--fill {
+  fill: revert-layer !important;
 }
 
 *::selection {
