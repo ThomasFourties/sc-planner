@@ -2,18 +2,15 @@
   <NuxtLayout>
     <!-- <WindowSize /> -->
     <!-- <Grid /> -->
-    <Modal />
-    <Header />
     <NuxtPage />
-    <Footer />
   </NuxtLayout>
 </template>
 
 <script setup>
 useSeoMeta({
-  title: 'Nuxt Starter w/ Nest',
-  ogTitle: 'Nuxt Starter w/ Nest',
-  description: 'Nuxt Starter w/ Nest',
-  ogDescription: 'Nuxt Starter w/ Nest',
+  title: 'SC Planner — Gestionnaire de tâches',
+  ogTitle: 'SC Planner — Gestionnaire de tâches',
+  description: 'SC Planner est un gestionnaire de tâches simple et efficace.',
+  ogDescription: 'SC Planner est un gestionnaire de tâches simple et efficace.',
 });
 </script>
