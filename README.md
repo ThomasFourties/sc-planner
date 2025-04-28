@@ -21,7 +21,7 @@ Ce projet est un starter pour initier des projets avec Nuxt en front-end, NestJS
 1. **Clonez le projet :**
 
 ```bash
-git clone https://github.com/ThomasFourties/starter-nuxt.git
+git clone https://github.com/ThomasFourties/sc-planner.git
 ```
 2. **Remplir les variables d'environnement** 
 
