@@ -25,7 +25,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./client
           push: true
           tags: thoomaas123/sc-planner-client
 
@@ -48,6 +48,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./server
           push: true
           tags: thoomaas123/sc-planner-server
