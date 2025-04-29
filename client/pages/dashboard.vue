@@ -3,7 +3,7 @@
     <div class="txt-wp">
       <p class="surtitle">Lundi 12 février</p>
       <h1 class="h1">Bonjour, Thomas</h1>
-      <p class="soustitle">Aujourd’hui, <span>5 tâches</span> vous sont assignés dans 2 projets différents !</p>
+      <p class="soustitle">Aujourd’hui, <span>5 tâches</span> vous sont assignés dans 2 projets différents</p>
     </div>
     <div class="dashboard-content">
       <div class="left"></div>
