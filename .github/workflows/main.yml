@@ -105,4 +105,4 @@ jobs:
             docker pull thoomaas123/sc-planner-client
             docker pull thoomaas123/sc-planner-server
 
-            docker-compose -f docker-compose.prod.yml up --build
+            docker compose -f docker-compose.prod.yml up --build
