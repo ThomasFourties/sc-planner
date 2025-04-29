@@ -20,13 +20,11 @@ jobs:
           base: ${{ github.event.before }}
           filters: |
             frontend:
-              file: 'client/**'
-              directory: 'client'
-              default: true
+              - client/**
+              - .github/workflows/main.yml
             backend:
-              file: 'server/**'
-              directory: 'server'
-              default: false
+              - server/**
+              - .github/workflows/main.yml
 
   frontend:
     name: Build and Push Frontend
