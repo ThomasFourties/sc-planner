@@ -2,8 +2,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-21',
 
   server: {
-    port: 3000, // Port pour le client
-    host: '0.0.0.0', // Exposer sur toutes les interfaces réseau pour Docker
+    port: 3000,
+    host: '0.0.0.0',
   },
 
   devtools: { enabled: false },
@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     },
   },
 
-  ssr: true,
+  ssr: false,
 
   runtimeConfig: {
     public: {

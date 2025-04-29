@@ -123,7 +123,6 @@ const config = useRuntimeConfig();
 
 const API_URL = config.public.API_URL;
 
-
 const endpoint = 'projects';
 const apiEndpoint = `${API_URL}/${endpoint}`;
 
