@@ -81,7 +81,8 @@ jobs:
   deploy:
     name: Deploy to Server
     needs: [client, server]
-    if: ${{ needs.changes.outputs.client == 'true' || needs.changes.outputs.server == 'true' }}
+    if: |
+      always() && !failure() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
@@ -94,8 +95,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          script
-          : |
+          script: |
             cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
             docker pull thoomaas123/sc-planner-client
             docker pull thoomaas123/sc-planner-server
