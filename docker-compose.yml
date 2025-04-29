@@ -1,6 +1,7 @@
 services:
   client:
     build: ./client
+    image: sc-planner-client:1
     volumes:
       - ./client:/app
       - /app/node_modules
@@ -14,6 +15,7 @@ services:
 
   server:
     build: ./server
+    image: sc-planner-server:1
     volumes:
       - ./server:/app
       - /app/node_modules
