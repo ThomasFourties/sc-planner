@@ -77,3 +77,28 @@ jobs:
           context: '{{defaultContext}}:server'
           push: true
           tags: thoomaas123/sc-planner-server
+
+  deploy:
+    name: Deploy to Server
+    needs: [client, server]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: SSH to server and deploy
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            cd ../var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
+
+            docker pull thoomaas123/sc-planner-client
+            docker pull thoomaas123/sc-planner-server
+
+            docker compose down
+
+            docker compose up --build
