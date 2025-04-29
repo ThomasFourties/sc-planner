@@ -97,6 +97,7 @@ jobs:
           port: 22
           script: |
             cd ../var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
+            git pull origin prod
             docker pull thoomaas123/sc-planner-client
             docker pull thoomaas123/sc-planner-server
             docker-compose down
