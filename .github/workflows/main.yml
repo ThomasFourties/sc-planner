@@ -99,5 +99,5 @@ jobs:
             cd ../var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
             docker pull thoomaas123/sc-planner-client
             docker pull thoomaas123/sc-planner-server
-            docker compose down
-            docker compose up --build
+            docker-compose down
+            docker-compose up --build
