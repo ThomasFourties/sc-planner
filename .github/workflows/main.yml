@@ -10,8 +10,8 @@ jobs:
     name: Check for changes
     runs-on: ubuntu-22.04
     outputs:
-      client: ${{ steps.changes.outputs.frontend }}
-      server: ${{ steps.changes.outputs.backend }}
+      client: ${{ steps.changes.outputs.client }}
+      server: ${{ steps.changes.outputs.server }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -19,17 +19,17 @@ jobs:
         with:
           base: ${{ github.event.before }}
           filters: |
-            frontend:
-              - client/**
-              - .github/workflows/main.yml
-            backend:
-              - server/**
-              - .github/workflows/main.yml
+            client:
+              - 'client/**'
+              - '.github/workflows/main.yml'
+            server:
+              - 'server/**'
+              - '.github/workflows/main.yml'
 
-  frontend:
-    name: Build and Push Frontend
+  client:
+    name: Build and Push Client
     needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    if: ${{ needs.changes.outputs.client == 'true' }}
     runs-on: ubuntu-22.04
     steps:
       - name: Login to Docker Hub
@@ -52,10 +52,10 @@ jobs:
           push: true
           tags: thoomaas123/sc-planner-client
 
-  backend:
-    name: Build and Push Backend
+  server:
+    name: Build and Push Server
     needs: changes
-    if: ${{ needs.changes.outputs.backend == 'true' }}
+    if: ${{ needs.changes.outputs.server == 'true' }}
     runs-on: ubuntu-22.04
     steps:
       - name: Login to Docker Hub
