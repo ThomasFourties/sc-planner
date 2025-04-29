@@ -27,7 +27,7 @@ jobs:
         with:
           context: "{{defaultContext}}:client"
           push: true
-          tags: thoomaas123/sc-planner-client
+          tags: thoomaas123/sc-planner/sc-planner-client
 
   backend:
     name: Build and Push Backend
@@ -50,4 +50,4 @@ jobs:
         with:
           context: "{{defaultContext}}:server"
           push: true
-          tags: thoomaas123/sc-planner-server
+          tags: thoomaas123/sc-planner/sc-planner-server
