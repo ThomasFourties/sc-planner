@@ -99,10 +99,7 @@ jobs:
             cd /var/www/vhosts/thomasfourties.fr/test.thomasfourties.fr
             eval $(ssh-agent) ssh-add ~/.ssh/thomas
             git pull origin prod
-            
-            docker rmi -f $(docker images -aq)
 
-            docker pull thoomaas123/sc-planner-client
-            docker pull thoomaas123/sc-planner-server
+            docker compose down
 
-            docker compose -f docker-compose.prod.yml up --build
+            docker compose -f docker-compose.prod.yml up --build -d

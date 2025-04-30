@@ -10,11 +10,13 @@ RUN pnpm install
 
 COPY . .
 
-RUN pnpm run build
+RUN pnpm run generate
 
 FROM nginx:1.27-alpine
 
 RUN rm /etc/nginx/conf.d/default.conf
+
+RUN rm /usr/share/nginx/html/*
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 

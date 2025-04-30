@@ -5,6 +5,7 @@ server/node_modules/
 
 # Build directories
 /dist
+/client/.output
 /client/dist
 /server/dist
 
