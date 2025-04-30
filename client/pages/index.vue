@@ -1,19 +1,19 @@
 <template>
-  <div class="content"></div>
+  <div class="content">yo !</div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+// import { onMounted } from 'vue';
 
-const userIsConnected = ref(true);
+// const userIsConnected = ref(true);
 
-onMounted(() => {
-  if (userIsConnected.value) {
-    window.location.href = '/dashboard';
-  } else {
-    window.location.href = '/login';
-  }
-});
+// onMounted(() => {
+//   if (userIsConnected.value) {
+//     window.location.href = '/dashboard';
+//   } else {
+//     window.location.href = '/login';
+//   }
+// });
 </script>
 
 <style lang="scss" scoped>
