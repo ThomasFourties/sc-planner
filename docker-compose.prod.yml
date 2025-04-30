@@ -8,7 +8,6 @@ services:
       - '3001:3000'
     env_file:
       - ./.env
-    command: npm run dev
     depends_on:
       - server
     pull_policy: always
@@ -28,4 +27,3 @@ services:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
-    command: npm run start:dev
