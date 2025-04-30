@@ -100,6 +100,4 @@ jobs:
             eval $(ssh-agent) ssh-add ~/.ssh/thomas
             git pull origin prod
 
-            docker compose down
-
             docker compose -f docker-compose.prod.yml up --build -d
