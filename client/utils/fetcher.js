@@ -4,15 +4,15 @@ const fetcher = {
       const config = useRuntimeConfig();
       const apiUrl = `${config.public.API_BASE_URL}/${endpoint}`;
 
-      if (!config.public.API_BASE_URL || !config.public.API_AUTH_TOKEN) {
-        throw new Error('API URL or Auth Token is missing in the config');
-      }
+      // if (!config.public.API_BASE_URL || !config.public.API_AUTH_TOKEN) {
+      //   throw new Error('API URL or Auth Token is missing in the config');
+      // }
 
       const { data, error } = await useFetch(apiUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.public.API_AUTH_TOKEN}`,
+          // Authorization: `Bearer ${config.public.API_AUTH_TOKEN}`,
         },
       });
 
@@ -33,15 +33,15 @@ const fetcher = {
       const config = useRuntimeConfig();
       const apiUrl = `${config.public.API_BASE_URL}/${endpoint}`;
 
-      if (!config.public.API_BASE_URL || !config.public.API_AUTH_TOKEN) {
-        throw new Error('API URL or Auth Token is missing in the config');
-      }
+      // if (!config.public.API_BASE_URL || !config.public.API_AUTH_TOKEN) {
+      //   throw new Error('API URL or Auth Token is missing in the config');
+      // }
 
       const { data, error } = await useFetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.public.API_AUTH_TOKEN}`,
+          // Authorization: `Bearer ${config.public.API_AUTH_TOKEN}`,
         },
         body: JSON.stringify(body),
       });

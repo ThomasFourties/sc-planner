@@ -13,21 +13,32 @@
 </template>
 
 <script setup>
-// import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import fetcher from '~/utils/fetcher';
 
-// const userIsConnected = ref(true);
+// fetch localhost:3001/projects sans le fetcher
+const projects = ref([]);
+const fetchProjects = async () => {
+  try {
+    const response = await fetch('http://localhost:3001/projects');
 
-// onMounted(() => {
-//   if (userIsConnected.value) {
-//     window.location.href = '/dashboard';
-//   } else {
-//     window.location.href = '/login';
-//   }
-// });
+    if (response.ok) {
+      projects.value = await response.json();
+    } else {
+      console.error('Error fetching projects:', response.statusText);
+    }
+
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+  }
+};
+
+onMounted(() => {
+  fetchProjects();
+});
 </script>
 
 <style lang="scss" scoped>
 @use '../assets/scss/base/variables' as *;
 @use '../assets/scss/utils/sections' as *;
-
 </style>
