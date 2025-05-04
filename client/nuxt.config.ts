@@ -1,11 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-21',
 
-  server: {
-    port: 3000,
-    host: '0.0.0.0',
-  },
-
   devtools: { enabled: false },
 
   vue: {

@@ -10,8 +10,7 @@ services:
     ports:
       - '3000:3000'
     env_file:
-      - ./.env.dev
-    command: npm run dev
+      - ./.env
     depends_on:
       - server
 
@@ -26,13 +25,12 @@ services:
     ports:
       - '3001:3001'
     env_file:
-      - ./.env.dev
+      - ./.env
     environment:
       DATABASE_URL: ${DATABASE_URL}
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
-    command: npm run start:dev
     depends_on:
       - database
 
@@ -41,7 +39,7 @@ services:
     ports:
       - '5432:5432'
     env_file:
-      - ./.env.dev
+      - ./.env
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
