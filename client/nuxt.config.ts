@@ -1,17 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-21',
 
-  server: {
-    host: '0.0.0.0',
-    port: 3000,
-  },
-
-  image: {
-    ipx: {
-      cache: false,
-    },
-  },
-
   devtools: { enabled: false },
 
   vue: {
@@ -41,7 +30,13 @@ export default defineNuxtConfig({
     },
   },
 
+  image: {
+    dir: 'public/images',
+    domains: ['test.thomasfourties.fr'],
+  },
+
   app: {
+    baseURL: '/',
     head: {
       htmlAttrs: {
         lang: 'fr',
