@@ -25,6 +25,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 @use '../assets/scss/base/variables' as *;
 @use '../assets/scss/utils/sections' as *;
+@use '../assets/scss/utils/mixins' as *;
 
 .dashboard {
   .txt-wp {
@@ -43,8 +44,6 @@ onMounted(() => {
 
   h1,
   .h1 {
-    font-size: 46px;
-    color: $black;
     font-weight: 700;
     margin-bottom: 24px;
   }
@@ -67,6 +66,12 @@ onMounted(() => {
     margin: 0 auto;
     height: 300px;
 
+    @include down(md) {
+      width: 100%;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     .left,
     .right {
       background-color: $white;
@@ -77,10 +82,18 @@ onMounted(() => {
 
     .left {
       width: 33%;
+
+      @include down(md) {
+        width: 100%;
+      }
     }
 
     .right {
       width: 66%;
+
+      @include down(md) {
+        width: 100%;
+      }
     }
   }
 }

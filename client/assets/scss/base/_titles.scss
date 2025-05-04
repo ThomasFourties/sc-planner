@@ -13,6 +13,7 @@ h4,
   font-family: $vinila;
   font-weight: 500;
   line-height: 1.2;
+  color: $black;
 }
 
 .raleway {
@@ -33,7 +34,7 @@ h1,
   }
 
   @include down(sm) {
-    font-size: 45px;
+    font-size: 40px;
   }
 }
 

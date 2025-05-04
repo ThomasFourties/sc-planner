@@ -19,6 +19,10 @@ import search from './assets/icons/search.svg';
   width: 420px;
   margin: 0 auto 80px auto;
 
+  @include down(md) {
+    width: 100%;
+  }
+
   .search-bar {
     background: $white;
     // background: $white;
