@@ -39,6 +39,9 @@ Thumbs.db
 .env.local
 .env.*.local
 
+# Scripts
+*.sh
+
 # Coverage directory for code coverage reports
 coverage/
 
