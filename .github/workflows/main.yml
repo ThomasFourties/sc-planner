@@ -100,5 +100,7 @@ jobs:
             eval $(ssh-agent) ssh-add ~/.ssh/thomas
             git pull origin prod
 
+            docker image prune -a
+
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d

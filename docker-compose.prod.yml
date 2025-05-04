@@ -44,4 +44,4 @@ services:
       - pgdata:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  sc_planner_db_data:
