@@ -6,6 +6,12 @@ export default defineNuxtConfig({
     port: 3000,
   },
 
+  image: {
+    ipx: {
+      cache: false,
+    },
+  },
+
   devtools: { enabled: false },
 
   vue: {
