@@ -11,7 +11,7 @@ export default defineNuxtConfig({
 
   // Modifié pour prendre en charge le SSR avec hydration côté client
   // Cela permet de résoudre les problèmes de navigation et de rafraîchissement
-  ssr: true,
+  ssr: false,
 
   runtimeConfig: {
     public: {
@@ -34,7 +34,7 @@ export default defineNuxtConfig({
 
   // Configuration des règles de route pour que le SPA fonctionne correctement
   routeRules: {
-    '/**': { ssr: true },
+    '/**': { ssr: false },
   },
 
   css: ['@/assets/scss/main.scss'],
