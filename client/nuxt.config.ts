@@ -9,15 +9,12 @@ export default defineNuxtConfig({
     },
   },
 
-  // Modifié pour prendre en charge le SSR avec hydration côté client
-  // Cela permet de résoudre les problèmes de navigation et de rafraîchissement
   ssr: false,
 
   runtimeConfig: {
     public: {
       API_URL: process.env.API_URL,
       API_AUTH_TOKEN: process.env.API_AUTH_TOKEN,
-      // Ajout d'une configuration pour l'environnement
       ENV: process.env.NODE_ENV || 'development',
     },
   },
@@ -32,7 +29,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // Configuration des règles de route pour que le SPA fonctionne correctement
   routeRules: {
     '/**': { ssr: false },
   },
@@ -52,7 +48,6 @@ export default defineNuxtConfig({
         strict: false,
       },
     },
-    // Optimisation pour la production
     build: {
       rollupOptions: {
         output: {
@@ -66,8 +61,7 @@ export default defineNuxtConfig({
 
   app: {
     baseURL: '/',
-    // Ajout d'un CDN URL pour les environnements de production
-    cdnURL: process.env.NODE_ENV === 'production' ? 'https://test.thomasfourties.fr' : '',
+    cdnURL: process.env.NODE_ENV === 'production' ? 'https://sc-planner.thomasfourties.fr' : '',
     head: {
       htmlAttrs: {
         lang: 'fr',
@@ -109,16 +103,12 @@ export default defineNuxtConfig({
     // 'nuxt-swiper',
   ],
 
-  // Configuration améliorée pour les images
   image: {
     provider: 'ipx',
     dir: 'public',
-    domains: ['test.thomasfourties.fr'],
+    domains: ['sc-planner.thomasfourties.fr'],
     format: ['webp', 'jpg', 'png'],
   },
-
-  // Ajout de la configuration des pages
-  pages: true,
 
   // plugins: [{ src: '~/utils/windowSize.js', mode: 'client' }],
 

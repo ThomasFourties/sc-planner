@@ -96,7 +96,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script: |
-            cd /var/www/vhosts/thomasfourties.fr/test.thomasfourties.fr
+            cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
             eval $(ssh-agent) ssh-add ~/.ssh/thomas
             git pull origin prod
 
