@@ -1,23 +1,15 @@
-# Utilisation de l'image Node.js avec Alpine (plus légère)
 FROM node:22-alpine AS builder
 
-# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier les fichiers package.json et pnpm-lock.yaml pour installer les dépendances
 COPY package.json pnpm-lock.yaml ./
 
-# Installer pnpm globalement
 RUN npm install -g pnpm
 
-# Installer les dépendances avec pnpm
 RUN pnpm install
 
-# Copier le reste des fichiers du projet dans le conteneur
 COPY . .
 
-# Exposer le port 3000 pour l'application
 EXPOSE 3000
 
-# Utiliser pnpm pour démarrer l'application en mode développement
-CMD ["pnpm", "run", "dev"]
+CMD ['npm', 'run', 'dev']
