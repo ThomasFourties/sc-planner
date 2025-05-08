@@ -15,22 +15,7 @@ export default defineNuxtConfig({
     public: {
       API_URL: process.env.API_URL,
       API_AUTH_TOKEN: process.env.API_AUTH_TOKEN,
-      ENV: process.env.NODE_ENV || 'development',
     },
-  },
-
-  nitro: {
-    devProxy: {
-      '/api': {
-        target: process.env.NODE_ENV === 'production' ? 'http://server:3001/api' : 'http://localhost:3002/api',
-        changeOrigin: true,
-        prependPath: false,
-      },
-    },
-  },
-
-  routeRules: {
-    '/**': { ssr: false },
   },
 
   css: ['@/assets/scss/main.scss'],
@@ -43,25 +28,9 @@ export default defineNuxtConfig({
         },
       },
     },
-    server: {
-      fs: {
-        strict: false,
-      },
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          assetFileNames: 'assets/[name]-[hash][extname]',
-          chunkFileNames: 'chunks/[name]-[hash].js',
-          entryFileNames: 'entries/[name]-[hash].js',
-        },
-      },
-    },
   },
 
   app: {
-    baseURL: '/',
-    cdnURL: process.env.NODE_ENV === 'production' ? 'https://sc-planner.thomasfourties.fr' : '',
     head: {
       htmlAttrs: {
         lang: 'fr',
@@ -70,11 +39,6 @@ export default defineNuxtConfig({
         {
           name: 'viewport',
           content: 'width=device-width, initial-scale=1, viewport-fit=cover',
-        },
-        // Ajout de meta pour empêcher les problèmes de navigation
-        {
-          name: 'base',
-          content: '/',
         },
       ],
       link: [
@@ -103,12 +67,15 @@ export default defineNuxtConfig({
     // 'nuxt-swiper',
   ],
 
-  image: {
-    provider: 'ipx',
-    dir: 'public',
-    domains: ['sc-planner.thomasfourties.fr'],
-    format: ['webp', 'jpg', 'png'],
-  },
+  // gtag: {
+  //   enabled: process.env.ENV_STATUS === 'production',
+  //   id: 'G-XXXXXXXXXX',
+  // },
+
+  // hotjar: {
+  //   hotjarId: XXXXXXX,
+  //   scriptVersion: X,
+  // },
 
   // plugins: [{ src: '~/utils/windowSize.js', mode: 'client' }],
 
