@@ -47,7 +47,7 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - sc_planner_db_data:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  sc_planner_db_data:
