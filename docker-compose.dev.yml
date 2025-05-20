@@ -11,10 +11,7 @@ services:
       - '3000:3000'
     env_file:
       - ./.env
-<<<<<<< HEAD
-=======
     command: npm run dev
->>>>>>> nouvelle-branche
     depends_on:
       - server
 
@@ -52,8 +49,4 @@ services:
       - sc_planner_db_data:/var/lib/postgresql/data
 
 volumes:
-<<<<<<< HEAD
   sc_planner_db_data:
-=======
-  sc_planner_db_data:
->>>>>>> nouvelle-branche

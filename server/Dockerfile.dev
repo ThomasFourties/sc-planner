@@ -12,8 +12,4 @@ COPY . .
 
 EXPOSE 3000
 
-<<<<<<< HEAD
 CMD ["pnpm", "run", "start"]
-=======
-CMD ["pnpm", "run", "start"]
->>>>>>> nouvelle-branche
