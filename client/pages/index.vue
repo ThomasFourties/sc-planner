@@ -8,6 +8,10 @@
 definePageMeta({
   middleware: ['auth']
 });
+
+onMounted(() => {
+  navigateTo('/dashboard');
+});
 </script>
 
 <style lang="scss" scoped>

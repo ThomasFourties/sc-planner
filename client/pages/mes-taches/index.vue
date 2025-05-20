@@ -17,8 +17,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-@use '../assets/scss/base/variables' as *;
-@use '../assets/scss/utils/sections' as *;
+@use '../../assets/scss/base/variables' as *;
+@use '../../assets/scss/utils/sections' as *;
 
 .tasks-content{
   width: 100%;

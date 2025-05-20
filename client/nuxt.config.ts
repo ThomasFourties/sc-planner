@@ -3,7 +3,7 @@ export default defineNuxtConfig({
 
   devServer: {
     port: process.env.NODE_ENV === 'production' ? undefined : 3000,
-    host: '0.0.0.0',
+    host: '0.0.0.0'
   },
 
   devtools: { enabled: false },
@@ -73,7 +73,7 @@ export default defineNuxtConfig({
     // 'nuxt-swiper',
   ],
 
-   site: { url: 'https://sc-planner.thomasfourties.fr' },
+  //  site: { url: 'https://sc-planner.thomasfourties.fr' },
 
   // gtag: {
   //   enabled: process.env.ENV_STATUS === 'production',
@@ -99,8 +99,8 @@ export default defineNuxtConfig({
   ],
 
   image: {
-    dir: 'public',
     provider: 'ipx',
+    dir: 'public',
     quality: 80,
     format: ['webp'],
     screens: {

@@ -6,12 +6,16 @@ services:
     image: sc-planner/client
     volumes:
       - ./client:/app
-      - /app/node_modules
+      - client_node_modules:/app/node_modules
     ports:
       - '3000:3000'
     env_file:
       - ./.env
-    command: npm run dev
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: 3000
+    command: sh -c "rm -rf .nuxt .output && pnpm run dev"
     depends_on:
       - server
 
@@ -22,7 +26,7 @@ services:
     image: sc-planner/server
     volumes:
       - ./server:/app
-      - /app/node_modules
+      - server_node_modules:/app/node_modules
     ports:
       - '3001:3001'
     env_file:
@@ -50,3 +54,5 @@ services:
 
 volumes:
   sc_planner_db_data:
+  client_node_modules:
+  server_node_modules:
