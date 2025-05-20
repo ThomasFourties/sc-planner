@@ -90,11 +90,29 @@ export default defineNuxtConfig({
   // sitemap: {
   //   sources: ['https://www.example.com/sitemap'],
   //   cacheMaxAgeSeconds: 1,
-  //   exclude: ['/', '/404', '/home'],
+  //   exclude: ['/', '/home'],
   // },
 
   components: [
     { path: '~/components/', pathPrefix: false },
     { path: '~/components/utils/', pathPrefix: false },
   ],
+
+  image: {
+    dir: 'public',
+    provider: 'ipx',
+    quality: 80,
+    format: ['webp'],
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+    },
+    alias: {
+      '/images': '/images'
+    }
+  },
 });
