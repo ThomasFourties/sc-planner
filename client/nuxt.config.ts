@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-21',
 
-  server: {
+  devServer: {
     port: process.env.NODE_ENV === 'production' ? undefined : 3000,
     host: '0.0.0.0',
   },
@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     },
   },
 
-  ssr: true,
+  ssr: false,
 
   runtimeConfig: {
     public: {
