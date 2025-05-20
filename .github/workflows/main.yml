@@ -3,7 +3,7 @@ name: Docker Build and Push
 on:
   push:
     branches:
-      - prod
+      - nouvelle-branche
 
 jobs:
   changes:
@@ -98,7 +98,9 @@ jobs:
           script: |
             cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
             eval $(ssh-agent) ssh-add ~/.ssh/thomas
-            git pull origin prod
+            git fetch
+            git checkout nouvelle-branche
+            git pull origin nouvelle-branche
 
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d

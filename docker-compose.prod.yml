@@ -44,4 +44,8 @@ services:
       - sc_planner_db_data:/var/lib/postgresql/data
 
 volumes:
+<<<<<<< HEAD
   sc_planner_db_data:
+=======
+  sc_planner_db_data:
+>>>>>>> nouvelle-branche

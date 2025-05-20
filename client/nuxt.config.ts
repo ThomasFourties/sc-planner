@@ -1,6 +1,14 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-21',
 
+<<<<<<< HEAD
+=======
+  server: {
+    port: process.env.NODE_ENV === 'production' ? undefined : 3000,
+    host: '0.0.0.0',
+  },
+
+>>>>>>> nouvelle-branche
   devtools: { enabled: false },
 
   vue: {
@@ -31,6 +39,7 @@ export default defineNuxtConfig({
   },
 
   app: {
+    baseURL: '/',
     head: {
       htmlAttrs: {
         lang: 'fr',
