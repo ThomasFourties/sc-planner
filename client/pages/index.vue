@@ -1,14 +1,8 @@
-<script setup>
-const logged = true;
-
-if (!logged) {
-  navigateTo('/register');
-} else {
-  navigateTo('/dashboard');
-}
-
-onMounted(() => {});
-</script>
+<template>
+  <div>
+    <p>Redirection en cours...</p>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 @use '../assets/scss/base/variables' as *;
