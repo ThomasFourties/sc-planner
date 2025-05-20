@@ -99,8 +99,8 @@ jobs:
             cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
             eval $(ssh-agent) ssh-add ~/.ssh/thomas
             git fetch
-            git checkout nouvelle-branche
-            git pull origin nouvelle-branche
+            git checkout prod
+            git pull origin prod
 
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d
