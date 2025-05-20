@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-21',
 
   server: {
-    port: 3000,
+    port: process.env.NODE_ENV === 'production' ? undefined : 3000,
     host: '0.0.0.0',
   },
 
@@ -36,6 +36,7 @@ export default defineNuxtConfig({
   },
 
   app: {
+    baseURL: '/',
     head: {
       htmlAttrs: {
         lang: 'fr',
