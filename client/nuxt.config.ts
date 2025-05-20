@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     },
   },
 
-  ssr: false,
+  ssr: true,
 
   runtimeConfig: {
     public: {
@@ -72,6 +72,8 @@ export default defineNuxtConfig({
     // 'nuxt-module-hotjar',
     // 'nuxt-swiper',
   ],
+
+   site: { url: 'https://sc-planner.thomasfourties.fr' },
 
   // gtag: {
   //   enabled: process.env.ENV_STATUS === 'production',

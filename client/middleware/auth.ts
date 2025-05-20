@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware((to:any) => {
   const logged = true; // À remplacer par votre logique d'authentification réelle
 
   // Si l'utilisateur n'est pas connecté et n'est pas sur la page register
