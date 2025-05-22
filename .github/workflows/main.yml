@@ -105,6 +105,10 @@ jobs:
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d
 
+            docker image prune
+
+            docker volume prune -f
+
       - name: Verify deployment
         uses: appleboy/ssh-action@v1
         with:
