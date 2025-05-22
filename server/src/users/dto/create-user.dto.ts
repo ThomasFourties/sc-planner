@@ -1,20 +1,25 @@
-// import { IsEmail, IsNotEmpty, IsString, MinLength } from '@nestjs/class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+} from '@nestjs/class-validator';
 
-// export class CreateUserDto {
-//   @IsString()
-//   @IsNotEmpty()
-//   firstName: string;
+export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
 
-//   @IsString()
-//   @IsNotEmpty()
-//   lastName: string;
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
 
-//   @IsEmail()
-//   @IsNotEmpty()
-//   email: string;
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
-//   @IsString()
-//   @IsNotEmpty()
-//   @MinLength(6)
-//   password: string;
-// }
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6)
+  password: string;
+}
