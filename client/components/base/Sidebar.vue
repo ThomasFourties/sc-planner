@@ -2,7 +2,9 @@
   <div class="sidebar">
     <div class="top">
       <div class="logo-container">
-        <NuxtLink to="/"> <NuxtImg src="images/pink-logo.svg" alt="Logo" class="logo" /></NuxtLink>
+        <NuxtLink to="/">
+           <img src="/images/pink-logo.svg" class="logo" alt="Logo" />
+        </NuxtLink>
       </div>
       <Nav />
     </div>
@@ -11,7 +13,7 @@
       <p class="help"><help />Aide</p>
       <div class="profile">
         <div class="img">
-          <NuxtImg src="images/profile.png" alt="Profile" />
+          <img src="/images/profile.png" alt="Profile" />
         </div>
         <div class="info">
           <p class="name">Thomas Fourties</p>
