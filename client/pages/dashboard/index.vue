@@ -1,8 +1,9 @@
 <template>
   <div class="dashboard">
     <div class="txt-wp">
-      <p class="surtitle">Lundi 12 février</p>
-      <h1 class="h1">Bonjour, Thomas</h1>
+      <p class="surtitle">{{ formattedDate }}</p>
+      <h1 class="h1">Bonjour {{ user.name }} !</h1>
+      {{ data }}
       <p class="soustitle">Aujourd’hui, <span>5 tâches</span> vous sont assignés dans 2 projets différents</p>
     </div>
     <div class="dashboard-content">
@@ -20,6 +21,18 @@ onMounted(() => {
     dashboardLink.classList.add('active');
   }
 });
+
+const user = await $fetch('http://localhost:3001/users');
+
+const date = new Date();
+const options = {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+};
+
+const formattedDate = date.toLocaleDateString('fr-FR', options);
 </script>
 
 <style lang="scss" scoped>
@@ -37,6 +50,7 @@ onMounted(() => {
   }
 
   .surtitle {
+    text-transform: capitalize;
     color: $darkGray;
     font-weight: 400;
     font-size: 15px;
