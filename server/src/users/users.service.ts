@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { UserDTO } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -16,27 +16,39 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find({
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        email: true,
+        role: true,
+        is_admin: true,
+        profile_img: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
+  }
+
+  async create(userDTO: UserDTO): Promise<User> {
     const existingUser = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
+      where: { email: userDTO.email },
     });
 
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const hashedPassword = await bcrypt.hash(userDTO.password, 10);
 
     const user = this.usersRepository.create({
-      ...createUserDto,
+      ...userDTO,
       password: hashedPassword,
     });
 
     return this.usersRepository.save(user);
-  }
-
-  async findAll(): Promise<User[]> {
-    return this.usersRepository.find();
   }
 
   async findOne(id: string): Promise<User> {
@@ -49,5 +61,10 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { email } });
+  }
+
+  async remove(id: string): Promise<void> {
+    const user = await this.findOne(id);
+    await this.usersRepository.remove(user);
   }
 }

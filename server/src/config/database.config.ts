@@ -1,12 +1,14 @@
 import { registerAs } from '@nestjs/config';
+import { User } from '../users/entities/user.entity';
 
 export default registerAs('database', () => ({
   type: 'postgres',
   host: process.env.DATABASE_HOST || 'localhost',
-  port: parseInt(process.env.DATABASE_PORT as string || '5432', 10),
+  port: process.env.DATABASE_PORT || '5432',
   username: process.env.DATABASE_USER || 'user',
   password: process.env.DATABASE_PASSWORD || 'password',
   database: process.env.DATABASE_NAME || 'sc-planner-db',
-  entities: [__dirname + '/**/*.entity{.ts,.js}'],
+  entities: [User],
   synchronize: process.env.NODE_ENV !== 'production',
-})); 
+  logging: process.env.NODE_ENV !== 'production',
+}));

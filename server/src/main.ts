@@ -6,7 +6,6 @@ async function bootstrap() {
 
   app.enableCors({
     origin: ['http://localhost:3000', 'https://sc-planner.thomasfourties.fr'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 

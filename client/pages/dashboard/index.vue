@@ -2,7 +2,7 @@
   <div class="dashboard">
     <div class="txt-wp">
       <p class="surtitle">{{ formattedDate }}</p>
-      <h1 class="h1">Bonjour {{ user.name }} !</h1>
+      <h1 class="h1">Bonjour Thomas !</h1>
       {{ data }}
       <p class="soustitle">Aujourd’hui, <span>5 tâches</span> vous sont assignés dans 2 projets différents</p>
     </div>
@@ -21,8 +21,6 @@ onMounted(() => {
     dashboardLink.classList.add('active');
   }
 });
-
-const user = await $fetch('http://localhost:3001/users');
 
 const date = new Date();
 const options = {
