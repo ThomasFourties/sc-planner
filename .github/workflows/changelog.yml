@@ -23,6 +23,7 @@ jobs:
     name: Generate Changelog and Release
     runs-on: ubuntu-22.04
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -65,23 +66,24 @@ jobs:
       run: |
         standard-version --release-as ${{ github.event.inputs.release_type }} --no-verify
 
-    - name: Get new version
+    - name: Get new version from Git tag
       id: version
       run: |
-        NEW_VERSION=$(node -p "require('./package.json').version")
-        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-        echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+        TAG=$(git describe --tags --abbrev=0)
+        VERSION="${TAG#v}"
+        echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
 
     - name: Sync version to client package.json
       run: |
         cd client
-        npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+        pnpm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
         cd ..
 
     - name: Sync version to server package.json
       run: |
         cd server
-        npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+        pnpm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
         cd ..
 
     - name: Commit synchronized versions
@@ -96,10 +98,10 @@ jobs:
     - name: Extract changelog for release
       id: changelog
       run: |
-        # Extraire le changelog de la dernière version
-        VERSION_CHANGELOG=$(awk "/^## \[${{ steps.version.outputs.new_version }}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md)
+        VERSION=${{ steps.version.outputs.new_version }}
+        CONTENT=$(awk "/^## \[${VERSION}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md)
         echo "changelog<<EOF" >> $GITHUB_OUTPUT
-        echo "$VERSION_CHANGELOG" >> $GITHUB_OUTPUT
+        echo "$CONTENT" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Create GitHub Release
