@@ -33,11 +33,11 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
-        cache: 'npm'
+        node-version: '20'
+        cache: 'pnpm'
         cache-dependency-path: |
-          client/package-lock.json
-          server/package-lock.json
+          client/pnpm-lock.yaml
+          server/pnpm-lock.yaml
 
     - name: Install dependencies
       run: |
