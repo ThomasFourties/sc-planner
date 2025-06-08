@@ -68,11 +68,11 @@ jobs:
           thoomaas123/sc-planner-client:${{ steps.git_tag.outputs.tag }}
 
     server:
-    name: Build and Push Server
-    needs: changes
-    if: ${{ needs.changes.outputs.server == 'true' }}
-    runs-on: ubuntu-22.04
-    steps:
+      name: Build and Push Server
+      needs: changes
+      if: ${{ needs.changes.outputs.server == 'true' }}
+      runs-on: ubuntu-22.04
+      steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
