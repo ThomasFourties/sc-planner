@@ -46,50 +46,50 @@ jobs:
 
     - name: Generate Changelog (Auto)
       if: github.event_name == 'push'
-              run: |
-          # Determine version bump based on commit messages
-          if git log --format=%B -n 20 | grep -qE "^(feat|feature)(\(.+\))?:" ; then
-            echo "Minor version bump detected (feat)"
-            npx standard-version --release-as minor
-          elif git log --format=%B -n 20 | grep -qE "^(fix|bugfix)(\(.+\))?:" ; then
-            echo "Patch version bump detected (fix)"
-            npx standard-version --release-as patch
-          elif git log --format=%B -n 20 | grep -qE "^(BREAKING CHANGE|feat!|fix!)(\(.+\))?:" ; then
-            echo "Major version bump detected (BREAKING CHANGE)"
-            npx standard-version --release-as major
-          else
-            echo "Patch version bump (default)"
-            npx standard-version --release-as patch
-          fi
+      run: |
+        # Determine version bump based on commit messages
+        if git log --format=%B -n 20 | grep -qE "^(feat|feature)(\(.+\))?:" ; then
+          echo "Minor version bump detected (feat)"
+          npx standard-version --release-as minor
+        elif git log --format=%B -n 20 | grep -qE "^(fix|bugfix)(\(.+\))?:" ; then
+          echo "Patch version bump detected (fix)"
+          npx standard-version --release-as patch
+        elif git log --format=%B -n 20 | grep -qE "^(BREAKING CHANGE|feat!|fix!)(\(.+\))?:" ; then
+          echo "Major version bump detected (BREAKING CHANGE)"
+          npx standard-version --release-as major
+        else
+          echo "Patch version bump (default)"
+          npx standard-version --release-as patch
+        fi
 
-      - name: Generate Changelog (Manual)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          npx standard-version --release-as ${{ github.event.inputs.release_type }}
+    - name: Generate Changelog (Manual)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        npx standard-version --release-as ${{ github.event.inputs.release_type }}
 
-          - name: Update package.json versions
-        run: |
-          # Get version from the latest tag created by standard-version
-          NEW_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
-          echo "Updating to version: $NEW_VERSION"
-          
-          if [ -f "client/package.json" ]; then
-            sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" client/package.json
-            echo "✅ Updated client/package.json"
-          fi
-          if [ -f "server/package.json" ]; then
-            sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" server/package.json
-            echo "✅ Updated server/package.json"
-          fi
+    - name: Update package.json versions
+      run: |
+        # Get version from the latest tag created by standard-version
+        NEW_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
+        echo "Updating to version: $NEW_VERSION"
 
-      - name: Commit updated package.json files
-        run: |
-          git add client/package.json server/package.json 2>/dev/null || true
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit --amend --no-edit || true
-          fi
+        if [ -f "client/package.json" ]; then
+          sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" client/package.json
+          echo "✅ Updated client/package.json"
+        fi
+        if [ -f "server/package.json" ]; then
+          sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" server/package.json
+          echo "✅ Updated server/package.json"
+        fi
+
+    - name: Commit updated package.json files
+      run: |
+        git add client/package.json server/package.json 2>/dev/null || true
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit --amend --no-edit || true
+        fi
 
     - name: Push changes
       env:
