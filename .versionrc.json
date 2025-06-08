@@ -23,10 +23,6 @@
   },
   "bumpFiles": [
     {
-      "filename": "package.json",
-      "type": "json"
-    },
-    {
       "filename": "client/package.json",
       "type": "json"
     },

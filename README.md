@@ -89,3 +89,35 @@ Accédez à l'application :
 - Frontend : http://localhost:3000
 
 - Backend : http://localhost:3001
+
+## 📝 Changelog et Versioning
+
+Ce projet utilise un système de changelog automatique basé sur les [Conventional Commits](https://conventionalcommits.org/). 
+
+- **Changelog automatique** généré à chaque push sur `master`
+- **Versioning sémantique** (semver) automatique
+- **Releases GitHub** automatiques
+
+### Format des commits
+
+```bash
+feat: add new feature      # → version minor (0.1.0 → 0.2.0)
+fix: resolve bug           # → version patch (0.1.0 → 0.1.1)
+feat!: breaking change     # → version major (0.1.0 → 1.0.0)
+```
+
+📚 **Guide complet** : [docs/CHANGELOG_GUIDE.md](docs/CHANGELOG_GUIDE.md)
+
+## 📋 Scripts disponibles
+
+```bash
+# Développement
+npm run dev                # Lancer en mode développement
+npm run build             # Construire les images Docker
+npm run logs              # Voir les logs des conteneurs
+
+# Versioning (optionnel - automatique sur master)
+npm run version:patch     # Version patch (0.1.0 → 0.1.1)
+npm run version:minor     # Version minor (0.1.0 → 0.2.0)
+npm run version:major     # Version major (0.1.0 → 1.0.0)
+```

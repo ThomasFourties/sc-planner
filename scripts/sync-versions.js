@@ -7,10 +7,19 @@ const path = require('path');
  * Script to synchronize version numbers across all package.json files
  */
 
-// Get the version from the root package.json
-const rootPackagePath = path.join(__dirname, '..', 'package.json');
-const rootPackage = JSON.parse(fs.readFileSync(rootPackagePath, 'utf8'));
-const newVersion = rootPackage.version;
+// Get the version from git tag or use client version as reference
+let newVersion;
+try {
+  // Try to get version from git tag first
+  const { execSync } = require('child_process');
+  const gitTag = execSync('git describe --tags --abbrev=0', { encoding: 'utf8' }).trim();
+  newVersion = gitTag.replace('v', '');
+} catch (error) {
+  // Fallback to client package.json version
+  const clientPackagePath = path.join(__dirname, '..', 'client', 'package.json');
+  const clientPackage = JSON.parse(fs.readFileSync(clientPackagePath, 'utf8'));
+  newVersion = clientPackage.version;
+}
 
 console.log(`🔄 Synchronizing version to ${newVersion}...`);
 
