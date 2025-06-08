@@ -3,9 +3,9 @@ name: Auto Changelog and Release
 on:
   push:
     branches:
-      - master
-      - main
-      - master-clone
+    - master
+    - main
+    - master-clone
   workflow_dispatch:
     inputs:
       release_type:
@@ -14,102 +14,100 @@ on:
         default: 'patch'
         type: choice
         options:
-          - major
-          - minor
-          - patch
+        - major
+        - minor
+        - patch
 
 permissions:
   contents: write
   pull-requests: write
   issues: write
 
-  jobs:
-    changelog:
-      name: Generate Changelog and Release
-      runs-on: ubuntu-latest
-      if: "!contains(github.event.head_commit.message, '[skip ci]')"
+jobs:
+  changelog:
+    name: Generate Changelog and Release
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      - name: Install changelog tools
-        run: npm install -g standard-version conventional-changelog-cli
+    - name: Install changelog tools
+      run: npm install -g standard-version conventional-changelog-cli
 
-      - name: Configure Git
+    - name: Configure Git
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
 
-      - name: Generate Changelog (Auto)
-        if: github.event_name == 'push'
-        run: |
-          # Determine version bump based on commit messages
-          if git log --format=%B -n 20 | grep -qE "^(feat|feature)(\(.+\))?:" ; then
-            echo "Minor version bump detected (feat)"
-            npx standard-version --release-as minor
-          elif git log --format=%B -n 20 | grep -qE "^(fix|bugfix)(\(.+\))?:" ; then
-            echo "Patch version bump detected (fix)"
-            npx standard-version --release-as patch
-          elif git log --format=%B -n 20 | grep -qE "^(BREAKING CHANGE|feat!|fix!)(\(.+\))?:" ; then
-            echo "Major version bump detected (BREAKING CHANGE)"
-            npx standard-version --release-as major
-          else
-            echo "Patch version bump (default)"
-            npx standard-version --release-as patch
+    - name: Generate Changelog (Auto)
+      if: github.event_name == 'push'
+      run: |
+        if git log --format=%B -n 20 | grep -qE "^(feat|feature)(\(.+\))?:"
+        then
+          echo "Minor version bump detected"
+          npx standard-version --release-as minor
+        elif git log --format=%B -n 20 | grep -qE "^(fix|bugfix)(\(.+\))?:"
+        then
+          echo "Patch version bump detected"
+          npx standard-version --release-as patch
+        elif git log --format=%B -n 20 | grep -qE "^(BREAKING CHANGE|feat!|fix!)(\(.+\))?:"
+        then
+          echo "Major version bump detected"
+          npx standard-version --release-as major
+        else
+          echo "Defaulting to patch version bump"
+          npx standard-version --release-as patch
+        fi
+
+    - name: Generate Changelog (Manual)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        npx standard-version --release-as ${{ github.event.inputs.release_type }}
+
+    - name: Update versions in client/server
+      run: |
+        NEW_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
+        echo "Updating to version $NEW_VERSION"
+        for pkg in client/package.json server/package.json; do
+          if [ -f "$pkg" ]; then
+            sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" "$pkg"
+            echo "✅ Updated $pkg"
           fi
+        done
 
-      - name: Generate Changelog (Manual)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          npx standard-version --release-as ${{ github.event.inputs.release_type }}
+    - name: Commit updated package.json files
+      run: |
+        git add client/package.json server/package.json 2>/dev/null || true
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit --amend --no-edit || true
+        fi
 
-      - name: Update package.json versions
-        run: |
-          # Get version from the latest tag created by standard-version
-          NEW_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
-          echo "Updating to version: $NEW_VERSION"
+    - name: Push changes and tags
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git push --follow-tags origin HEAD:${GITHUB_REF#refs/heads/}
 
-          if [ -f "client/package.json" ]; then
-            sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" client/package.json
-            echo "✅ Updated client/package.json"
-          fi
-          if [ -f "server/package.json" ]; then
-            sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" server/package.json
-            echo "✅ Updated server/package.json"
-          fi
+    - name: Create GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        VERSION=$(git describe --tags --abbrev=0)
+        CHANGELOG_CONTENT=$(sed -n "/## \[${VERSION#v}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
 
-      - name: Commit updated package.json files
-        run: |
-          git add client/package.json server/package.json 2>/dev/null || true
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit --amend --no-edit || true
-          fi
-
-      - name: Push changes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git push --follow-tags origin HEAD:${GITHUB_REF#refs/heads/}
-
-      - name: Create GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION=$(git describe --tags --abbrev=0)
-          CHANGELOG_CONTENT=$(sed -n "/## \[${VERSION#v}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
-
-          gh release create $VERSION \
-            --title "Release $VERSION" \
-            --notes "$CHANGELOG_CONTENT" \
-            --generate-notes 
+        gh release create "$VERSION" \
+          --title "Release $VERSION" \
+          --notes "$CHANGELOG_CONTENT" \
+          --generate-notes
