@@ -1,36 +1,29 @@
-name: Auto Changelog and Release
+name: Changelog and Release
 
 on:
   push:
     branches:
     - master
-    - main
-    - master-clone
+
   workflow_dispatch:
     inputs:
       release_type:
-        description: 'Release type'
+        description: 'Type de release'
         required: true
         default: 'patch'
         type: choice
         options:
-        - major
-        - minor
         - patch
-
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+        - minor
+        - major
 
 jobs:
-  changelog:
+  release:
     name: Generate Changelog and Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
-
     steps:
-    - name: Checkout
+    - name: Checkout repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -39,75 +32,80 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          client/package-lock.json
+          server/package-lock.json
 
-    - name: Install changelog tools
-      run: npm install -g standard-version conventional-changelog-cli
+    - name: Install dependencies
+      run: |
+        npm install -g standard-version
+        cd client && npm ci
+        cd ../server && npm ci
 
     - name: Configure Git
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
 
-    - name: Generate Changelog (Auto)
+    - name: Generate release (auto)
       if: github.event_name == 'push'
       run: |
-        if git log --format=%B -n 20 | grep -qE "^(feat|feature)(\(.+\))?:"
-        then
-          echo "Minor version bump detected"
-          npx standard-version --release-as minor
-        elif git log --format=%B -n 20 | grep -qE "^(fix|bugfix)(\(.+\))?:"
-        then
-          echo "Patch version bump detected"
-          npx standard-version --release-as patch
-        elif git log --format=%B -n 20 | grep -qE "^(BREAKING CHANGE|feat!|fix!)(\(.+\))?:"
-        then
-          echo "Major version bump detected"
-          npx standard-version --release-as major
-        else
-          echo "Defaulting to patch version bump"
-          npx standard-version --release-as patch
-        fi
+        standard-version --no-verify
 
-    - name: Generate Changelog (Manual)
+    - name: Generate release (manual)
       if: github.event_name == 'workflow_dispatch'
       run: |
-        npx standard-version --release-as ${{ github.event.inputs.release_type }}
+        standard-version --release-as ${{ github.event.inputs.release_type }} --no-verify
 
-    - name: Update versions in client/server
+    - name: Get new version
+      id: version
       run: |
-        NEW_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
-        echo "Updating to version $NEW_VERSION"
-        for pkg in client/package.json server/package.json; do
-          if [ -f "$pkg" ]; then
-            sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" "$pkg"
-            echo "✅ Updated $pkg"
-          fi
-        done
+        NEW_VERSION=$(node -p "require('./package.json').version")
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
 
-    - name: Commit updated package.json files
+    - name: Sync version to client package.json
       run: |
-        git add client/package.json server/package.json 2>/dev/null || true
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          git commit --amend --no-edit || true
-        fi
+        cd client
+        npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+        cd ..
+
+    - name: Sync version to server package.json
+      run: |
+        cd server
+        npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+        cd ..
+
+    - name: Commit synchronized versions
+      run: |
+        git add client/package.json client/package-lock.json server/package.json server/package-lock.json
+        git commit --amend --no-edit || true
 
     - name: Push changes and tags
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git push --follow-tags origin HEAD:${GITHUB_REF#refs/heads/}
+        git push --follow-tags origin master
+
+    - name: Extract changelog for release
+      id: changelog
+      run: |
+        # Extraire le changelog de la dernière version
+        VERSION_CHANGELOG=$(awk "/^## \[${{ steps.version.outputs.new_version }}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md)
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        echo "$VERSION_CHANGELOG" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Create GitHub Release
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        VERSION=$(git describe --tags --abbrev=0)
-        CHANGELOG_CONTENT=$(sed -n "/## \[${VERSION#v}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
+      with:
+        tag_name: ${{ steps.version.outputs.tag }}
+        release_name: Release ${{ steps.version.outputs.tag }}
+        body: |
+          ## Changes
 
-        gh release create "$VERSION" \
-          --title "Release $VERSION" \
-          --notes "$CHANGELOG_CONTENT" \
-          --generate-notes
+          ${{ steps.changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
