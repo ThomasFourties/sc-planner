@@ -44,10 +44,10 @@ jobs:
       - name: Install changelog tools
         run: npm install -g standard-version conventional-changelog-cli
 
-        - name: Configure Git
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+      - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
 
       - name: Generate Changelog (Auto)
         if: github.event_name == 'push'
@@ -67,49 +67,49 @@ jobs:
           npx standard-version --release-as patch
         fi
 
-    - name: Generate Changelog (Manual)
-      if: github.event_name == 'workflow_dispatch'
-      run: |
-        npx standard-version --release-as ${{ github.event.inputs.release_type }}
+      - name: Generate Changelog (Manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npx standard-version --release-as ${{ github.event.inputs.release_type }}
 
-    - name: Update package.json versions
-      run: |
-        # Get version from the latest tag created by standard-version
-        NEW_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
-        echo "Updating to version: $NEW_VERSION"
+      - name: Update package.json versions
+        run: |
+          # Get version from the latest tag created by standard-version
+          NEW_VERSION=$(git describe --tags --abbrev=0 | sed 's/v//')
+          echo "Updating to version: $NEW_VERSION"
 
-        if [ -f "client/package.json" ]; then
-          sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" client/package.json
-          echo "✅ Updated client/package.json"
-        fi
-        if [ -f "server/package.json" ]; then
-          sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" server/package.json
-          echo "✅ Updated server/package.json"
-        fi
+          if [ -f "client/package.json" ]; then
+            sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" client/package.json
+            echo "✅ Updated client/package.json"
+          fi
+          if [ -f "server/package.json" ]; then
+            sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" server/package.json
+            echo "✅ Updated server/package.json"
+          fi
 
-    - name: Commit updated package.json files
-      run: |
-        git add client/package.json server/package.json 2>/dev/null || true
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          git commit --amend --no-edit || true
-        fi
+      - name: Commit updated package.json files
+        run: |
+          git add client/package.json server/package.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit --amend --no-edit || true
+          fi
 
-    - name: Push changes
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git push --follow-tags origin HEAD:${GITHUB_REF#refs/heads/}
+      - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push --follow-tags origin HEAD:${GITHUB_REF#refs/heads/}
 
-    - name: Create GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        VERSION=$(git describe --tags --abbrev=0)
-        CHANGELOG_CONTENT=$(sed -n "/## \[${VERSION#v}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          CHANGELOG_CONTENT=$(sed -n "/## \[${VERSION#v}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
 
-        gh release create $VERSION \
-          --title "Release $VERSION" \
-          --notes "$CHANGELOG_CONTENT" \
-          --generate-notes 
+          gh release create $VERSION \
+            --title "Release $VERSION" \
+            --notes "$CHANGELOG_CONTENT" \
+            --generate-notes 
