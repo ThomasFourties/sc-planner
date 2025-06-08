@@ -45,9 +45,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install -g standard-version
-        cd client && npm ci
-        cd ../server && npm ci
+        pnpm add -g standard-version
+        cd client && pnpm install --frozen-lockfile
+        cd ../server && pnpm install --frozen-lockfile
 
     - name: Configure Git
       run: |
@@ -85,7 +85,7 @@ jobs:
 
     - name: Commit synchronized versions
       run: |
-        git add client/package.json client/package-lock.json server/package.json server/package-lock.json
+        git add client/package.json client/pnpm-lock.yaml server/package.json server/pnpm-lock.yaml
         git commit --amend --no-edit || true
 
     - name: Push changes and tags
