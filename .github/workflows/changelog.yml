@@ -33,11 +33,15 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '20.18.2'
         cache: 'pnpm'
         cache-dependency-path: |
           client/pnpm-lock.yaml
           server/pnpm-lock.yaml
+
+    - name: Install pnpm
+      run: |
+        npm install -g pnpm
 
     - name: Install dependencies
       run: |
