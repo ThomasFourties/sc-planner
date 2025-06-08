@@ -93,7 +93,7 @@ jobs:
 
     - name: Push changes and tags
       run: |
-        git push --follow-tags origin master
+        git push --follow-tags origin HEAD:${GITHUB_REF#refs/heads/}
 
     - name: Extract changelog for release
       id: changelog
