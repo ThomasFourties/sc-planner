@@ -52,20 +52,20 @@ jobs:
       - name: Generate Changelog (Auto)
         if: github.event_name == 'push'
         run: |
-        # Determine version bump based on commit messages
-        if git log --format=%B -n 20 | grep -qE "^(feat|feature)(\(.+\))?:" ; then
-          echo "Minor version bump detected (feat)"
-          npx standard-version --release-as minor
-        elif git log --format=%B -n 20 | grep -qE "^(fix|bugfix)(\(.+\))?:" ; then
-          echo "Patch version bump detected (fix)"
-          npx standard-version --release-as patch
-        elif git log --format=%B -n 20 | grep -qE "^(BREAKING CHANGE|feat!|fix!)(\(.+\))?:" ; then
-          echo "Major version bump detected (BREAKING CHANGE)"
-          npx standard-version --release-as major
-        else
-          echo "Patch version bump (default)"
-          npx standard-version --release-as patch
-        fi
+          # Determine version bump based on commit messages
+          if git log --format=%B -n 20 | grep -qE "^(feat|feature)(\(.+\))?:" ; then
+            echo "Minor version bump detected (feat)"
+            npx standard-version --release-as minor
+          elif git log --format=%B -n 20 | grep -qE "^(fix|bugfix)(\(.+\))?:" ; then
+            echo "Patch version bump detected (fix)"
+            npx standard-version --release-as patch
+          elif git log --format=%B -n 20 | grep -qE "^(BREAKING CHANGE|feat!|fix!)(\(.+\))?:" ; then
+            echo "Major version bump detected (BREAKING CHANGE)"
+            npx standard-version --release-as major
+          else
+            echo "Patch version bump (default)"
+            npx standard-version --release-as patch
+          fi
 
       - name: Generate Changelog (Manual)
         if: github.event_name == 'workflow_dispatch'
