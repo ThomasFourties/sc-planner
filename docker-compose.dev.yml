@@ -34,6 +34,8 @@ services:
       DATABASE_NAME: ${DATABASE_NAME}
     depends_on:
       - database
+    labels:
+      - maintainer=ThomasFourties
 
   database:
     image: postgres:13
