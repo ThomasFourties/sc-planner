@@ -1,9 +1,10 @@
 {
   "name": "server",
-  "version": "1.0.0",
-  "description": "",
-  "author": "",
+  "version": "0.0.1",
+  "description": "SC Planner server",
+  "author": "Thomas Fourties",
   "private": true,
+  "nodeVersion": ">=20.18.2",
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",

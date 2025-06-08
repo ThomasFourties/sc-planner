@@ -1,9 +1,12 @@
 {
   "name": "client",
+  "version": "0.0.1",
+  "description": "SC Planner client",
+  "author": "Thomas Fourties",
   "private": true,
   "type": "module",
-  "version": "1.0.0",
   "nodeVersion": ">=20.18.2",
+  "license": "UNLICENSED",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",

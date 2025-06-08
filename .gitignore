@@ -31,6 +31,11 @@ docker-compose.override.yml
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Environment files
@@ -60,4 +65,8 @@ coverage/
 # Misc
 *.bak
 *.tmp
+
+# Changelog temp files
+.changelog-tmp
+.version-tmp
     
