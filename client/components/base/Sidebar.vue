@@ -3,14 +3,18 @@
     <div class="top">
       <div class="logo-container">
         <NuxtLink to="/">
-           <img src="/images/pink-logo.svg" class="logo" alt="Logo" />
+          <img src="/images/pink-logo.svg" class="logo" alt="Logo" />
         </NuxtLink>
       </div>
       <Nav />
     </div>
     <div class="bottom">
-      <p class="settings"><settings />Paramètres</p>
-      <p class="help"><help />Aide</p>
+      <p class="settings">
+        <settings />Paramètres
+      </p>
+      <p class="help">
+        <help />Aide
+      </p>
       <div class="profile">
         <div class="img">
           <img src="/images/profile.png" alt="Profile" />
@@ -92,7 +96,7 @@ import help from './assets/icons/help.svg';
       transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: $gray;
+        background-color: rgba($gray, 0.1);
         cursor: pointer;
       }
     }

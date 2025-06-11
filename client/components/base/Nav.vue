@@ -1,12 +1,22 @@
 <template>
   <nav class="nav">
-    <NuxtLink to="/dashboard" class="dashboard nav-link"><dashboard />Dashboard</NuxtLink>
-    <NuxtLink to="/mes-taches" class="tasks nav-link"><tasks />Mes tâches</NuxtLink>
-    <NuxtLink to="/planning" class="planning nav-link"><calendar />Planning</NuxtLink>
+    <NuxtLink to="/dashboard" class="dashboard nav-link">
+      <dashboard />Dashboard
+    </NuxtLink>
+    <NuxtLink to="/mes-taches" class="tasks nav-link">
+      <tasks />Mes tâches
+    </NuxtLink>
+    <NuxtLink to="/planning" class="planning nav-link">
+      <calendar />Planning
+    </NuxtLink>
     <i class="separator"></i>
-    <p class="nav-link"><chevronBottom />Favoris</p>
+    <p class="nav-link">
+      <chevronBottom />Favoris
+    </p>
     <i class="separator"></i>
-    <p class="nav-link"><chevronBottom />Clients</p>
+    <p class="nav-link">
+      <chevronBottom />Clients
+    </p>
     <i class="separator"></i>
   </nav>
 </template>
@@ -66,7 +76,7 @@ import chevronBottom from './assets/icons/chevron-bottom.svg';
     }
 
     &:hover {
-      background-color: $gray;
+      background-color: rgba($gray, 0.1);
       cursor: pointer;
     }
   }
