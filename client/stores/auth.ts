@@ -43,18 +43,16 @@ export const useAuthStore = defineStore('auth', {
         });
 
         const { accessToken, user } = response.data;
-        
+
         this.token = accessToken;
         this.user = user;
         this.isAuthenticated = true;
 
-        // Sauvegarder le token dans le localStorage
         if (process.client) {
           localStorage.setItem('auth-token', accessToken);
           localStorage.setItem('auth-user', JSON.stringify(user));
         }
 
-        // Configurer axios pour les futures requêtes
         this.setAuthHeader(accessToken);
 
         return { success: true };
@@ -66,21 +64,14 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async register(userData: {
-      first_name: string;
-      last_name: string;
-      email: string;
-      password: string;
-      confirmPassword: string;
-      code?: string;
-    }) {
+    async register(userData: { first_name: string; last_name: string; email: string; password: string; confirmPassword: string; code?: string }) {
       this.loading = true;
       try {
         const config = useRuntimeConfig();
         const response = await axios.post(`${config.public.API_URL}/auth/register`, userData);
         return { success: true, message: response.data.message };
       } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Erreur lors de l\'inscription');
+        throw new Error(error.response?.data?.message || "Erreur lors de l'inscription");
       } finally {
         this.loading = false;
       }
@@ -127,7 +118,6 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('auth-user');
       }
 
-      // Supprimer le header d'autorisation
       delete axios.defaults.headers.common['Authorization'];
     },
 
@@ -155,4 +145,4 @@ export const useAuthStore = defineStore('auth', {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     },
   },
-}); 
+});
