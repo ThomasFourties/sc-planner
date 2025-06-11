@@ -10,6 +10,8 @@ services:
     depends_on:
       - server
     pull_policy: always
+    networks:
+      - sc-planner-network
 
   server:
     image: thoomaas123/sc-planner-server:${SERVER_TAG:-latest}
@@ -25,12 +27,12 @@ services:
       DATABASE_NAME: ${DATABASE_NAME}
     depends_on:
       - database
+    networks:
+      - sc-planner-network
     labels:
       - maintainer=ThomasFourties
   database:
     image: postgres:13
-    ports:
-      - '5433:5432'
     env_file:
       - ./.env
     environment:
@@ -39,6 +41,12 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
     volumes:
       - sc_planner_db_data:/var/lib/postgresql/data
+    networks:
+      - sc-planner-network
 
 volumes:
   sc_planner_db_data:
+
+networks:
+  sc-planner-network:
+    driver: bridge
