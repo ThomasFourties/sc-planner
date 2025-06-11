@@ -4,8 +4,8 @@
             <h2>Liste des utilisateurs</h2>
             <div v-for="user in users" :key="user.id" class="user-item">
                 <div class="user-info">
-                    {{ user.first_name }}
-                    {{ user.last_name }} — {{ user.email }} — {{ user.role }}
+                    {{ user.firstName }}
+                    {{ user.lastName }} — {{ user.email }} — {{ user.role }}
                 </div>
                 <button @click="deleteUser(user.id)" class="delete-btn" :disabled="isDeleting === user.id">
                     {{ isDeleting === user.id ? 'Suppression...' : 'Supprimer' }}
@@ -18,13 +18,13 @@
             <form @submit.prevent="handleSubmit" class="form">
                 <div class="form-groups">
                     <div class="form-group">
-                        <label for="first_name">Prénom</label>
-                        <input id="first_name" v-model="newUser.first_name" type="text" required>
+                        <label for="firstName">Prénom</label>
+                        <input id="firstName" v-model="newUser.firstName" type="text" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="last_name">Nom</label>
-                        <input id="last_name" v-model="newUser.last_name" type="text" required>
+                        <label for="lastName">Nom</label>
+                        <input id="lastName" v-model="newUser.lastName" type="text" required>
                     </div>
                 </div>
 
@@ -66,8 +66,8 @@
 const users = ref([]);
 const isDeleting = ref(null);
 const newUser = ref({
-    first_name: '',
-    last_name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     role: '',
@@ -93,8 +93,8 @@ const handleSubmit = async () => {
 
         // Réinitialiser le formulaire
         newUser.value = {
-            first_name: '',
-            last_name: '',
+            firstName: '',
+            lastName: '',
             email: '',
             password: '',
             role: '',

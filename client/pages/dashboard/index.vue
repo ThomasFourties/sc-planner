@@ -1,10 +1,17 @@
 <template>
   <div class="dashboard">
+    <div class="dashboard-header">
+      <div class="user-info">
+        <span class="user-role">{{ getRoleDisplay(currentUser?.role) }}</span>
+      </div>
+      <button @click="handleLogout" class="logout-btn">
+        Déconnexion
+      </button>
+    </div>
     <div class="txt-wp">
       <p class="surtitle">{{ formattedDate }}</p>
-      <h1 class="h1">Bonjour Thomas !</h1>
-      {{ data }}
-      <p class="soustitle">Aujourd’hui, <span>5 tâches</span> vous sont assignés dans 2 projets différents</p>
+      <h1 class="h1">Bonjour {{ currentUser?.firstName || 'Utilisateur' }} !</h1>
+      <p class="soustitle">Aujourd'hui, <span>5 tâches</span> vous sont assignés dans 2 projets différents</p>
     </div>
     <div class="dashboard-content">
       <div class="left"></div>
@@ -14,6 +21,12 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: 'auth'
+});
+
+const authStore = useAuthStore();
+
 onMounted(() => {
   const dashboardLink = document.querySelector('.dashboard.nav-link');
 
@@ -31,6 +44,28 @@ const options = {
 };
 
 const formattedDate = date.toLocaleDateString('fr-FR', options);
+
+// Récupérer les données de l'utilisateur connecté
+const currentUser = computed(() => authStore.currentUser);
+
+// Méthode pour afficher le rôle en français
+const getRoleDisplay = (role) => {
+  switch (role) {
+    case 'SALARIE':
+      return '👔 Salarié';
+    case 'FREELANCE':
+      return '💼 Freelance';
+    case 'CLIENT':
+    default:
+      return '👤 Client';
+  }
+};
+
+// Méthode de déconnexion
+const handleLogout = async () => {
+  authStore.logout();
+  await navigateTo('/login');
+};
 </script>
 
 <style lang="scss" scoped>
@@ -39,6 +74,40 @@ const formattedDate = date.toLocaleDateString('fr-FR', options);
 @use '../../assets/scss/utils/mixins' as *;
 
 .dashboard {
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    margin-bottom: 20px;
+
+    .user-info {
+      .user-role {
+        background-color: $lightGray;
+        color: $gray;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
+
+    .logout-btn {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+
+      &:hover {
+        background-color: #dc2626;
+      }
+    }
+  }
+
   .txt-wp {
     display: flex;
     flex-direction: column;
@@ -49,7 +118,7 @@ const formattedDate = date.toLocaleDateString('fr-FR', options);
 
   .surtitle {
     text-transform: capitalize;
-    color: $darkGray;
+    color: $gray;
     font-weight: 400;
     font-size: 15px;
   }
