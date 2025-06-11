@@ -3,7 +3,7 @@ name: Deploy to Staging
 on:
   push:
     branches:
-    - master
+    - dev
 
 jobs:
   changes:
@@ -63,9 +63,8 @@ jobs:
         context: '{{defaultContext}}:client'
         push: true
         tags: |
-          thoomaas123/sc-planner-client:latest
-          thoomaas123/sc-planner-client:${{ github.sha }}
-          thoomaas123/sc-planner-client:${{ steps.git_tag.outputs.tag }}
+          thoomaas123/sc-planner-client:staging
+          thoomaas123/sc-planner-client:staging-${{ github.sha }}
 
   server:
     name: Build and Push Server
@@ -104,12 +103,11 @@ jobs:
         context: '{{defaultContext}}:server'
         push: true
         tags: |
-          thoomaas123/sc-planner-server:latest
-          thoomaas123/sc-planner-server:${{ github.sha }}
-          thoomaas123/sc-planner-server:${{ steps.git_tag.outputs.tag }}
+          thoomaas123/sc-planner-server:staging
+          thoomaas123/sc-planner-server:staging-${{ github.sha }}
 
   deploy:
-    name: Deploy to Server
+    name: Deploy to Staging Server
     needs: [ client, server ]
     if: |
       always() && !failure() && !cancelled()
@@ -118,29 +116,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: SSH to server and deploy
+    - name: SSH to staging server and deploy
       uses: appleboy/ssh-action@v1
       with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        password: ${{ secrets.SERVER_PASSWORD }}
+        host: ${{ secrets.STAGING_SERVER_HOST }}
+        username: ${{ secrets.STAGING_SERVER_USERNAME }}
+        password: ${{ secrets.STAGING_SERVER_PASSWORD }}
         port: 22
         script: |
-          cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
-          eval $(ssh-agent) ssh-add ~/.ssh/thomas
-          git pull origin master
-
-          docker-compose -f docker-compose.prod.yml down
-          docker-compose -f docker-compose.prod.yml up -d
-
+          cd /var/www/staging/sc-planner
+          git pull origin dev
+          docker-compose -f docker-compose.staging.yml down
+          docker-compose -f docker-compose.staging.yml up -d
           docker volume prune -f
           docker image prune -f
-
-    - name: Verify deployment
-      uses: appleboy/ssh-action@v1
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        password: ${{ secrets.SERVER_PASSWORD }}
-        script: |
-          curl -f https://sc-planner.thomasfourties.fr/ || exit 1
