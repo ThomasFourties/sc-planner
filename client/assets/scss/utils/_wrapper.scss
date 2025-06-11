@@ -4,7 +4,11 @@
 .wrapper {
   width: 100%;
   margin: 0 auto;
-  padding: 0 60px;
+  padding: 0 2%;
+
+  @include down(md) {
+    padding: 0 4%;
+  }
 
   &.container {
     max-width: 1200px;
@@ -12,9 +16,5 @@
     @include down(lg) {
       max-width: 100%;
     }
-  }
-
-  @include down(lg) {
-    padding: 0 30px;
   }
 }

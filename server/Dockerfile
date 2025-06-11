@@ -10,8 +10,8 @@ RUN pnpm install
 
 COPY . .
 
-RUN pnpm run build
+RUN npm run build
 
-EXPOSE 3000
+EXPOSE 3001
 
-CMD ['node', 'dist/main']
+CMD ["npm", "run", "start"]

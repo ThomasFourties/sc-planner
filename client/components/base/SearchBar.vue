@@ -19,10 +19,14 @@ import search from './assets/icons/search.svg';
   width: 420px;
   margin: 0 auto 80px auto;
 
+  @include down(md) {
+    width: 100%;
+  }
+
   .search-bar {
     background: $white;
     // background: $white;
-    border: 1px solid $darkGray;
+    border: 1px solid $gray;
     font-size: 14px;
     border-radius: 4px;
     margin: 0 auto;
@@ -35,7 +39,7 @@ import search from './assets/icons/search.svg';
     height: 100%;
 
     &::placeholder{
-      color: $darkGray;;
+      color: $gray;;
     }
 
     &:focus {
@@ -49,7 +53,7 @@ import search from './assets/icons/search.svg';
     right: 12px;
     width: 16px;
     height: 16px;
-    color: $darkGray;
+    color: $gray;
     cursor: pointer;
   }
 }

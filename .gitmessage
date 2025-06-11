@@ -1,0 +1,28 @@
+# Type de commit: description courte (max 50 caractères)
+#
+# Type peut être:
+#   feat     - nouvelle fonctionnalité
+#   fix      - correction de bug
+#   docs     - documentation
+#   style    - formatage, points-virgules manquants, etc.
+#   refactor - refactorisation sans ajout de fonctionnalité
+#   test     - ajout ou modification de tests
+#   chore    - tâches de maintenance, mise à jour deps
+#   perf     - amélioration de performance
+#   ci       - changements CI/CD
+#   build    - changements système de build
+#
+# Exemples:
+#   feat: add user authentication
+#   fix: resolve database connection issue
+#   feat!: redesign API (breaking change)
+#   feat(auth): add OAuth2 support
+#
+# Corps du message (optionnel, après une ligne vide):
+# - Expliquez le QUOI et le POURQUOI, pas le COMMENT
+# - Utilisez des tirets pour les listes
+# - Gardez une largeur de 72 caractères
+#
+# Footer (optionnel):
+# - Références aux issues: Fixes #123
+# - Breaking changes: BREAKING CHANGE: describe the change 

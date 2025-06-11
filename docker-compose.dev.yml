@@ -10,7 +10,7 @@ services:
     ports:
       - '3000:3000'
     env_file:
-      - ./.env.dev
+      - ./.env
     command: npm run dev
     depends_on:
       - server
@@ -26,15 +26,16 @@ services:
     ports:
       - '3001:3001'
     env_file:
-      - ./.env.dev
+      - ./.env
     environment:
       DATABASE_URL: ${DATABASE_URL}
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
-    command: npm run start:dev
     depends_on:
       - database
+    labels:
+      - maintainer=ThomasFourties
 
   database:
     image: postgres:13
@@ -47,7 +48,7 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - sc_planner_db_data:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  sc_planner_db_data:

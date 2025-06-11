@@ -1,38 +1,31 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import {
-  ProjectController,
-  HelloController,
-} from './controllers/app.controller';
-import { AppService } from './services/app.service';
-import { ProjectEntity } from './entities/project.entity';
-
+import { join } from 'path';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import databaseConfig from './config/database.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [
+        join(__dirname, '../../.env'), // Racine du projet
+        join(__dirname, '../.env'), // Dossier server
+        '.env', // Dossier courant
+      ],
+      load: [databaseConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST'),
-        port: parseInt(configService.get('DATABASE_PORT') || '5432', 10),
-        username: configService.get('DATABASE_USER'),
-        password: configService.get('DATABASE_PASSWORD'),
-        database: configService.get('DATABASE_NAME'),
-        entities: [ProjectEntity],
-        migrations: ['src/migrations/*.js'],
-        synchronize: true,
+        ...configService.get('database'), // eslint-disable-line
       }),
     }),
-    TypeOrmModule.forFeature([ProjectEntity]),
+    UsersModule,
+    AuthModule,
   ],
-  controllers: [ProjectController, HelloController],
-  providers: [AppService],
 })
-
 export class AppModule {}

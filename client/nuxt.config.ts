@@ -1,9 +1,9 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-21',
 
-  server: {
-    port: 3000,
-    host: '0.0.0.0',
+  devServer: {
+    port: process.env.NODE_ENV === 'production' ? undefined : 3000,
+    host: '0.0.0.0'
   },
 
   devtools: { enabled: false },
@@ -18,7 +18,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL,
+      API_URL: process.env.API_URL || 'http://localhost:3001',
       API_AUTH_TOKEN: process.env.API_AUTH_TOKEN,
     },
   },
@@ -36,6 +36,7 @@ export default defineNuxtConfig({
   },
 
   app: {
+    baseURL: '/',
     head: {
       htmlAttrs: {
         lang: 'fr',
@@ -63,14 +64,18 @@ export default defineNuxtConfig({
   },
 
   modules: [
+    '@pinia/nuxt',
     '@nuxt/image',
     '@nuxt/fonts',
     'nuxt-svgo',
     '@nuxtjs/sitemap',
+    '@vueuse/nuxt',
     // 'nuxt-gtag',
     // 'nuxt-module-hotjar',
     // 'nuxt-swiper',
   ],
+
+  //  site: { url: 'https://sc-planner.thomasfourties.fr' },
 
   // gtag: {
   //   enabled: process.env.ENV_STATUS === 'production',
@@ -87,11 +92,29 @@ export default defineNuxtConfig({
   // sitemap: {
   //   sources: ['https://www.example.com/sitemap'],
   //   cacheMaxAgeSeconds: 1,
-  //   exclude: ['/', '/404', '/home'],
+  //   exclude: ['/', '/home'],
   // },
 
   components: [
     { path: '~/components/', pathPrefix: false },
     { path: '~/components/utils/', pathPrefix: false },
   ],
+
+  image: {
+    provider: 'ipx',
+    dir: 'public',
+    quality: 80,
+    format: ['webp'],
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+    },
+    alias: {
+      '/images': '/images'
+    }
+  },
 });

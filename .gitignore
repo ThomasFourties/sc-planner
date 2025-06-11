@@ -5,6 +5,7 @@ server/node_modules/
 
 # Build directories
 /dist
+/client/.output
 /client/dist
 /server/dist
 
@@ -30,12 +31,25 @@ docker-compose.override.yml
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Environment files
 .env
+.env.dev
 .env.local
 .env.*.local
+
+# Kctl
+pod.yml
+service.yml
+
+# Scripts
+*.sh
 
 # Coverage directory for code coverage reports
 coverage/
@@ -51,4 +65,8 @@ coverage/
 # Misc
 *.bak
 *.tmp
+
+# Changelog temp files
+.changelog-tmp
+.version-tmp
     
