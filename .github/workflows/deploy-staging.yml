@@ -141,7 +141,7 @@ jobs:
           export SERVER_TAG=${{ steps.git_tag.outputs.tag }}
 
           docker-compose -f docker-compose.prod.yml down
-          docker-compose -f docker-compose.prod.yml up -d --pull always
+          docker-compose -f docker-compose.prod.yml up -d
 
           docker volume prune -f
           docker image prune -f
