@@ -20,14 +20,14 @@ export class UsersService {
     return this.usersRepository.find({
       select: {
         id: true,
-        first_name: true,
-        last_name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         role: true,
         is_admin: true,
         profile_img: true,
-        created_at: true,
-        updated_at: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
   }
