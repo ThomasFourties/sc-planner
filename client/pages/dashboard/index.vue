@@ -55,6 +55,8 @@ const getRoleDisplay = (role) => {
       return '👔 Salarié';
     case 'FREELANCE':
       return '💼 Freelance';
+    case 'CHEF_DE_PROJET':
+      return '👨‍💼 Chef de projet';
     case 'CLIENT':
     default:
       return '👤 Client';

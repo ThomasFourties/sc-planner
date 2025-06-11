@@ -1,5 +1,5 @@
 const fetcher = {
-  async get(endpoint) {
+  async get(endpoint: string) {
     try {
       const config = useRuntimeConfig();
       const apiUrl = `${config.public.API_BASE_URL}/${endpoint}`;
@@ -22,13 +22,13 @@ const fetcher = {
       }
 
       return data.value;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erreur Fetcher GET côté client:', err);
       throw new Error(`Erreur Fetcher GET: ${err.message}`);
     }
   },
 
-  async post(endpoint, body = {}) {
+  async post(endpoint: string, body: any = {}) {
     try {
       const config = useRuntimeConfig();
       const apiUrl = `${config.public.API_BASE_URL}/${endpoint}`;
@@ -52,7 +52,7 @@ const fetcher = {
       }
 
       return data.value;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erreur Fetcher POST côté client:', err);
       throw new Error(`Erreur Fetcher POST: ${err.message}`);
     }

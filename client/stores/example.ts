@@ -5,7 +5,7 @@
 //     data: null,
 //   }),
 //   actions: {
-//     setExampleStore(data) {
+//     setExampleStore(data: any) {
 //       this.data = data;
 //     },
 //   },
