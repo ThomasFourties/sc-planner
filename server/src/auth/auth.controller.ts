@@ -18,22 +18,24 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Inscription d\'un nouvel utilisateur' })
+  @ApiOperation({ summary: "Inscription d'un nouvel utilisateur" })
   @ApiResponse({
     status: 201,
-    description: 'Utilisateur créé avec succès. Vous pouvez maintenant vous connecter.',
+    description:
+      'Utilisateur créé avec succès. Vous pouvez maintenant vous connecter.',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Inscription réussie. Vous pouvez maintenant vous connecter.',
+          example:
+            'Inscription réussie. Vous pouvez maintenant vous connecter.',
         },
       },
     },
   })
   @ApiBadRequestResponse({
-    description: 'Données d\'entrée invalides ou mots de passe non concordants',
+    description: "Données d'entrée invalides ou mots de passe non concordants",
   })
   @ApiConflictResponse({
     description: 'Un utilisateur avec cet email existe déjà',
@@ -44,7 +46,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Connexion d\'un utilisateur' })
+  @ApiOperation({ summary: "Connexion d'un utilisateur" })
   @ApiResponse({
     status: 200,
     description: 'Connexion réussie',
@@ -74,8 +76,6 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-
-
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Demander une réinitialisation de mot de passe' })
@@ -94,13 +94,14 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Email de réinitialisation envoyé si l\'utilisateur existe',
+    description: "Email de réinitialisation envoyé si l'utilisateur existe",
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Si cet email existe, un lien de réinitialisation a été envoyé',
+          example:
+            'Si cet email existe, un lien de réinitialisation a été envoyé',
         },
       },
     },
@@ -108,4 +109,4 @@ export class AuthController {
   async forgotPassword(@Body() body: { email: string }) {
     return this.authService.forgotPassword(body.email);
   }
-} 
+}

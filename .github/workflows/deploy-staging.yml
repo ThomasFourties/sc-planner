@@ -115,6 +115,15 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Get latest Git tag
+      id: git_tag
+      run: |
+        LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+        echo "Latest tag: $LATEST_TAG"
 
     - name: SSH to production server and deploy
       uses: appleboy/ssh-action@v1
@@ -127,6 +136,9 @@ jobs:
           cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
           eval $(ssh-agent) ssh-add ~/.ssh/thomas
           git pull origin dev
+
+          export CLIENT_TAG=${{ steps.git_tag.outputs.tag }}
+          export SERVER_TAG=${{ steps.git_tag.outputs.tag }}
 
           docker-compose -f docker-compose.prod.yml down
           docker-compose -f docker-compose.prod.yml up -d --pull always
