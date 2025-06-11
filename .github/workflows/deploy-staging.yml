@@ -63,7 +63,6 @@ jobs:
         context: '{{defaultContext}}:client'
         push: true
         tags: |
-          thoomaas123/sc-planner-client:latest
           thoomaas123/sc-planner-client:${{ github.sha }}
           thoomaas123/sc-planner-client:${{ steps.git_tag.outputs.tag }}
 
@@ -104,7 +103,6 @@ jobs:
         context: '{{defaultContext}}:server'
         push: true
         tags: |
-          thoomaas123/sc-planner-server:latest
           thoomaas123/sc-planner-server:${{ github.sha }}
           thoomaas123/sc-planner-server:${{ steps.git_tag.outputs.tag }}
 
@@ -131,7 +129,7 @@ jobs:
           git pull origin dev
 
           docker-compose -f docker-compose.prod.yml down
-          docker-compose -f docker-compose.prod.yml up -d
+          docker-compose -f docker-compose.prod.yml up -d --pull always
 
           docker volume prune -f
           docker image prune -f

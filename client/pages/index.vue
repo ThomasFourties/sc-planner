@@ -12,6 +12,7 @@ if (authStore.isLoggedIn) {
 } else {
   navigateTo('/login');
 }
+
 </script>
 
 <style lang="scss" scoped>
