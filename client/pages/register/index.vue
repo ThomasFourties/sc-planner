@@ -36,9 +36,10 @@
 
             <div class="form-group">
               <label for="code" class="label-info">Code d'accès (optionnel)
-                <info class="info-icon" />
-                <p class="toolbox" :class="{ active: showTooltip }">Si aucun code ne vous a été fourni ne remplissez pas
-                  ce champ</p>
+                <button class="tooltip-button" @click="handleTooltipToggle">
+                  <info class="info-icon" />
+                </button>
+                <p class="toolbox" :class="{ active: showTooltip }" v-if="showTooltip">{{ tooltipMessage }}</p>
               </label>
 
               <input id="code" v-model="form.code" name="code" type="text" maxlength="5" :disabled="loading"
@@ -135,6 +136,22 @@
 
     &.green {
       color: $green;
+    }
+  }
+
+  .tooltip-button {
+    background: none;
+    border: none;
+    color: $gray;
+    width: fit-content;
+    height: fit-content;
+    padding: 0;
+    cursor: pointer;
+
+    &:hover {
+      svg {
+        transform: translate(0)
+      }
     }
   }
 
@@ -312,6 +329,7 @@ const successMessage = ref('');
 const showTooltip = ref(false);
 const codeStatus = ref('');
 const codeMessage = ref('');
+const tooltipMessage = ref('Si aucun code ne vous a été fourni ne remplissez pas ce champ');
 
 const getCodeRole = (code: string) => {
   const codeRoles: { [key: string]: { role: string; isAdmin: boolean } } = {
@@ -321,6 +339,8 @@ const getCodeRole = (code: string) => {
   };
   return codeRoles[code] || null;
 };
+
+
 
 const handleTooltipToggle = () => {
   showTooltip.value = !showTooltip.value;
