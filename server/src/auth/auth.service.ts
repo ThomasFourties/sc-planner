@@ -128,9 +128,6 @@ export class AuthService {
     const resetExpires = new Date();
     resetExpires.setHours(resetExpires.getHours() + 1);
 
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = resetExpires;
-
     await this.userRepository.save(user);
     await this.emailService.sendPasswordResetEmail(email, resetToken);
 
