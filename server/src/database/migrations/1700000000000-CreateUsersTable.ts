@@ -66,6 +66,17 @@ export class CreateUsersTable1700000000000 implements MigrationInterface {
               default: 'CURRENT_TIMESTAMP',
               onUpdate: 'CURRENT_TIMESTAMP',
             },
+            {
+              name: 'reset_token',
+              type: 'varchar',
+              length: '255',
+              isNullable: true,
+            },
+            {
+              name: 'reset_expires',
+              type: 'timestamp',
+              isNullable: true,
+            },
           ],
         }),
         true,
