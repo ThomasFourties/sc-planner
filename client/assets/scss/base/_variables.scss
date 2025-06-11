@@ -2,29 +2,36 @@ $black: #333;
 $white: #fff;
 $beige: #f6f6f1;
 
-$olive: #3F7D20;
-$green: #03A77F;
-$red: #FF3B00;
-$blue: #0C21D6;
+$olive: #3f7d20;
+$green: #03a77f;
+$red: #ff3b00;
+$blue: #0c21d6;
 $yellow: #fff732;
 $orange: #f5760f;
 $pink: #ff748d;
 
-$lightGray: #f4f6f8;
-$gray: #e7e7e7;
-$darkGray: #6D6E6F;
+$lightGray: #c2c2c2;
+$gray: #6d6e6f;
+// $darkGray: #6d6e6f;
 
 $vinila: 'Vinila', 'Times New Roman', sans-serif;
 $helvetica: 'Helvetica', sans-serif;
 
 $breakpoints: (
-  xxs: 350px, // de 0 à 350px
-  xs: 375px, // de 350px à 375px
-  sm: 440px, // de 351px à 440px
-  md: 768px, // de 441px à 768px
-  lg: 1280px, // de 769px à 1024px
-  xl: 1440px, // de 1025px à 1440px
-  xxl: 2200px, // de 1441px à 2200px
+  xxs: 350px,
+  // de 0 à 350px
+  xs: 375px,
+  // de 350px à 375px
+  sm: 440px,
+  // de 351px à 440px
+  md: 768px,
+  // de 441px à 768px
+  lg: 1280px,
+  // de 769px à 1024px
+  xl: 1440px,
+  // de 1025px à 1440px
+  xxl: 2200px,
+  // de 1441px à 2200px
 );
 
 $t100: 100ms;
