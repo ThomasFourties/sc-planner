@@ -25,8 +25,8 @@ export class AuthService {
 
   async register(registerDto: RegisterDto): Promise<{ message: string }> {
     const {
-      firstName,
-      lastName,
+      first_name,
+      last_name,
       email,
       password,
       confirmPassword,
@@ -71,14 +71,11 @@ export class AuthService {
     }
 
     const user = this.userRepository.create({
-      firstName,
-      lastName,
+      first_name,
+      last_name,
       email,
       password: hashedPassword,
       role: userRole,
-      isEmailVerified: true,
-      emailVerificationCode: null,
-      emailVerificationExpires: null,
     });
 
     await this.userRepository.save(user);
@@ -108,8 +105,8 @@ export class AuthService {
       accessToken,
       user: {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        first_name: user.first_name,
+        last_name: user.last_name,
         email: user.email,
         role: user.role,
       },

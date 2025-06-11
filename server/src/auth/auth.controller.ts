@@ -61,8 +61,8 @@ export class AuthController {
           type: 'object',
           properties: {
             id: { type: 'string', example: 'uuid-string' },
-            firstName: { type: 'string', example: 'John' },
-            lastName: { type: 'string', example: 'Doe' },
+            first_name: { type: 'string', example: 'John' },
+            last_name: { type: 'string', example: 'Doe' },
             email: { type: 'string', example: 'john.doe@example.com' },
           },
         },
