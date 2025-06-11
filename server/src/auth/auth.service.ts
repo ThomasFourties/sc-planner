@@ -24,7 +24,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<{ message: string }> {
-    const { firstName, lastName, email, password, confirmPassword, code } =
+    const { firstName, lastName, email, password, confirmPassword, role, isAdmin } =
       registerDto;
 
     if (password !== confirmPassword) {
@@ -40,21 +40,29 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Déterminer le rôle selon le code fourni
-    let role: UserRole = UserRole.CLIENT; // Rôle par défaut
-    
-    if (code) {
-      switch (code.toUpperCase()) {
-        case 'XAYOP':
-          role = UserRole.SALARIE;
+    // Déterminer le rôle selon les données fournies
+    let userRole: UserRole = UserRole.CLIENT; // Rôle par défaut
+
+    if (role) {
+      switch (role) {
+        case 'Salarié':
+          userRole = UserRole.SALARIE;
           break;
-        case 'PUKXE':
-          role = UserRole.FREELANCE;
+        case 'Chef de projet':
+          userRole = UserRole.CHEF_DE_PROJET;
+          break;
+        case 'Freelance':
+          userRole = UserRole.FREELANCE;
           break;
         default:
-          // Code invalide, on garde le rôle CLIENT par défaut
+          userRole = UserRole.CLIENT;
           break;
       }
+    }
+
+    // Si isAdmin est true, forcer le rôle chef de projet
+    if (isAdmin) {
+      userRole = UserRole.CHEF_DE_PROJET;
     }
 
     const user = this.userRepository.create({
@@ -62,7 +70,7 @@ export class AuthService {
       lastName,
       email,
       password: hashedPassword,
-      role,
+      role: userRole,
       isEmailVerified: true,
       emailVerificationCode: null,
       emailVerificationExpires: null,
@@ -70,22 +78,9 @@ export class AuthService {
 
     await this.userRepository.save(user);
 
-    const roleMessage = this.getRoleMessage(role);
     return {
-      message: `Inscription réussie avec le rôle ${roleMessage}. Vous pouvez maintenant vous connecter.`,
+      message: `Inscription réussie. Vous pouvez maintenant vous connecter.`,
     };
-  }
-
-  private getRoleMessage(role: UserRole): string {
-    switch (role) {
-      case UserRole.SALARIE:
-        return 'Salarié';
-      case UserRole.FREELANCE:
-        return 'Freelance';
-      case UserRole.CLIENT:
-      default:
-        return 'Client';
-    }
   }
 
   async login(loginDto: LoginDto): Promise<{ accessToken: string; user: any }> {

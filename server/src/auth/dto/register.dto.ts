@@ -5,6 +5,7 @@ import {
   MinLength,
   Matches,
   IsOptional,
+  IsBoolean,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -56,11 +57,29 @@ export class RegisterDto {
   confirmPassword: string;
 
   @ApiProperty({
-    description: 'Code d\'accès pour déterminer le rôle (XAYOP=Salarié, PUKXE=Freelance, vide=Client)',
+    description: 'Code d\'accès optionnel pour validation côté client',
     example: 'XAYOP',
     required: false,
   })
   @IsOptional()
   @IsString()
   code?: string;
+
+  @ApiProperty({
+    description: 'Rôle de l\'utilisateur déterminé par le code',
+    example: 'Salarié',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  role?: string;
+
+  @ApiProperty({
+    description: 'Indique si l\'utilisateur est administrateur (chef de projet)',
+    example: false,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isAdmin?: boolean;
 }

@@ -40,9 +40,15 @@
                 <p class="toolbox" :class="{ active: showTooltip }">Si aucun code ne vous a été fourni ne remplissez pas
                   ce champ</p>
               </label>
+
               <input id="code" v-model="form.code" name="code" type="text" maxlength="5" :disabled="loading"
-                @input="formatCode" />
+                :class="{ 'error': codeStatus === 'invalid', 'success': codeStatus === 'valid' }"
+                @input="handleCodeInput" />
             </div>
+
+            <p class="code-msg" :class="{ 'error': codeStatus === 'invalid', 'success': codeStatus === 'valid' }">
+              {{ codeMessage }}
+            </p>
 
             <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
             <p class="msg" :class="{ active: success, green: success }">{{ successMessage }}</p>
@@ -62,19 +68,6 @@
         </div>
       </div>
     </section>
-
-    <!-- Modal de confirmation du rôle -->
-    <div class="modal-overlay">
-      <div class="modal-content">
-        <h3>Confirmation du rôle</h3>
-        <p>Le code que vous avez entré vous donne le rôle <strong>{{ detectedRole }}</strong>.</p>
-        <p>Cela est-il correct ?</p>
-        <div class="modal-buttons">
-          <button @click="confirmRole(true)" class="btn btn-primary">Oui</button>
-          <button @click="confirmRole(false)" class="btn btn-secondary">Non</button>
-        </div>
-      </div>
-    </div>
   </main>
 </template>
 
@@ -124,10 +117,11 @@
   margin-top: 20px;
 
   .msg {
+    width: fit-content;
     color: $red;
     opacity: 0;
     visibility: hidden;
-    font-size: 14px;
+    font-size: 12px;
     text-align: center;
 
     &.active {
@@ -166,10 +160,37 @@
       width: 100%;
       margin-bottom: 15px;
       line-height: 1.3;
+      transition: border-color 0.2s ease;
 
       &:focus {
         outline: none;
       }
+
+      &.error {
+        border-color: $red;
+        margin-bottom: 5px;
+      }
+
+      &.success {
+        border-color: $green;
+        margin-bottom: 5px;
+      }
+    }
+
+
+  }
+
+  .code-msg {
+    font-size: 12px;
+    width: fit-content;
+    margin-bottom: 5px;
+
+    &.error {
+      color: $red;
+    }
+
+    &.success {
+      color: $green;
     }
   }
 
@@ -264,81 +285,6 @@
     cursor: pointer;
   }
 }
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: $white;
-  padding: 30px;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-
-  h3 {
-    margin-bottom: 20px;
-    font-size: 20px;
-    color: $black;
-  }
-
-  p {
-    margin-bottom: 15px;
-    line-height: 1.5;
-    color: $gray;
-
-    strong {
-      color: $black;
-      font-weight: 600;
-    }
-  }
-}
-
-.modal-buttons {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 25px;
-
-  .btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    min-width: 80px;
-    transition: all 0.2s ease;
-
-    &.btn-primary {
-      background: $green;
-      color: $white;
-
-      &:hover {
-        background: darken($green, 10%);
-      }
-    }
-
-    &.btn-secondary {
-      background: $lightGray;
-      color: $black;
-
-      &:hover {
-        background: darken($lightGray, 10%);
-      }
-    }
-  }
-}
 </style>
 
 <script setup lang="ts">
@@ -365,30 +311,45 @@ const error = ref('');
 const success = ref(false);
 const successMessage = ref('');
 const showTooltip = ref(false);
-const showRoleConfirmation = ref(false);
-const detectedRole = ref('');
+const codeStatus = ref('');
+const codeMessage = ref('');
 
 // Fonction pour détecter le rôle associé au code
 const getCodeRole = (code: string) => {
-  const codeRoles: { [key: string]: string } = {
-    'XAYOP': 'Salarié',
-    'PUKXE': 'Freelance',
+  const codeRoles: { [key: string]: { role: string; isAdmin: boolean } } = {
+    'XAYOP': { role: 'Salarié', isAdmin: false },
+    'PUKXE': { role: 'Freelance', isAdmin: false },
+    'ADMIN': { role: 'Chef de projet', isAdmin: true },
   };
-  return codeRoles[code] || '';
+  return codeRoles[code] || null;
 };
 
 const handleTooltipToggle = () => {
   showTooltip.value = !showTooltip.value;
 };
 
-const formatCode = (event: Event) => {
+const handleCodeInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const value = target.value.toUpperCase();
-  if (value === 'XAYOP' || value === 'PUKXE' || value === '') {
-    target.value = value;
-    form.code = value;
-  } else {
-    target.value = form.code;
+
+  // Réinitialiser les messages
+  codeStatus.value = '';
+  codeMessage.value = '';
+
+  // Mettre à jour la valeur
+  form.code = value;
+  target.value = value;
+
+  // Vérifier le code quand il atteint 5 caractères
+  if (value.length === 5) {
+    const roleInfo = getCodeRole(value);
+    if (roleInfo) {
+      codeStatus.value = 'valid';
+      codeMessage.value = 'Code valide';
+    } else {
+      codeStatus.value = 'invalid';
+      codeMessage.value = 'Code incorrect';
+    }
   }
 };
 
@@ -417,23 +378,30 @@ const validateForm = () => {
   return true;
 };
 
-const confirmRole = (confirm: boolean) => {
-  if (confirm) {
-    proceedWithRegistration();
-  } else {
-    form.code = '';
-    showRoleConfirmation.value = false;
-    detectedRole.value = '';
-  }
-};
+const handleRegister = async () => {
+  error.value = '';
 
-const proceedWithRegistration = async () => {
-  showRoleConfirmation.value = false;
+  if (!validateForm()) {
+    return;
+  }
+
   loading.value = true;
 
   try {
     const authStore = useAuthStore();
-    const result = await authStore.register(form);
+
+    // Préparer les données d'inscription avec le rôle si code fourni
+    const registrationData: any = { ...form };
+    if (form.code) {
+      const roleInfo = getCodeRole(form.code);
+      if (roleInfo) {
+        // Ajouter les informations de rôle aux données d'inscription
+        registrationData.isAdmin = roleInfo.isAdmin;
+        registrationData.role = roleInfo.role;
+      }
+    }
+
+    const result = await authStore.register(registrationData);
 
     success.value = true;
     successMessage.value = result.message;
@@ -448,23 +416,5 @@ const proceedWithRegistration = async () => {
   } finally {
     loading.value = false;
   }
-};
-
-const handleRegister = async () => {
-  error.value = '';
-
-  if (!validateForm()) {
-    return;
-  }
-
-  if (form.code) {
-    detectedRole.value = getCodeRole(form.code);
-    if (detectedRole.value) {
-      showRoleConfirmation.value = true;
-      return;
-    }
-  }
-
-  proceedWithRegistration();
 };
 </script>
