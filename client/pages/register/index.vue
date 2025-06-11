@@ -266,7 +266,6 @@
     z-index: 10;
     visibility: hidden;
     opacity: 0;
-    // width: 100px;
     background: $white;
     padding: 10px;
     top: -40px;
@@ -314,7 +313,6 @@ const showTooltip = ref(false);
 const codeStatus = ref('');
 const codeMessage = ref('');
 
-// Fonction pour détecter le rôle associé au code
 const getCodeRole = (code: string) => {
   const codeRoles: { [key: string]: { role: string; isAdmin: boolean } } = {
     'XAYOP': { role: 'Salarié', isAdmin: false },
@@ -332,15 +330,12 @@ const handleCodeInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const value = target.value.toUpperCase();
 
-  // Réinitialiser les messages
   codeStatus.value = '';
   codeMessage.value = '';
 
-  // Mettre à jour la valeur
   form.code = value;
   target.value = value;
 
-  // Vérifier le code quand il atteint 5 caractères
   if (value.length === 5) {
     const roleInfo = getCodeRole(value);
     if (roleInfo) {
@@ -390,12 +385,10 @@ const handleRegister = async () => {
   try {
     const authStore = useAuthStore();
 
-    // Préparer les données d'inscription avec le rôle si code fourni
     const registrationData: any = { ...form };
     if (form.code) {
       const roleInfo = getCodeRole(form.code);
       if (roleInfo) {
-        // Ajouter les informations de rôle aux données d'inscription
         registrationData.isAdmin = roleInfo.isAdmin;
         registrationData.role = roleInfo.role;
       }
@@ -405,14 +398,12 @@ const handleRegister = async () => {
 
     success.value = true;
     successMessage.value = result.message;
-    console.log(result.message);
 
     setTimeout(() => {
       navigateTo('/login');
     }, 3000);
   } catch (err: any) {
     error.value = err.message || "Erreur lors de l'inscription";
-    console.log(error.value);
   } finally {
     loading.value = false;
   }

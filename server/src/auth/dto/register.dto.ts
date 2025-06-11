@@ -11,7 +11,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
   @ApiProperty({
-    description: 'Prénom de l\'utilisateur',
+    description: "Prénom de l'utilisateur",
     example: 'John',
     minLength: 1,
   })
@@ -20,7 +20,7 @@ export class RegisterDto {
   firstName: string;
 
   @ApiProperty({
-    description: 'Nom de famille de l\'utilisateur',
+    description: "Nom de famille de l'utilisateur",
     example: 'Doe',
     minLength: 1,
   })
@@ -29,7 +29,7 @@ export class RegisterDto {
   lastName: string;
 
   @ApiProperty({
-    description: 'Adresse email de l\'utilisateur',
+    description: "Adresse email de l'utilisateur",
     example: 'john.doe@example.com',
     format: 'email',
   })
@@ -37,7 +37,8 @@ export class RegisterDto {
   email: string;
 
   @ApiProperty({
-    description: 'Mot de passe (minimum 8 caractères, avec majuscule, minuscule et chiffre)',
+    description:
+      'Mot de passe (minimum 8 caractères, avec majuscule, minuscule et chiffre)',
     example: 'Password123',
     minLength: 8,
   })
@@ -57,7 +58,7 @@ export class RegisterDto {
   confirmPassword: string;
 
   @ApiProperty({
-    description: 'Code d\'accès optionnel pour validation côté client',
+    description: "Code d'accès optionnel pour validation côté client",
     example: 'XAYOP',
     required: false,
   })
@@ -66,7 +67,7 @@ export class RegisterDto {
   code?: string;
 
   @ApiProperty({
-    description: 'Rôle de l\'utilisateur déterminé par le code',
+    description: "Rôle de l'utilisateur déterminé par le code",
     example: 'Salarié',
     required: false,
   })
@@ -75,7 +76,7 @@ export class RegisterDto {
   role?: string;
 
   @ApiProperty({
-    description: 'Indique si l\'utilisateur est administrateur (chef de projet)',
+    description: "Indique si l'utilisateur est administrateur (chef de projet)",
     example: false,
     required: false,
   })
