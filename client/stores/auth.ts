@@ -101,6 +101,22 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async resetPassword(token: string, password: string) {
+      this.loading = true;
+      try {
+        const config = useRuntimeConfig();
+        const response = await axios.post(`${config.public.API_URL}/auth/reset-password`, {
+          token,
+          password,
+        });
+        return { success: true, message: response.data.message };
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Erreur lors de la réinitialisation');
+      } finally {
+        this.loading = false;
+      }
+    },
+
     logout() {
       this.user = null;
       this.token = null;

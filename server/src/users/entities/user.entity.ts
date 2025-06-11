@@ -82,6 +82,20 @@ export class User {
   profile_img: string;
 
   @ApiProperty({
+    description: "Token de réinitialisation de mot de passe",
+    required: false,
+  })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  reset_token?: string | null;
+
+  @ApiProperty({
+    description: "Date d'expiration du token de réinitialisation",
+    required: false,
+  })
+  @Column({ type: 'timestamp', nullable: true })
+  reset_expires?: Date | null;
+
+  @ApiProperty({
     description: "Date de création de l'utilisateur",
     example: '2024-01-01T00:00:00.000Z',
   })

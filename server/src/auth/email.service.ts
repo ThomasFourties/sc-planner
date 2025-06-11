@@ -29,6 +29,12 @@ export class EmailService {
           user: emailUser,
           pass: emailPass,
         },
+        tls: {
+          rejectUnauthorized: false, // Pour IONOS
+        },
+        connectionTimeout: 60000, // 60 secondes
+        greetingTimeout: 30000, // 30 secondes
+        socketTimeout: 60000, // 60 secondes
       });
       this.isConfigured = true;
       this.logger.log('Service email configuré avec succès');
@@ -42,58 +48,11 @@ export class EmailService {
     }
   }
 
-  async sendVerificationEmail(email: string, code: string): Promise<void> {
-    const emailContent = {
-      from:
-        this.configService.get<string>('EMAIL_FROM') ||
-        'noreply@sc-planner.com',
-      to: email,
-      subject: 'Vérification de votre compte SC Planner',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Bienvenue sur SC Planner !</h2>
-          <p>Merci de vous être inscrit. Pour activer votre compte, veuillez utiliser le code de vérification suivant :</p>
-          <div style="background-color: #f0f0f0; padding: 20px; text-align: center; margin: 20px 0;">
-            <h1 style="font-size: 36px; color: #007bff; margin: 0;">${code}</h1>
-          </div>
-          <p>Ce code expire dans 24 heures.</p>
-          <p>Si vous n'avez pas créé de compte, ignorez cet email.</p>
-        </div>
-      `,
-    };
-
-    if (this.isConfigured) {
-      try {
-        await this.transporter.sendMail(emailContent);
-        this.logger.log(`Email de vérification envoyé à: ${email}`);
-      } catch (error) {
-        this.logger.error(
-          `Erreur lors de l'envoi de l'email de vérification à ${email}:`,
-          error,
-        );
-        this.logger.warn(
-          `[DÉVELOPPEMENT] Code de vérification pour ${email}: ${code}`,
-        );
-        this.logger.warn(
-          "L'inscription continue malgré l'erreur d'envoi d'email",
-        );
-        // Ne pas lancer d'erreur, permettre à l'inscription de continuer
-      }
-    } else {
-      this.logger.log(
-        `[DÉVELOPPEMENT] Email de vérification à envoyer à: ${email}`,
-      );
-      this.logger.log(`[DÉVELOPPEMENT] Code de vérification: ${code}`);
-    }
-  }
-
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
     const resetUrl = `${this.configService.get<string>('FRONTEND_URL')}/reset-password?token=${token}`;
 
     const emailContent = {
-      from:
-        this.configService.get<string>('EMAIL_FROM') ||
-        'noreply@sc-planner.com',
+      from: 'SC Planner <noreply@sc-planner.thomasfourties.fr>',
       to: email,
       subject: 'Réinitialisation de votre mot de passe - SC Planner',
       html: `
@@ -124,7 +83,6 @@ export class EmailService {
         this.logger.warn(
           `[DÉVELOPPEMENT] Lien de réinitialisation pour ${email}: ${resetUrl}`,
         );
-        // Ne pas lancer d'erreur, permettre à la réinitialisation de continuer
       }
     } else {
       this.logger.log(

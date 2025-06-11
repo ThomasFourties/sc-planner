@@ -97,3 +97,15 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+# SC Planner Server
+
+Backend NestJS pour l'application SC Planner.
+
+## Forgot Password System
+
+- ✅ Email de réinitialisation opérationnel
+- ✅ SMTP IONOS configuré
+- ✅ Tokens sécurisés avec expiration 1h
+
+**Version mise à jour le 06/11/2025 - Forgot password fonctionnel**

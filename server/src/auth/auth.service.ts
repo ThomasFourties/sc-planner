@@ -128,11 +128,39 @@ export class AuthService {
     const resetExpires = new Date();
     resetExpires.setHours(resetExpires.getHours() + 1);
 
+    user.reset_token = resetToken;
+    user.reset_expires = resetExpires;
     await this.userRepository.save(user);
+
     await this.emailService.sendPasswordResetEmail(email, resetToken);
 
     return {
       message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ 
+      where: { reset_token: token } 
+    });
+
+    if (!user) {
+      throw new BadRequestException('Token de réinitialisation invalide');
+    }
+
+    if (!user.reset_expires || user.reset_expires < new Date()) {
+      throw new BadRequestException('Token de réinitialisation expiré');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.reset_token = null;
+    user.reset_expires = null;
+    
+    await this.userRepository.save(user);
+
+    return {
+      message: 'Mot de passe réinitialisé avec succès',
     };
   }
 
