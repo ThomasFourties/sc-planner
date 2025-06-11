@@ -17,7 +17,7 @@ export class RegisterDto {
   })
   @IsNotEmpty()
   @IsString()
-  firstName: string;
+  first_name: string;
 
   @ApiProperty({
     description: "Nom de famille de l'utilisateur",
@@ -26,7 +26,7 @@ export class RegisterDto {
   })
   @IsNotEmpty()
   @IsString()
-  lastName: string;
+  last_name: string;
 
   @ApiProperty({
     description: "Adresse email de l'utilisateur",

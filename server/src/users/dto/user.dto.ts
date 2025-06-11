@@ -18,25 +18,25 @@ export enum UserRole {
 
 export class UserDTO {
   @ApiProperty({
-    description: 'Prénom de l\'utilisateur',
+    description: "Prénom de l'utilisateur",
     example: 'John',
     minLength: 1,
   })
   @IsString()
   @IsNotEmpty()
-  firstName: string;
+  first_name: string;
 
   @ApiProperty({
-    description: 'Nom de famille de l\'utilisateur',
+    description: "Nom de famille de l'utilisateur",
     example: 'Doe',
     minLength: 1,
   })
   @IsString()
   @IsNotEmpty()
-  lastName: string;
+  last_name: string;
 
   @ApiProperty({
-    description: 'Adresse email de l\'utilisateur',
+    description: "Adresse email de l'utilisateur",
     example: 'john.doe@example.com',
     format: 'email',
   })
@@ -45,7 +45,7 @@ export class UserDTO {
   email: string;
 
   @ApiProperty({
-    description: 'Mot de passe de l\'utilisateur',
+    description: "Mot de passe de l'utilisateur",
     example: 'password123',
     minLength: 6,
   })
@@ -55,7 +55,7 @@ export class UserDTO {
   password: string;
 
   @ApiProperty({
-    description: 'Rôle de l\'utilisateur dans le système',
+    description: "Rôle de l'utilisateur dans le système",
     enum: UserRole,
     example: UserRole.CLIENT,
   })
@@ -64,7 +64,7 @@ export class UserDTO {
   role: UserRole;
 
   @ApiProperty({
-    description: 'Statut administrateur de l\'utilisateur',
+    description: "Statut administrateur de l'utilisateur",
     example: false,
     required: false,
   })
@@ -73,7 +73,7 @@ export class UserDTO {
   is_admin?: boolean;
 
   @ApiProperty({
-    description: 'URL de l\'image de profil',
+    description: "URL de l'image de profil",
     example: 'https://example.com/profile.jpg',
     required: false,
   })
