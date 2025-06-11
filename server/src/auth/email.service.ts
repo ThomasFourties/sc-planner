@@ -2,14 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
-// console log les variables d'environnement
-console.log(process.env.EMAIL_USER);
-console.log(process.env.EMAIL_PASS);
-console.log(process.env.EMAIL_HOST);
-console.log(process.env.EMAIL_PORT);
-console.log(process.env.EMAIL_FROM);
-console.log(process.env.FRONTEND_URL);
-
 @Injectable()
 export class EmailService {
   private transporter: nodemailer.Transporter;
