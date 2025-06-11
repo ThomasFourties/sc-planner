@@ -18,7 +18,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL,
+      API_URL: process.env.API_URL || 'http://localhost:3001',
       API_AUTH_TOKEN: process.env.API_AUTH_TOKEN,
     },
   },
@@ -64,10 +64,12 @@ export default defineNuxtConfig({
   },
 
   modules: [
+    '@pinia/nuxt',
     '@nuxt/image',
     '@nuxt/fonts',
     'nuxt-svgo',
     '@nuxtjs/sitemap',
+    '@vueuse/nuxt',
     // 'nuxt-gtag',
     // 'nuxt-module-hotjar',
     // 'nuxt-swiper',
