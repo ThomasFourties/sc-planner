@@ -40,11 +40,10 @@ async function bootstrap() {
   });
 
   await app.listen(3001);
-  console.log(`🚀 Serveur démarré sur http://localhost:3001`);
+  console.log(`🚀 Serveur démarré sur ${process.env.API_URL}`);
   console.log(
-    `📖 Documentation API disponible sur http://localhost:3001/api/docs`,
+    `📖 Documentation API disponible sur ${process.env.API_URL}/api/docs`,
   );
 }
-
 
 bootstrap();
