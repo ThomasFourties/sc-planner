@@ -4,28 +4,29 @@
     <section class="section-reset">
       <div class="wrapper">
         <div class="reset-container">
-          <h1 class="title">Mot de passe oublié</h1>
-          <p class="subtitle">
-            Entrez votre adresse email pour recevoir un lien de réinitialisation
-          </p>
+          <h1 class="title">Test envoi email</h1>
+          <p class="subtitle">Entrez votre email pour tester l'envoi</p>
 
           <div class="reset-form">
             <form @submit.prevent="handleForgotPassword">
               <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" v-model="email" />
+                <input 
+                  type="email" 
+                  id="email" 
+                  v-model="email" 
+                  required
+                  placeholder="votre@email.com"
+                />
               </div>
-              <button class="btn" type="submit">
-                <span>Envoyer le lien de réinitialisation</span>
-              </button>
 
-              <div class="legals">
-                <p class="top">
-                  En créant ou en vous connectant à un compte, vous acceptez nos <NuxtLink to="/">conditions générales
-                  </NuxtLink> et notre <NuxtLink to="/">charte de confidentialité</NuxtLink>.
-                </p>
-                <p class="bottom">Tous droits réservés.<br />Copyright - SC Planner</p>
-              </div>
+              <p v-if="error" style="color: red;">{{ error }}</p>
+              <p v-if="success" style="color: green;">{{ message }}</p>
+
+              <button class="btn" type="submit" :disabled="loading">
+                <span v-if="!loading">Envoyer email test</span>
+                <span v-else>Envoi...</span>
+              </button>
             </form>
           </div>
         </div>
@@ -36,8 +37,6 @@
 
 <style scoped lang="scss">
 @use '../../assets/scss/base/variables' as *;
-@use '../../assets/scss/utils/sections' as *;
-@use '../../assets/scss/utils/mixins' as *;
 
 .reset-container {
   display: flex;
@@ -48,120 +47,54 @@
   max-width: 550px;
   margin: 0 auto;
   padding: 20px;
-  border-radius: 8px;
   text-align: center;
 
   .title {
-    font-weight: 400;
-    font-size: 38px;
+    font-size: 32px;
     margin-bottom: 10px;
   }
 
   .subtitle {
-    font-size: 18px;
+    font-size: 16px;
     color: $lightGray;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
   }
 }
 
 .reset-form {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-
-  .msg {
-    color: $red;
-    opacity: 0;
-    visibility: hidden;
-    font-size: 14px;
-    text-align: center;
-
-    &.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    &.red {
-      color: $red;
-    }
-
-    &.green {
-      color: $green;
-    }
-  }
-
   .form-group {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    width: 100%;
-    gap: 5px;
+    gap: 8px;
+    margin-bottom: 20px;
 
     label {
-      font-size: 12px;
-      color: $gray;
-      font-weight: 500;
+      font-size: 14px;
+      text-align: left;
     }
 
     input {
-      padding: 10px;
+      padding: 12px;
+      border: 1px solid #ccc;
       border-radius: 4px;
-      border: 1px solid $gray;
-      font-size: 14px;
-      width: 100%;
-      margin-bottom: 15px;
-      line-height: 1.3;
-
-      &:focus {
-        outline: none;
-      }
+      font-size: 16px;
     }
   }
 
   .btn {
     width: 100%;
-    margin-top: 15px;
-    margin-bottom: 50px;
-  }
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
 
-  .password-info {
-    font-size: 12px;
-    color: $gray;
-  }
-}
-
-.right-links {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: 4px;
-  margin-top: 15px;
-  font-size: 12px;
-  color: $gray;
-  margin-bottom: 50px;
-
-  a {
-    color: inherit;
-    text-decoration: underline;
-  }
-}
-
-.legals {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 80%;
-  gap: 10px;
-  margin: 0 auto;
-  font-size: 12px;
-  color: $lightGray;
-
-  a {
-    color: inherit;
-    text-decoration: underline;
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   }
 }
 </style>
@@ -172,35 +105,34 @@ definePageMeta({
   layout: false,
 });
 
-const toast = useToast();
-
 const email = ref('');
 const loading = ref(false);
 const error = ref('');
 const success = ref(false);
-const successMessage = ref('');
+const message = ref('');
 
 const handleForgotPassword = async () => {
   if (!email.value) {
-    error.value = 'Veuillez entrer votre adresse email';
+    error.value = 'Entrez un email';
     return;
   }
 
   loading.value = true;
   error.value = '';
+  success.value = false;
 
   try {
     const authStore = useAuthStore();
     const result = await authStore.forgotPassword(email.value);
-
+    
     success.value = true;
-    successMessage.value = result.message;
-    toast.showSuccess(result.message);
+    message.value = result.message;
+    console.log('✅ Email envoyé !', result);
   } catch (err: any) {
     error.value = err.message || 'Erreur lors de l\'envoi';
-    toast.showError(error.value);
+    console.error('❌ Erreur:', err);
   } finally {
     loading.value = false;
   }
 };
-</script>
+</script> 
