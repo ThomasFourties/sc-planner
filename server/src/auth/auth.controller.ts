@@ -21,13 +21,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Inscription d\'un nouvel utilisateur' })
   @ApiResponse({
     status: 201,
-    description: 'Utilisateur créé avec succès. Email de vérification envoyé.',
+    description: 'Utilisateur créé avec succès. Vous pouvez maintenant vous connecter.',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Inscription réussie. Vérifiez votre email pour activer votre compte.',
+          example: 'Inscription réussie. Vous pouvez maintenant vous connecter.',
         },
       },
     },

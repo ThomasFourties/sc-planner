@@ -11,6 +11,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export enum UserRole {
   SALARIE = 'SALARIE',
+  CHEF_DE_PROJET = 'CHEF_DE_PROJET',
   FREELANCE = 'FREELANCE',
   CLIENT = 'CLIENT',
 }

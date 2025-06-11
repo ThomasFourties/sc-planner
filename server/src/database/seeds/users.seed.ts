@@ -12,7 +12,7 @@ export async function seedUsers(dataSource: DataSource) {
       lastName: 'Doe',
       email: 'john.doe@example.com',
       password: await bcrypt.hash('password123', 10),
-      role: UserRole.SALARIE,
+      role: UserRole.CHEF_DE_PROJET,
       is_admin: true,
     },
     {
