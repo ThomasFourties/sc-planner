@@ -14,6 +14,4 @@ RUN npm run build
 
 EXPOSE 3001
 
-RUN echo '#!/bin/sh\nset -e\necho "Running migrations..."\nnpm run migration:run\necho "Starting application..."\nnpm run start' > start.sh && chmod +x start.sh
-
-CMD ["./start.sh"]
+CMD ["npm", "run", "start"]
