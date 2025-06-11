@@ -47,7 +47,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Supprimer un utilisateur' })
   @ApiParam({
     name: 'id',
-    description: 'ID unique de l\'utilisateur',
+    description: "ID unique de l'utilisateur",
     type: 'string',
     format: 'uuid',
   })
