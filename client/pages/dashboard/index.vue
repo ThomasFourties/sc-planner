@@ -10,7 +10,7 @@
     </div>
     <div class="txt-wp">
       <p class="surtitle">{{ formattedDate }}</p>
-      <h1 class="h1">Bonjour {{ currentUser?.firstName || 'Utilisateur' }} !</h1>
+      <h1 class="h1">Bonjour {{ currentUser?.first_name || 'Utilisateur' }} !</h1>
       <p class="soustitle">Aujourd'hui, <span>5 tâches</span> vous sont assignés dans 2 projets différents</p>
     </div>
     <div class="dashboard-content">

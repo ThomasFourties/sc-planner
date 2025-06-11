@@ -3,8 +3,8 @@ import axios from 'axios';
 
 interface User {
   id: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   role: string;
 }
@@ -67,8 +67,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async register(userData: {
-      firstName: string;
-      lastName: string;
+      first_name: string;
+      last_name: string;
       email: string;
       password: string;
       confirmPassword: string;

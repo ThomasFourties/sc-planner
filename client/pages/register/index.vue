@@ -10,12 +10,12 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="email">Prénom</label>
-                <input id="firstName" v-model="form.firstName" type="text" required />
+                <input id="first_name" v-model="form.first_name" type="text" required />
               </div>
 
               <div class="form-group">
                 <label for="email">Nom</label>
-                <input id="lastName" v-model="form.lastName" type="text" required />
+                <input id="last_name" v-model="form.last_name" type="text" required />
               </div>
             </div>
 
@@ -297,8 +297,8 @@ definePageMeta({
 });
 
 const form = reactive({
-  firstName: '',
-  lastName: '',
+  first_name: '',
+  last_name: '',
   email: '',
   password: '',
   confirmPassword: '',
@@ -349,7 +349,7 @@ const handleCodeInput = (event: Event) => {
 };
 
 const validateForm = () => {
-  if (!form.firstName || !form.lastName || !form.email || !form.password || !form.confirmPassword) {
+  if (!form.first_name || !form.last_name || !form.email || !form.password || !form.confirmPassword) {
     error.value = 'Veuillez remplir tous les champs';
     return false;
   }
