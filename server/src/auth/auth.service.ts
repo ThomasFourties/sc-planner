@@ -24,8 +24,15 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<{ message: string }> {
-    const { firstName, lastName, email, password, confirmPassword, role, isAdmin } =
-      registerDto;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+      role,
+      isAdmin,
+    } = registerDto;
 
     if (password !== confirmPassword) {
       throw new BadRequestException('Les mots de passe ne correspondent pas');
@@ -40,8 +47,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Déterminer le rôle selon les données fournies
-    let userRole: UserRole = UserRole.CLIENT; // Rôle par défaut
+    let userRole: UserRole = UserRole.CLIENT;
 
     if (role) {
       switch (role) {
@@ -60,7 +66,6 @@ export class AuthService {
       }
     }
 
-    // Si isAdmin est true, forcer le rôle chef de projet
     if (isAdmin) {
       userRole = UserRole.CHEF_DE_PROJET;
     }
