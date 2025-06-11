@@ -1,12 +1,12 @@
 <template>
-  <main class="main-login">
+  <main class="main-register">
     <HeaderLog />
-    <section class="section-login">
+    <section class="section-register">
       <div class="wrapper">
-        <div class="login-container">
+        <div class="register-container">
           <h1 class="title">Création d'un compte</h1>
 
-          <form @submit.prevent="handleRegister" class="login-form">
+          <form @submit.prevent="handleRegister" class="register-form">
             <div class="form-row">
               <div class="form-group">
                 <label for="email">Prénom</label>
@@ -76,7 +76,7 @@
 @use '../../assets/scss/utils/sections' as *;
 @use '../../assets/scss/utils/mixins' as *;
 
-.login-container {
+.register-container {
   display: flex;
   flex-direction: column;
   align-content: center;
@@ -111,7 +111,7 @@
   }
 }
 
-.login-form {
+.register-form {
   display: flex;
   flex-direction: column;
   margin-top: 20px;
@@ -400,7 +400,7 @@ const handleRegister = async () => {
     successMessage.value = result.message;
 
     setTimeout(() => {
-      navigateTo('/login');
+      navigateTo('/register');
     }, 3000);
   } catch (err: any) {
     error.value = err.message || "Erreur lors de l'inscription";

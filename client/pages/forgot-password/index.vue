@@ -1,78 +1,170 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-      <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Mot de passe oublié
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-          Entrez votre adresse email pour recevoir un lien de réinitialisation
-        </p>
+  <main class="main-reset">
+    <HeaderLog />
+    <section class="section-reset">
+      <div class="wrapper">
+        <div class="reset-container">
+          <h1 class="title">Mot de passe oublié</h1>
+          <p class="subtitle">
+            Entrez votre adresse email pour recevoir un lien de réinitialisation
+          </p>
+
+          <div class="reset-form">
+            <form @submit.prevent="handleForgotPassword">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" v-model="email" />
+              </div>
+              <button class="btn" type="submit">
+                <span>Envoyer le lien de réinitialisation</span>
+              </button>
+
+              <div class="legals">
+                <p class="top">
+                  En créant ou en vous connectant à un compte, vous acceptez nos <NuxtLink to="/">conditions générales
+                  </NuxtLink> et notre <NuxtLink to="/">charte de confidentialité</NuxtLink>.
+                </p>
+                <p class="bottom">Tous droits réservés.<br />Copyright - SC Planner</p>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-      
-      <form class="mt-8 space-y-6" @submit.prevent="handleForgotPassword">
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">Adresse email</label>
-          <input
-            id="email"
-            v-model="email"
-            name="email"
-            type="email"
-            required
-            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Votre adresse email"
-            :disabled="loading"
-          />
-        </div>
-
-        <div>
-          <button
-            type="submit"
-            :disabled="loading || !email"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span v-if="loading" class="absolute left-0 inset-y-0 flex items-center pl-3">
-              <svg class="animate-spin h-5 w-5 text-indigo-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </span>
-            {{ loading ? 'Envoi en cours...' : 'Envoyer le lien de réinitialisation' }}
-          </button>
-        </div>
-
-        <div class="text-center">
-          <NuxtLink to="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
-            Retour à la connexion
-          </NuxtLink>
-        </div>
-
-        <div v-if="error" class="rounded-md bg-red-50 p-4">
-          <div class="flex">
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">
-                {{ error }}
-              </h3>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="success" class="rounded-md bg-green-50 p-4">
-          <div class="flex">
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-green-800">
-                {{ successMessage }}
-              </h3>
-              <p class="mt-2 text-sm text-green-700">
-                Vérifiez votre boîte email et vos spams.
-              </p>
-            </div>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
+
+<style scoped lang="scss">
+@use '../../assets/scss/base/variables' as *;
+@use '../../assets/scss/utils/sections' as *;
+@use '../../assets/scss/utils/mixins' as *;
+
+.reset-container {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 550px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+
+  .title {
+    font-weight: 400;
+    font-size: 38px;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: $lightGray;
+    margin-bottom: 50px;
+  }
+}
+
+.reset-form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+
+  .msg {
+    color: $red;
+    opacity: 0;
+    visibility: hidden;
+    font-size: 14px;
+    text-align: center;
+
+    &.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    &.red {
+      color: $red;
+    }
+
+    &.green {
+      color: $green;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    gap: 5px;
+
+    label {
+      font-size: 12px;
+      color: $gray;
+      font-weight: 500;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid $gray;
+      font-size: 14px;
+      width: 100%;
+      margin-bottom: 15px;
+      line-height: 1.3;
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .btn {
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 50px;
+  }
+
+  .password-info {
+    font-size: 12px;
+    color: $gray;
+  }
+}
+
+.right-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 15px;
+  font-size: 12px;
+  color: $gray;
+  margin-bottom: 50px;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
+.legals {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  gap: 10px;
+  margin: 0 auto;
+  font-size: 12px;
+  color: $lightGray;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+</style>
 
 <script setup lang="ts">
 definePageMeta({
@@ -100,7 +192,7 @@ const handleForgotPassword = async () => {
   try {
     const authStore = useAuthStore();
     const result = await authStore.forgotPassword(email.value);
-    
+
     success.value = true;
     successMessage.value = result.message;
     toast.showSuccess(result.message);
@@ -111,4 +203,4 @@ const handleForgotPassword = async () => {
     loading.value = false;
   }
 };
-</script> 
+</script>
