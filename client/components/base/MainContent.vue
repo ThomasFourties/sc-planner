@@ -3,10 +3,6 @@
     <div class="content">
       <SearchBar />
       <NuxtPage />
-      <round class="round r-1" />
-      <round class="round r-2" />
-      <round class="round r-3" />
-      <round class="round r-4" />
     </div>
   </div>
 </template>
@@ -45,37 +41,37 @@
     }
   }
 
-  .round {
-    position: absolute;
-    top: -170px;
-    left: -170px;
-    width: 300px;
-    height: 300px;
-    color: $green;
-    opacity: 0.8;
-    pointer-events: none;
+  // .round {
+  //   position: absolute;
+  //   top: -170px;
+  //   left: -170px;
+  //   width: 300px;
+  //   height: 300px;
+  //   color: $green;
+  //   opacity: 0.8;
+  //   pointer-events: none;
 
-    &.r-2 {
-      top: -170px;
-      left: auto;
-      right: -170px;
-      color: $blue;
-    }
+  //   &.r-2 {
+  //     top: -170px;
+  //     left: auto;
+  //     right: -170px;
+  //     color: $blue;
+  //   }
 
-    &.r-3 {
-      top: auto;
-      bottom: -170px;
-      left: -170px;
-      color: $red;
-    }
+  //   &.r-3 {
+  //     top: auto;
+  //     bottom: -170px;
+  //     left: -170px;
+  //     color: $red;
+  //   }
 
-    &.r-4 {
-      top: auto;
-      bottom: -170px;
-      left: auto;
-      right: -170px;
-      color: $yellow;
-    }
-  }
+  //   &.r-4 {
+  //     top: auto;
+  //     bottom: -170px;
+  //     left: auto;
+  //     right: -170px;
+  //     color: $yellow;
+  //   }
+  // }
 }
 </style>

@@ -124,7 +124,7 @@ import help from './assets/icons/help.svg';
 
         .email {
           font-size: 8px;
-          color: $darkGray;
+          color: $gray;
         }
       }
     }
