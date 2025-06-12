@@ -4,22 +4,19 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN npm install -g pnpm
-RUN pnpm install
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm run generate
+RUN pnpm generate
 
 FROM nginx:1.25-alpine
 
-RUN rm /etc/nginx/conf.d/default.conf
-RUN rm -rf /usr/share/nginx/html/*
-
-# COPY nginx.conf /etc/nginx/conf.d/
+RUN rm /etc/nginx/conf.d/default.conf \ && rm -rf /usr/share/nginx/html/*
 
 COPY --from=builder /app/.output/public /usr/share/nginx/html
 
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
+    

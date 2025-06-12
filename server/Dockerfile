@@ -3,15 +3,19 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-
-RUN npm install -g pnpm
-
-RUN pnpm install
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN npm run build
+RUN pnpm build
 
-EXPOSE 3001
+FROM node:22-alpine
 
-CMD ["npm", "run", "start"]
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+
+ENV NODE_ENV=production
+CMD ["node", "dist/main.js"]
