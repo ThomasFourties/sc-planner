@@ -3,7 +3,7 @@ export default defineNuxtConfig({
 
   devServer: {
     port: process.env.NODE_ENV === 'production' ? undefined : 3000,
-    host: '0.0.0.0'
+    host: '0.0.0.0',
   },
 
   devtools: { enabled: false },
@@ -18,7 +18,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL,
+      API_BASE_URL: process.env.API_BASE_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001'),
       API_AUTH_TOKEN: process.env.API_AUTH_TOKEN,
     },
   },
@@ -114,7 +114,7 @@ export default defineNuxtConfig({
       xxl: 1536,
     },
     alias: {
-      '/images': '/images'
-    }
+      '/images': '/images',
+    },
   },
 });
