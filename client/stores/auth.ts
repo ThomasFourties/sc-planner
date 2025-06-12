@@ -37,7 +37,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       try {
         const config = useRuntimeConfig();
-        const response = await axios.post(`${config.public.API_BASE_URL}/auth/login`, {
+        const response = await axios.post(`${config.public.API_URL}/auth/login`, {
           email,
           password,
         });
@@ -68,7 +68,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       try {
         const config = useRuntimeConfig();
-        const response = await axios.post(`${config.public.API_BASE_URL}/auth/register`, userData);
+        const response = await axios.post(`${config.public.API_URL}/auth/register`, userData);
         return { success: true, message: response.data.message };
       } catch (error: any) {
         throw new Error(error.response?.data?.message || "Erreur lors de l'inscription");
@@ -81,7 +81,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       try {
         const config = useRuntimeConfig();
-        const response = await axios.post(`${config.public.API_BASE_URL}/auth/forgot-password`, {
+        const response = await axios.post(`${config.public.API_URL}/auth/forgot-password`, {
           email,
         });
         return { success: true, message: response.data.message };
@@ -96,7 +96,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       try {
         const config = useRuntimeConfig();
-        const response = await axios.post(`${config.public.API_BASE_URL}/auth/reset-password`, {
+        const response = await axios.post(`${config.public.API_URL}/auth/reset-password`, {
           token,
           password,
         });
