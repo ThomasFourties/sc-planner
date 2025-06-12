@@ -1,6 +1,13 @@
-node_modules
-npm-debug.log
 .git
+node_modules
+pnpm-lock.yaml
+Dockerfile
+.dockerignore
+README.md
+test
+tests
+.vscode
+.env
+dist
 .nuxt
 .output
-dist
