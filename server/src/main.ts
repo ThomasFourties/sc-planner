@@ -32,7 +32,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document, {
+  SwaggerModule.setup('docs', app, document, {
     customSiteTitle: 'SC Planner API Documentation',
     customfavIcon: '/favicon.ico',
     customCss: '.swagger-ui .topbar { display: none }',
@@ -41,7 +41,7 @@ async function bootstrap() {
   await app.listen(3001);
   console.log(`🚀 Serveur démarré sur ${process.env.API_URL}`);
   console.log(
-    `📖 Documentation API disponible sur ${process.env.API_URL}/api/docs`,
+    `📖 Documentation API disponible sur ${process.env.API_URL}/docs`,
   );
 }
 
