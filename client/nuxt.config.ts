@@ -18,7 +18,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      API_BASE_URL: process.env.API_BASE_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001'),
+      API_URL: process.env.API_URL || 'http://localhost:3001/api',
       API_AUTH_TOKEN: process.env.API_AUTH_TOKEN,
     },
   },
