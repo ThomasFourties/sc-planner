@@ -12,4 +12,4 @@ export default new DataSource({
   migrations: ['src/database/migrations/**/*.ts'],
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
-}); 
+});
