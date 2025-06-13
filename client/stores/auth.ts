@@ -89,12 +89,13 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async resetPassword(token: string, password: string) {
+    async resetPassword(token: string, password: string, confirmPassword: string) {
       this.loading = true;
       try {
         const response = await axios.post('/api/auth/reset-password', {
           token,
           password,
+          confirmPassword,
         });
         return { success: true, message: response.data.message };
       } catch (error: any) {
