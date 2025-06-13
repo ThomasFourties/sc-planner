@@ -1,11 +1,13 @@
 <template>
   <main class="main-register">
     <HeaderLog />
-    <section class="section-register">
+    <section class="section-register form-style">
       <div class="wrapper">
-        <div class="register-container">
+        <div class="form-container">
           <FormLoader :status="status" :statusMessage="statusMessage" :statusSpinner="statusSpinner" />
-          <h1 class="title">Création d'un compte</h1>
+          <div class="title-wp">
+            <h1 class="title">Création d'un compte</h1>
+          </div>
 
           <form @submit.prevent="handleRegister" class="register-form">
             <div class="form-row">
@@ -56,7 +58,7 @@
             <p class="msg" :class="{ active: success, green: success }">{{ successMessage }}</p>
 
             <button class="btn" type="submit" :disabled="loading">
-              <span>Continuer</span>
+              <span>Créer un compte</span>
             </button>
 
             <div class="legals">
@@ -78,192 +80,33 @@
 @use '../../assets/scss/utils/sections' as *;
 @use '../../assets/scss/utils/mixins' as *;
 
-.register-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 550px;
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-
-
-
-  .title {
-    font-weight: 400;
-    font-size: 38px;
-    margin-bottom: 10px;
-  }
-
-  .subtitle {
-    font-size: 18px;
-    color: $lightGray;
-    margin-bottom: 50px;
-  }
-}
-
-.form-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-
-  .form-group {
-    flex: 1;
-  }
-}
-
-.register-form {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-
-  .msg {
-    width: fit-content;
-    color: $red;
-    opacity: 0;
-    visibility: hidden;
-    font-size: 12px;
-    text-align: center;
-
-    &.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    &.red {
-      color: $red;
-    }
-
-    &.green {
-      color: $green;
-    }
-  }
-
-  .tooltip-button {
-    background: none;
-    border: none;
-    color: $gray;
-    width: fit-content;
-    height: fit-content;
-    padding: 0;
-    cursor: pointer;
-
-    &:hover {
-      svg {
-        transform: translate(0)
-      }
-    }
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    width: 100%;
-    gap: 5px;
-
-    label {
-      font-size: 12px;
-      color: $gray;
-      font-weight: 500;
-    }
-
-    input {
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid $gray;
-      font-size: 14px;
-      width: 100%;
-      margin-bottom: 15px;
-      line-height: 1.3;
-      transition: border-color 0.2s ease;
-
-      &:focus {
-        outline: none;
-      }
-
-      &.error {
-        border-color: $red;
-        margin-bottom: 5px;
-      }
-
-      &.success {
-        border-color: $green;
-        margin-bottom: 5px;
-      }
-    }
-
-
-  }
-
-  .code-msg {
-    font-size: 12px;
-    width: fit-content;
-    margin-bottom: 5px;
-
-    &.error {
-      color: $red;
-    }
-
-    &.success {
-      color: $green;
-    }
-  }
-
-  .btn {
-    width: 100%;
-    margin-top: 15px;
-    margin-bottom: 50px;
-  }
-
-  .password-info {
-    font-size: 12px;
-    color: $gray;
-  }
-}
-
-.right-links {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: 4px;
-  margin-top: 15px;
-  font-size: 12px;
+.tooltip-button {
+  background: none;
+  border: none;
   color: $gray;
-  margin-bottom: 50px;
+  width: fit-content;
+  height: fit-content;
+  padding: 0;
+  cursor: pointer;
 
-  a {
-    color: inherit;
-    text-decoration: underline;
-  }
-
-  .link {
-    &:hover {
-      text-decoration: underline;
+  &:hover {
+    svg {
+      transform: translate(0)
     }
   }
 }
 
-.legals {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 80%;
-  gap: 10px;
-  margin: auto;
+.code-msg {
   font-size: 12px;
-  color: $lightGray;
+  width: fit-content;
+  margin-bottom: 5px;
 
-  a {
-    color: inherit;
-    text-decoration: underline;
+  &.error {
+    color: $red;
+  }
+
+  &.success {
+    color: $green;
   }
 }
 
@@ -337,7 +180,7 @@ const statusSpinner = ref(true);
 const tooltipMessage = ref('Si aucun code ne vous a été fourni ne remplissez pas ce champ');
 
 const status = ref(false);
-const statusMessage = ref('En cours de création de votre compte...');
+const statusMessage = ref('');
 
 const getCodeRole = (code: string) => {
   const codeRoles: { [key: string]: { role: string; isAdmin: boolean } } = {
@@ -435,8 +278,8 @@ const handleRegister = async () => {
 
       setTimeout(() => {
         window.location.href = '/login';
-      }, 1200);
-    }, 1500);
+      }, 500);
+    }, 1200);
 
 
   } catch (err: any) {

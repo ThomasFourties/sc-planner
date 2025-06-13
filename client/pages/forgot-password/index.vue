@@ -1,30 +1,26 @@
 <template>
   <main class="main-reset">
     <HeaderLog />
-    <section class="section-reset">
+    <section class="section-reset form-style">
       <div class="wrapper">
-        <div class="reset-container">
-          <h1 class="title">Test envoi email</h1>
-          <p class="subtitle">Entrez votre email pour tester l'envoi</p>
+        <div class="form-container">
+          <div class="title-wp">
+            <h1 class="title">Mot de passe oublié ?</h1>
+            <p class="subtitle">Entrez votre email pour recevoir un lien de réinitialisation</p>
+          </div>
 
           <div class="reset-form">
             <form @submit.prevent="handleForgotPassword">
               <div class="form-group">
                 <label for="email">Email</label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  v-model="email" 
-                  required
-                  placeholder="votre@email.com"
-                />
+                <input type="email" id="email" v-model="email" required />
               </div>
 
-              <p v-if="error" style="color: red;">{{ error }}</p>
-              <p v-if="success" style="color: green;">{{ message }}</p>
+              <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
+              <p class="msg" :class="{ active: success, green: success }">{{ message }}</p>
 
               <button class="btn" type="submit" :disabled="loading">
-                <span v-if="!loading">Envoyer email test</span>
+                <span v-if="!loading">Envoyer</span>
                 <span v-else>Envoi...</span>
               </button>
             </form>
@@ -34,7 +30,7 @@
     </section>
   </main>
 </template>
-
+<!-- 
 <style scoped lang="scss">
 @use '../../assets/scss/base/variables' as *;
 
@@ -97,7 +93,7 @@
     }
   }
 }
-</style>
+</style> -->
 
 <script setup lang="ts">
 definePageMeta({
@@ -124,7 +120,7 @@ const handleForgotPassword = async () => {
   try {
     const authStore = useAuthStore();
     const result = await authStore.forgotPassword(email.value);
-    
+
     success.value = true;
     message.value = result.message;
     console.log('✅ Email envoyé !', result);
@@ -135,4 +131,4 @@ const handleForgotPassword = async () => {
     loading.value = false;
   }
 };
-</script> 
+</script>
