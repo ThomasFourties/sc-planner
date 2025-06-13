@@ -22,11 +22,11 @@ export class EmailService {
           pass: emailPass,
         },
         tls: {
-          rejectUnauthorized: false, // Pour IONOS
+          rejectUnauthorized: false,
         },
-        connectionTimeout: 60000, // 60 secondes
-        greetingTimeout: 30000, // 30 secondes
-        socketTimeout: 60000, // 60 secondes
+        connectionTimeout: 60000,
+        greetingTimeout: 30000,
+        socketTimeout: 60000,
       });
       this.isConfigured = true;
       this.logger.log('Service email configuré avec succès');

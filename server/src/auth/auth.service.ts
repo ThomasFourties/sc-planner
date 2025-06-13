@@ -139,9 +139,12 @@ export class AuthService {
     };
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ 
-      where: { reset_token: token } 
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({
+      where: { reset_token: token },
     });
 
     if (!user) {
@@ -156,7 +159,7 @@ export class AuthService {
     user.password = hashedPassword;
     user.reset_token = null;
     user.reset_expires = null;
-    
+
     await this.userRepository.save(user);
 
     return {
