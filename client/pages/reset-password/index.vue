@@ -162,23 +162,6 @@ const status = ref(false);
 const statusMessage = ref('');
 const statusSpinner = ref(false);
 
-const fakeStatus = () => {
-  status.value = true;
-  statusMessage.value = 'En cours de réinitialisation de votre mot de passe...';
-  statusSpinner.value = true;
-
-  setTimeout(() => {
-    statusSpinner.value = false;
-    statusMessage.value = 'Mot de passe réinitialisé avec succès';
-
-    setTimeout(() => {
-      window.location.href = '/login';
-    }, 500);
-  }, 1200);
-}
-
-fakeStatus();
-
 const token = computed(() => route.query.token as string);
 
 onMounted(() => {
