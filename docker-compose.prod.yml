@@ -41,20 +41,6 @@ services:
     networks:
       - sc-planner-network
 
-  nginx:
-    image: nginx:stable-alpine
-    container_name: sc-planner-nginx
-    ports:
-      - '80:80'
-    volumes:
-      - ./client/dist:/usr/share/nginx/html
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - client
-      - server
-    networks:
-      - sc-planner-network
-
 volumes:
   sc_planner_db_data:
 
