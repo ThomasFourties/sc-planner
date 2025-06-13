@@ -36,8 +36,7 @@ export const useAuthStore = defineStore('auth', {
     async login(email: string, password: string) {
       this.loading = true;
       try {
-        const config = useRuntimeConfig();
-        const response = await axios.post(`${config.public.API_URL}/auth/login`, {
+        const response = await axios.post('/api/auth/login', {
           email,
           password,
         });
@@ -67,8 +66,7 @@ export const useAuthStore = defineStore('auth', {
     async register(userData: { first_name: string; last_name: string; email: string; password: string; confirmPassword: string; code?: string }) {
       this.loading = true;
       try {
-        const config = useRuntimeConfig();
-        const response = await axios.post(`${config.public.API_URL}/auth/register`, userData);
+        const response = await axios.post('/api/auth/register', userData);
         return { success: true, message: response.data.message };
       } catch (error: any) {
         throw new Error(error.response?.data?.message || "Erreur lors de l'inscription");
@@ -80,8 +78,7 @@ export const useAuthStore = defineStore('auth', {
     async forgotPassword(email: string) {
       this.loading = true;
       try {
-        const config = useRuntimeConfig();
-        const response = await axios.post(`${config.public.API_URL}/auth/forgot-password`, {
+        const response = await axios.post('/api/auth/forgot-password', {
           email,
         });
         return { success: true, message: response.data.message };
@@ -95,8 +92,7 @@ export const useAuthStore = defineStore('auth', {
     async resetPassword(token: string, password: string) {
       this.loading = true;
       try {
-        const config = useRuntimeConfig();
-        const response = await axios.post(`${config.public.API_URL}/auth/reset-password`, {
+        const response = await axios.post('/api/auth/reset-password', {
           token,
           password,
         });

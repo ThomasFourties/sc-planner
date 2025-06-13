@@ -4,6 +4,7 @@
     <section class="section-register">
       <div class="wrapper">
         <div class="register-container">
+          <FormLoader :status="status" :statusMessage="statusMessage" :statusSpinner="statusSpinner" />
           <h1 class="title">Création d'un compte</h1>
 
           <form @submit.prevent="handleRegister" class="register-form">
@@ -78,6 +79,7 @@
 @use '../../assets/scss/utils/mixins' as *;
 
 .register-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-content: center;
@@ -88,6 +90,8 @@
   padding: 20px;
   border-radius: 8px;
   text-align: center;
+
+
 
   .title {
     font-weight: 400;
@@ -329,7 +333,11 @@ const successMessage = ref('');
 const showTooltip = ref(false);
 const codeStatus = ref('');
 const codeMessage = ref('');
+const statusSpinner = ref(true);
 const tooltipMessage = ref('Si aucun code ne vous a été fourni ne remplissez pas ce champ');
+
+const status = ref(false);
+const statusMessage = ref('En cours de création de votre compte...');
 
 const getCodeRole = (code: string) => {
   const codeRoles: { [key: string]: { role: string; isAdmin: boolean } } = {
@@ -339,8 +347,6 @@ const getCodeRole = (code: string) => {
   };
   return codeRoles[code] || null;
 };
-
-
 
 const handleTooltipToggle = () => {
   showTooltip.value = !showTooltip.value;
@@ -406,6 +412,7 @@ const handleRegister = async () => {
     const authStore = useAuthStore();
 
     const registrationData: any = { ...form };
+
     if (form.code) {
       const roleInfo = getCodeRole(form.code);
       if (roleInfo) {
@@ -419,13 +426,21 @@ const handleRegister = async () => {
     success.value = true;
     successMessage.value = result.message;
 
+    status.value = true;
+    statusMessage.value = 'Création de votre compte en cours...';
+
     setTimeout(() => {
-      navigateTo('/register');
-    }, 3000);
+      statusSpinner.value = false;
+      statusMessage.value = 'Votre compte a été créé avec succès !';
+
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1200);
+    }, 1500);
+
+
   } catch (err: any) {
     error.value = err.message || "Erreur lors de l'inscription";
-  } finally {
-    loading.value = false;
   }
 };
 </script>

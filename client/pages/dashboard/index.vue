@@ -85,8 +85,8 @@ const handleLogout = async () => {
 
     .user-info {
       .user-role {
-        background-color: $lightGray;
-        color: $gray;
+        // background-color: $lightGray;
+        color: $black;
         padding: 6px 12px;
         border-radius: 20px;
         font-size: 14px;

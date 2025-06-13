@@ -68,7 +68,7 @@ import chevronBottom from './assets/icons/chevron-bottom.svg';
     min-width: max-content;
 
     &.active {
-      background-color: $gray;
+      background-color: rgba($gray, 0.1);
     }
 
     svg {

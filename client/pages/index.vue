@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Hello World</h1>
-  </div>
+
 </template>
 
 <script setup>
@@ -12,6 +10,10 @@ if (authStore.isLoggedIn) {
 } else {
   navigateTo('/login');
 }
+
+definePageMeta({
+  layout: false,
+});
 
 </script>
 
