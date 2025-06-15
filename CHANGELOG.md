@@ -31,13 +31,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 🛠️ Chore
 
-* **release:** 0.2.9 ([9778834](https://github.com/ThomasFourties/sc-planner/commit/97788345b37106e3786f8898964f85c171905fab))
-* **release:** 0.3.0 ([74302ef](https://github.com/ThomasFourties/sc-planner/commit/74302ef70121b8b6dd8c035f73339fe83b6f7425))
-* **release:** 0.3.0 ([5658926](https://github.com/ThomasFourties/sc-planner/commit/565892601da295c6933e5bd922cfd4546c319f20))
-* **release:** 0.3.0 ([9958570](https://github.com/ThomasFourties/sc-planner/commit/995857033672dd68099e450d27a942cede0cfdfc))
-* **release:** 0.3.0 ([1124e1e](https://github.com/ThomasFourties/sc-planner/commit/1124e1ed12d627689318f50269401bf327bb1ee5))
-* **release:** 0.3.0 ([3c633e5](https://github.com/ThomasFourties/sc-planner/commit/3c633e5ea4c68a56f33ef80bc9fec0789ee5d9c2))
-* **release:** 0.3.0 ([1e13632](https://github.com/ThomasFourties/sc-planner/commit/1e1363211fefbf59ce2197485f5905b5b9fc7013))
 * **release:** enhance version validation and update process in release script ([9f32617](https://github.com/ThomasFourties/sc-planner/commit/9f32617b87b25d30f40f03cd222d54ef2588bc93))
 * **release:** improve tag handling in release script ([054e05f](https://github.com/ThomasFourties/sc-planner/commit/054e05f2ef852f6c1748dfece6dde9335c082678))
 * **release:** remove git tag and push commands from release script ([1caf5db](https://github.com/ThomasFourties/sc-planner/commit/1caf5db84b05d88ab40616bc5ed9507158fd1006))
@@ -53,12 +46,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 🛠️ Chore
 
-* **release:** 0.2.9 ([9778834](https://github.com/ThomasFourties/sc-planner/commit/97788345b37106e3786f8898964f85c171905fab))
-* **release:** 0.3.0 ([5658926](https://github.com/ThomasFourties/sc-planner/commit/565892601da295c6933e5bd922cfd4546c319f20))
-* **release:** 0.3.0 ([9958570](https://github.com/ThomasFourties/sc-planner/commit/995857033672dd68099e450d27a942cede0cfdfc))
-* **release:** 0.3.0 ([1124e1e](https://github.com/ThomasFourties/sc-planner/commit/1124e1ed12d627689318f50269401bf327bb1ee5))
-* **release:** 0.3.0 ([3c633e5](https://github.com/ThomasFourties/sc-planner/commit/3c633e5ea4c68a56f33ef80bc9fec0789ee5d9c2))
-* **release:** 0.3.0 ([1e13632](https://github.com/ThomasFourties/sc-planner/commit/1e1363211fefbf59ce2197485f5905b5b9fc7013))
 * **release:** remove git tag and push commands from release script ([1caf5db](https://github.com/ThomasFourties/sc-planner/commit/1caf5db84b05d88ab40616bc5ed9507158fd1006))
 * **release:** update CHANGELOG format and add release-and-push script ([4ec856d](https://github.com/ThomasFourties/sc-planner/commit/4ec856dafd98e9fb630631c1695f6a5e211e8356))
 
@@ -72,10 +59,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 🛠️ Chore
 
-* **release:** 0.2.9 ([9778834](https://github.com/ThomasFourties/sc-planner/commit/97788345b37106e3786f8898964f85c171905fab))
-* **release:** 0.3.0 ([1124e1e](https://github.com/ThomasFourties/sc-planner/commit/1124e1ed12d627689318f50269401bf327bb1ee5))
-* **release:** 0.3.0 ([3c633e5](https://github.com/ThomasFourties/sc-planner/commit/3c633e5ea4c68a56f33ef80bc9fec0789ee5d9c2))
-* **release:** 0.3.0 ([1e13632](https://github.com/ThomasFourties/sc-planner/commit/1e1363211fefbf59ce2197485f5905b5b9fc7013))
 * **release:** remove git tag and push commands from release script ([1caf5db](https://github.com/ThomasFourties/sc-planner/commit/1caf5db84b05d88ab40616bc5ed9507158fd1006))
 * **release:** update CHANGELOG format and add release-and-push script ([4ec856d](https://github.com/ThomasFourties/sc-planner/commit/4ec856dafd98e9fb630631c1695f6a5e211e8356))
 
