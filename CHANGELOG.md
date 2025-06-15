@@ -9,6 +9,20 @@ All notable changes to this project will be documented in this file. See [standa
 
 * add versioning configuration and release scripts ([82dcffe](https://github.com/ThomasFourties/sc-planner/commit/82dcffee2d7f9a20fc85bad8dbdfeef99c4f4c42))
 
+
+### 🛠️ Chore
+
+* **release:** 0.2.0 ([18ce971](https://github.com/ThomasFourties/sc-planner/commit/18ce9711dfc0f95dbec3b13ca1f6a35406df7e8b))
+* **release:** bump version to 0.2.0 for client and server ([36428ad](https://github.com/ThomasFourties/sc-planner/commit/36428ad6a0a2a535b5d12a66809d028645e1ad98))
+* update CHANGELOG to format entries as bullet points ([ff6b6ad](https://github.com/ThomasFourties/sc-planner/commit/ff6b6ad26ecd38f42d06d88d9953d9bf9b25334b))
+
+## [0.2.0](https://github.com/ThomasFourties/sc-planner/compare/v0.1.0...v0.2.0) (2025-06-15)
+
+
+### ✨ Features
+
+* add versioning configuration and release scripts ([82dcffe](https://github.com/ThomasFourties/sc-planner/commit/82dcffee2d7f9a20fc85bad8dbdfeef99c4f4c42))
+
 ## [0.1.0](https://github.com/ThomasFourties/sc-planner/compare/v1.0.0...v0.1.0) (2025-06-15)
 
 
