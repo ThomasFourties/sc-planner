@@ -9,7 +9,8 @@
     "dev": "docker compose -f docker-compose.prod.yml up -d --build",
     "prod": "docker compose -f docker-compose.prod.yml up -d --build",
     "down": "docker compose -f docker-compose.dev.yml down",
-    "logs": "docker compose logs -f"
+    "logs": "docker compose logs -f",
+    "release": "node scripts/release.js"
   },
   "repository": {
     "type": "git",
