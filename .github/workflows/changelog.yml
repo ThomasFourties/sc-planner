@@ -67,14 +67,20 @@ jobs:
     - name: Sync version to client package.json
       run: |
         cd client
-        pnpm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
-        cd ..
+        CURRENT_VERSION=$(node -p "require('./package.json').version")
+        echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        if [ "$CURRENT_VERSION" != "${{ steps.version.outputs.new_version }}" ]; then
+          pnpm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+        fi
 
     - name: Sync version to server package.json
       run: |
         cd server
-        pnpm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
-        cd ..
+        CURRENT_VERSION=$(node -p "require('./package.json').version")
+        echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        if [ "$CURRENT_VERSION" != "${{ steps.version.outputs.new_version }}" ]; then
+          pnpm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+        fi
 
     - name: Commit synchronized versions
       run: |

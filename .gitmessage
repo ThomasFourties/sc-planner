@@ -17,12 +17,3 @@
 #   fix: resolve database connection issue
 #   feat!: redesign API (breaking change)
 #   feat(auth): add OAuth2 support
-#
-# Corps du message (optionnel, après une ligne vide):
-# - Expliquez le QUOI et le POURQUOI, pas le COMMENT
-# - Utilisez des tirets pour les listes
-# - Gardez une largeur de 72 caractères
-#
-# Footer (optionnel):
-# - Références aux issues: Fixes #123
-# - Breaking changes: BREAKING CHANGE: describe the change 
