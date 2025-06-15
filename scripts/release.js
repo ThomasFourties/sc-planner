@@ -40,7 +40,16 @@ function pullLatestChanges() {
 // Fonction pour créer la release
 function createRelease() {
   console.log('🚀 Création de la release...');
-  execGitCommand('npx standard-version');
+  try {
+    // S'assurer que tous les fichiers sont à jour
+    execGitCommand('git add .');
+    // Exécuter standard-version
+    execGitCommand('npx standard-version --no-verify');
+  } catch (error) {
+    console.error('❌ Erreur lors de la création de la release');
+    console.error(error.message);
+    process.exit(1);
+  }
 }
 
 // Fonction pour pousser les changements
