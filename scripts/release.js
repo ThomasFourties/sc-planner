@@ -23,6 +23,22 @@ try {
   packageJson.version = version;
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
 
+  // Update version in client/package.json if it exists
+  const clientPackageJsonPath = path.join(__dirname, '..', 'client', 'package.json');
+  if (fs.existsSync(clientPackageJsonPath)) {
+    const clientPackageJson = JSON.parse(fs.readFileSync(clientPackageJsonPath, 'utf8'));
+    clientPackageJson.version = version;
+    fs.writeFileSync(clientPackageJsonPath, JSON.stringify(clientPackageJson, null, 2) + '\n');
+  }
+
+  // Update version in server/package.json if it exists
+  const serverPackageJsonPath = path.join(__dirname, '..', 'server', 'package.json');
+  if (fs.existsSync(serverPackageJsonPath)) {
+    const serverPackageJson = JSON.parse(fs.readFileSync(serverPackageJsonPath, 'utf8'));
+    serverPackageJson.version = version;
+    fs.writeFileSync(serverPackageJsonPath, JSON.stringify(serverPackageJson, null, 2) + '\n');
+  }
+
   // Create CHANGELOG.md if it doesn't exist
   const changelogPath = path.join(__dirname, '..', 'CHANGELOG.md');
   if (!fs.existsSync(changelogPath)) {
@@ -30,8 +46,13 @@ try {
     fs.writeFileSync(changelogPath, defaultChangelog);
   }
 
-  // Run standard-version
-  execSync(`npx standard-version --release-as ${version} --no-verify`, { stdio: 'inherit' });
+  // Run standard-version with --no-verify to skip hooks
+  execSync(`npx standard-version --release-as ${version} --no-verify --skip-git`, { stdio: 'inherit' });
+
+  // Add all changes and create a single commit
+  execSync('git add .', { stdio: 'inherit' });
+  execSync(`git commit -m "release: ${version}"`, { stdio: 'inherit' });
+  execSync(`git tag -a v${version} -m "Version ${version}"`, { stdio: 'inherit' });
 
   console.log(`\n✅ Successfully released version ${version}`);
   console.log('\nNext steps:');
