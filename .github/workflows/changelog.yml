@@ -1,6 +1,10 @@
 name: Changelog and Release
 
 on:
+  push:
+    branches:
+    - master
+
   workflow_dispatch:
     inputs:
       release_type:
