@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.8](https://github.com/ThomasFourties/sc-planner/compare/v0.2.9...v0.2.8) (2025-06-15)
+
+
+### 🛠️ Chore
+
+* **release:** 0.2.9 ([1bc8a56](https://github.com/ThomasFourties/sc-planner/commit/1bc8a56e7fa66e7a81385beeda6dc7934f3c57b4))
+* **release:** remove outdated 0.2.9 entry from CHANGELOG ([cafb365](https://github.com/ThomasFourties/sc-planner/commit/cafb3655939d15d229180cd39ea237bc9a451f67))
+
+
+### 🐛 Bug Fixes
+
+* **release:** update regex to match new changelog format for version sections ([6e75f03](https://github.com/ThomasFourties/sc-planner/commit/6e75f030d18117c37cb13617ee4bc1197107596b))
+
 ### [0.2.8](https://github.com/ThomasFourties/sc-planner/compare/v0.2.7...v0.2.8) (2025-06-15)
 
 
