@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.0] - 2025-06-15
+
+- chore: mise à jour du script de release
+- chore: mise à jour du script de release
+- chore: mise à jour du script de release
+- chore: préparation de la release
+- chore(release): 0.0.1
+- chore: préparation de la release
+- chore: remove obsolete test files for client and server
+- feat(release): implement release script and update package.json commands
+- chore: update commit message guidelines and clean up workflows
+- chore: add git commit instructions and update changelog workflow
+- chore: update package versions to 0.0.0 for main, client, and server
+- 0.0.1
+- chore: remove obsolete test files for bugfix and changelog
+- fix(server): add dummy fix for changelog
+- feat(client): add dummy file for changelog
+- Merge branch 'dev'
+- fix: test changelog fix entry
+- feat: add changelog test file
+
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
