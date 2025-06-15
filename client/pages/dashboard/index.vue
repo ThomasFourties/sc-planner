@@ -2,7 +2,7 @@
   <div class="dashboard">
     <div class="dashboard-header">
       <div class="user-info">
-        <span class="user-role">{{ getRoleDisplay(currentUser?.role) }}</span>
+        <span class="user-role">{{ getRoleDisplay(currentUser?.role) }}</span> !
       </div>
       <button @click="handleLogout" class="logout-btn">
         Déconnexion

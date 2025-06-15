@@ -77,12 +77,12 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Get latest Git tag
+    - name: Get exact Git tag on HEAD
       id: git_tag
       run: |
-        LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-        echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-        echo "Latest tag: $LATEST_TAG"
+        TAG=$(git tag --points-at HEAD | head -n1 || echo "")
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        echo "Exact tag on HEAD: $TAG"
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
@@ -104,7 +104,7 @@ jobs:
         push: true
         tags: |
           thoomaas123/sc-planner-server:latest
-          thoomaas123/sc-planner-server:${{ steps.git_tag.outputs.tag }}
+          ${{ steps.git_tag.outputs.tag && format('thoomaas123/sc-planner-server:{0}', steps.git_tag.outputs.tag) }}
 
   deploy:
     name: Deploy to Production Server
