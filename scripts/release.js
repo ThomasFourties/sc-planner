@@ -2,6 +2,9 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// Obtenir le chemin absolu de la racine du projet
+const rootDir = path.resolve(__dirname, '..');
+
 // Fonction pour exécuter une commande git
 function execGitCommand(command) {
   try {
@@ -66,7 +69,7 @@ function updateVersion() {
   const { major, minor, patch } = analyzeCommits();
   
   // Lire la version actuelle
-  const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+  const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
   const [x, y, z] = packageJson.version.split('.').map(Number);
   
   // Calculer la nouvelle version
@@ -83,16 +86,16 @@ function updateVersion() {
   
   // Mettre à jour les fichiers package.json
   packageJson.version = newVersion;
-  fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2) + '\n');
+  fs.writeFileSync(path.join(rootDir, 'package.json'), JSON.stringify(packageJson, null, 2) + '\n');
   
   // Mettre à jour les autres package.json
-  const clientPackage = JSON.parse(fs.readFileSync('./client/package.json', 'utf8'));
+  const clientPackage = JSON.parse(fs.readFileSync(path.join(rootDir, 'client/package.json'), 'utf8'));
   clientPackage.version = newVersion;
-  fs.writeFileSync('./client/package.json', JSON.stringify(clientPackage, null, 2) + '\n');
+  fs.writeFileSync(path.join(rootDir, 'client/package.json'), JSON.stringify(clientPackage, null, 2) + '\n');
   
-  const serverPackage = JSON.parse(fs.readFileSync('./server/package.json', 'utf8'));
+  const serverPackage = JSON.parse(fs.readFileSync(path.join(rootDir, 'server/package.json'), 'utf8'));
   serverPackage.version = newVersion;
-  fs.writeFileSync('./server/package.json', JSON.stringify(serverPackage, null, 2) + '\n');
+  fs.writeFileSync(path.join(rootDir, 'server/package.json'), JSON.stringify(serverPackage, null, 2) + '\n');
   
   return newVersion;
 }
@@ -103,14 +106,14 @@ function updateChangelog() {
   const lastTag = execGitCommand('git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"');
   const commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
   
-  let changelog = fs.readFileSync('./CHANGELOG.md', 'utf8');
-  const version = require('./package.json').version;
+  let changelog = fs.readFileSync(path.join(rootDir, 'CHANGELOG.md'), 'utf8');
+  const version = require(path.join(rootDir, 'package.json')).version;
   
   const newEntry = `## [${version}] - ${new Date().toISOString().split('T')[0]}\n\n`;
   const changes = commits.map(commit => `- ${commit}`).join('\n');
   
   changelog = changelog.replace('# Changelog', `# Changelog\n\n${newEntry}${changes}\n`);
-  fs.writeFileSync('./CHANGELOG.md', changelog);
+  fs.writeFileSync(path.join(rootDir, 'CHANGELOG.md'), changelog);
 }
 
 // Fonction pour créer la release
