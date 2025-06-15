@@ -1,49 +1,49 @@
-name: Changelog and Release
+# name: Changelog and Release
 
-on:
-  push:
-    branches:
-    - master
+# on:
+#   push:
+#     branches:
+#     - master
 
-jobs:
-  release:
-    name: Generate Changelog and Release
-    runs-on: ubuntu-22.04
+# jobs:
+#   release:
+#     name: Generate Changelog and Release
+#     runs-on: ubuntu-22.04
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v4
+#       with:
+#         fetch-depth: 0
+#         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v4
+#     - name: Install pnpm
+#       uses: pnpm/action-setup@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.18.2'
-        cache: 'pnpm'
-        cache-dependency-path: |
-          client/pnpm-lock.yaml
-          server/pnpm-lock.yaml
+#     - name: Setup Node.js
+#       uses: actions/setup-node@v4
+#       with:
+#         node-version: '20.18.2'
+#         cache: 'pnpm'
+#         cache-dependency-path: |
+#           client/pnpm-lock.yaml
+#           server/pnpm-lock.yaml
 
-    - name: Install dependencies
-      run: |
-        pnpm add -g standard-version
-        cd client && pnpm install --frozen-lockfile && cd ..
-        cd server && pnpm install --frozen-lockfile && cd ..
+#     - name: Install dependencies
+#       run: |
+#         pnpm add -g standard-version
+#         cd client && pnpm install --frozen-lockfile && cd ..
+#         cd server && pnpm install --frozen-lockfile && cd ..
 
-    - name: Configure Git
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+#     - name: Configure Git
+#       run: |
+#         git config --local user.email "action@github.com"
+#         git config --local user.name "GitHub Action"
 
-    - name: Generate release
-      run: |
-        standard-version --no-verify --commit-all
+#     - name: Generate release
+#       run: |
+#         standard-version --no-verify --commit-all
 
-    - name: Push changes and tags
-      run: |
-        git push origin HEAD:master --follow-tags
+#     - name: Push changes and tags
+#       run: |
+#         git push origin HEAD:master --follow-tags
