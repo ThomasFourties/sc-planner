@@ -1,3 +1,4 @@
+const { execSync } = require('child_process');
 const fs = require('fs');
 const { Octokit } = require('@octokit/rest');
 
@@ -9,6 +10,22 @@ if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
   process.exit(1);
 }
 
+// Check if tag exists
+try {
+  execSync(`git rev-parse v${version}`, { stdio: 'ignore' });
+  console.error(`❌ Tag v${version} already exists`);
+  process.exit(1);
+} catch { }
+
+// Run standard-version
+try {
+  execSync(`npx standard-version --release-as ${version} --no-verify`, { stdio: 'inherit' });
+  console.log(`\n✅ Successfully released version ${version}`);
+} catch (err) {
+  console.error('❌ Release failed during standard-version:', err.message);
+  process.exit(1);
+}
+
 // Extract release notes from CHANGELOG.md
 const getReleaseNotes = () => {
   const changelog = fs.readFileSync('./CHANGELOG.md', 'utf8');
@@ -16,10 +33,11 @@ const getReleaseNotes = () => {
   return match ? match[1].trim() : '⚠️ No changelog entry found.';
 };
 
+// Push to GitHub & create release
 const createGitHubRelease = async () => {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
-    console.error('❌ GITHUB_TOKEN is missing in env');
+    console.error('❌ GITHUB_TOKEN is missing');
     process.exit(1);
   }
 
@@ -36,9 +54,9 @@ const createGitHubRelease = async () => {
       prerelease: false
     });
 
-    console.log(`\n✅ GitHub release v${version} created`);
+    console.log(`✅ GitHub release v${version} created`);
   } catch (err) {
-    console.error('❌ Failed to create GitHub release:', err.message);
+    console.error('❌ GitHub release failed:', err.message);
     process.exit(1);
   }
 };
