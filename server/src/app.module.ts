@@ -12,9 +12,9 @@ import { HealthModule } from './health/health.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [
-        join(__dirname, '../../.env'), // Racine du projet
-        join(__dirname, '../.env'), // Dossier server
-        '.env', // Dossier courant
+        join(__dirname, '../../.env'),
+        join(__dirname, '../.env'),
+        '.env',
       ],
       load: [databaseConfig],
     }),
