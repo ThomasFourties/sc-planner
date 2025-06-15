@@ -61,4 +61,5 @@ const createGitHubRelease = async () => {
   }
 };
 
+// Push to GitHub & create release
 createGitHubRelease();
