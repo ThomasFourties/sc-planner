@@ -38,11 +38,11 @@ jobs:
         fetch-depth: 0
 
     - name: Get exact Git tag if exists
-    id: git_tag
-    run: |
-      TAG=$(git tag --points-at HEAD | head -n1 || echo "")
-      echo "tag=$TAG" >> $GITHUB_OUTPUT
-      echo "Exact tag on HEAD: $TAG"
+      id: git_tag
+      run: |
+        TAG=$(git tag --points-at HEAD | head -n1 || echo "")
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        echo "Exact tag on HEAD: $TAG"
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
