@@ -1,6 +1,6 @@
 {
   "name": "sc-planner",
-  "version": "0.3.4",
+  "version": "0.3.7",
   "description": "SC Planner",
   "scripts": {
     "setup": "chmod +x scripts/setup-git.sh && ./scripts/setup-git.sh",
@@ -10,7 +10,7 @@
     "prod": "docker compose -f docker-compose.prod.yml up -d --build",
     "down": "docker compose -f docker-compose.dev.yml down",
     "logs": "docker compose logs -f",
-     "release": "node scripts/release-github.js"
+    "release": "node scripts/release.js"
   },
   "repository": {
     "type": "git",

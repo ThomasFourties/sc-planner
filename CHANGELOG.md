@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.7](https://github.com/ThomasFourties/sc-planner/compare/v0.3.4...v0.3.7) (2025-06-15)
+
+
+### ✨ Features
+
+* **release:** add release-local script for version validation and automated tagging ([ba59d74](https://github.com/ThomasFourties/sc-planner/commit/ba59d747edc172879b6ed2a15ad44fe3f51549e2))
+* **release:** add script to automate GitHub release creation with changelog extraction ([d444dfa](https://github.com/ThomasFourties/sc-planner/commit/d444dfab45873e7073ee665c9746776f6113172b))
+
+
+### ♻️ Refactoring
+
+* **release:** remove deprecated release script for version management ([79a9424](https://github.com/ThomasFourties/sc-planner/commit/79a94249180948151496505e513d42c1a561f6f4))
+
+
+### 🐛 Bug Fixes
+
+* **release:** remove local release script from automation process ([f670e84](https://github.com/ThomasFourties/sc-planner/commit/f670e84ef6d2a777259e51326163632b64435849))
+* **release:** update release script to include local and GitHub release automation ([9153391](https://github.com/ThomasFourties/sc-planner/commit/9153391e2e30117bd258efae44a538c89e74ee57))
+
 ### [0.3.4](https://github.com/ThomasFourties/sc-planner/compare/v0.3.3...v0.3.4) (2025-06-15)
 
 
