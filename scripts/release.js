@@ -39,12 +39,8 @@ try {
     fs.writeFileSync(serverPackageJsonPath, JSON.stringify(serverPackageJson, null, 2) + '\n');
   }
 
-  // Create CHANGELOG.md if it doesn't exist
-  const changelogPath = path.join(__dirname, '..', 'CHANGELOG.md');
-  if (!fs.existsSync(changelogPath)) {
-    const defaultChangelog = fs.readFileSync(path.join(__dirname, '..', 'CHANGELOG.md'), 'utf8');
-    fs.writeFileSync(changelogPath, defaultChangelog);
-  }
+  // Add all package.json changes
+  execSync('git add package.json client/package.json server/package.json', { stdio: 'inherit' });
 
   // Run standard-version with --no-verify to skip hooks
   execSync(`npx standard-version --release-as ${version} --no-verify`, { stdio: 'inherit' });
@@ -53,7 +49,7 @@ try {
   console.log('\nNext steps:');
   console.log('1. Review the changes in CHANGELOG.md');
   console.log('2. Push the changes and tags:');
-  console.log('   git push --follow-tags origin main');
+  console.log('   git push --follow-tags origin master');
   console.log('3. Create a new release on GitHub with the generated changelog');
 } catch (error) {
   console.error('Error during release:', error.message);
