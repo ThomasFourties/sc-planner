@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/ThomasFourties/sc-planner#readme",
   "devDependencies": {
+    "@octokit/rest": "^22.0.0",
     "conventional-changelog-cli": "^3.0.0",
     "standard-version": "^9.5.0"
   },
