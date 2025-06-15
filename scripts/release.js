@@ -47,6 +47,12 @@ try {
   execSync(`git commit -m "release: ${version}"`, { stdio: 'inherit' });
   execSync(`git tag -a v${version} -m "Version ${version}"`, { stdio: 'inherit' });
 
+  // Push changes and tags
+  execSync('git push --follow-tags origin master', { stdio: 'inherit' });
+
+  // Create GitHub release
+  execSync(`node scripts/create-github-release.js ${version}`, { stdio: 'inherit' });
+
   console.log(`\n✅ Successfully released version ${version}`);
   console.log('\nNext steps:');
   console.log('1. Review the changes in CHANGELOG.md');
