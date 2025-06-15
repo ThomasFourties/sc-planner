@@ -16,6 +16,15 @@ if (!/^\d+\.\d+\.\d+$/.test(version)) {
   process.exit(1);
 }
 
+// Check if tag already exists
+try {
+  execSync(`git rev-parse v${version}`, { stdio: 'ignore' });
+  console.error(`❌ Tag v${version} already exists. Please use a different version.`);
+  process.exit(1);
+} catch (error) {
+  // Tag doesn't exist, continue with release
+}
+
 try {
   // Update root package.json version
   const rootPackageJsonPath = path.join(__dirname, '..', 'package.json');
