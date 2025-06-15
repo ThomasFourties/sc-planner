@@ -1,9 +1,9 @@
 name: Deploy to Production Server
 
-on:
-  push:
-    branches:
-    - master
+# on:
+#   push:
+#     branches:
+#     - master
 
 jobs:
   changes:
