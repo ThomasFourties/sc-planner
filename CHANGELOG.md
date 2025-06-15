@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.3](https://github.com/ThomasFourties/sc-planner/compare/v0.3.2...v0.3.3) (2025-06-15)
+
+
+### ✨ Features
+
+* **release:** add modified package.json files to git staging before auto commit ([9b9cb09](https://github.com/ThomasFourties/sc-planner/commit/9b9cb0960e00ad075397b76e7dedfd535a2ad238))
+
+
+### 🛠️ Chore
+
+* **release:** bump version to 0.3.2 for client and server ([bb9bfd9](https://github.com/ThomasFourties/sc-planner/commit/bb9bfd95888e9e719700ab7713c429cd55c631ad))
+* update changelog workflow file formatting ([9998ab4](https://github.com/ThomasFourties/sc-planner/commit/9998ab458ef43dfbf1bf699970123dbe0a92b5b9))
+
 ### [0.3.2](https://github.com/ThomasFourties/sc-planner/compare/v0.3.1...v0.3.2) (2025-06-15)
 
 
