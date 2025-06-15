@@ -48,6 +48,17 @@ try {
     fs.writeFileSync(serverPackageJsonPath, JSON.stringify(serverPackageJson, null, 2) + '\n');
   }
 
+  // Ajoute les package.json modifiés avant le commit auto de standard-version
+  execSync(`git add ${rootPackageJsonPath}`, { stdio: 'inherit' });
+
+  if (fs.existsSync(clientPackageJsonPath)) {
+    execSync(`git add ${clientPackageJsonPath}`, { stdio: 'inherit' });
+  }
+
+  if (fs.existsSync(serverPackageJsonPath)) {
+    execSync(`git add ${serverPackageJsonPath}`, { stdio: 'inherit' });
+  }
+
   // Run standard-version
   execSync(`npx standard-version --release-as ${version} --no-verify`, { stdio: 'inherit' });
 
