@@ -44,12 +44,17 @@ function pullLatestChanges() {
 function analyzeCommits() {
   console.log('🔍 Analyse des commits...');
   let commits;
-  try {
-    const lastTag = execGitCommand('git describe --tags --abbrev=0 2>/dev/null');
-    commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
-  } catch (error) {
+  
+  // Vérifier si des tags existent
+  const tags = execGitCommand('git tag -l').split('\n').filter(tag => tag);
+  
+  if (tags.length === 0) {
     // Si aucun tag n'existe, on prend tous les commits
     commits = execGitCommand('git log --pretty=format:"%s"').split('\n');
+  } else {
+    // Si des tags existent, on prend les commits depuis le dernier tag
+    const lastTag = tags[tags.length - 1];
+    commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
   }
   
   let major = false;
