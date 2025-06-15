@@ -54,7 +54,7 @@ jobs:
 
     - name: Generate release
       run: |
-        standard-version --release-as ${{ github.event.inputs.release_type }} --no-verify
+        standard-version --release-as patch --no-verify
 
     - name: Get new version from Git tag
       id: version
