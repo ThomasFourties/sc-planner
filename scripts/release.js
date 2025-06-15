@@ -37,23 +37,95 @@ function pullLatestChanges() {
   execGitCommand('git pull origin master');
 }
 
+// Fonction pour analyser les commits et déterminer la version
+function analyzeCommits() {
+  console.log('🔍 Analyse des commits...');
+  const lastTag = execGitCommand('git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"');
+  const commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
+  
+  let major = false;
+  let minor = false;
+  let patch = false;
+
+  commits.forEach(commit => {
+    if (commit.includes('BREAKING CHANGE') || commit.startsWith('feat!:')) {
+      major = true;
+    } else if (commit.startsWith('feat:')) {
+      minor = true;
+    } else if (commit.startsWith('fix:')) {
+      patch = true;
+    }
+  });
+
+  return { major, minor, patch };
+}
+
+// Fonction pour mettre à jour la version
+function updateVersion() {
+  console.log('📝 Mise à jour de la version...');
+  const { major, minor, patch } = analyzeCommits();
+  
+  // Lire la version actuelle
+  const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+  const [x, y, z] = packageJson.version.split('.').map(Number);
+  
+  // Calculer la nouvelle version
+  let newVersion;
+  if (major) {
+    newVersion = `${x + 1}.0.0`;
+  } else if (minor) {
+    newVersion = `${x}.${y + 1}.0`;
+  } else if (patch) {
+    newVersion = `${x}.${y}.${z + 1}`;
+  } else {
+    newVersion = packageJson.version;
+  }
+  
+  // Mettre à jour les fichiers package.json
+  packageJson.version = newVersion;
+  fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2) + '\n');
+  
+  // Mettre à jour les autres package.json
+  const clientPackage = JSON.parse(fs.readFileSync('./client/package.json', 'utf8'));
+  clientPackage.version = newVersion;
+  fs.writeFileSync('./client/package.json', JSON.stringify(clientPackage, null, 2) + '\n');
+  
+  const serverPackage = JSON.parse(fs.readFileSync('./server/package.json', 'utf8'));
+  serverPackage.version = newVersion;
+  fs.writeFileSync('./server/package.json', JSON.stringify(serverPackage, null, 2) + '\n');
+  
+  return newVersion;
+}
+
+// Fonction pour mettre à jour le changelog
+function updateChangelog() {
+  console.log('📝 Mise à jour du changelog...');
+  const lastTag = execGitCommand('git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"');
+  const commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
+  
+  let changelog = fs.readFileSync('./CHANGELOG.md', 'utf8');
+  const version = require('./package.json').version;
+  
+  const newEntry = `## [${version}] - ${new Date().toISOString().split('T')[0]}\n\n`;
+  const changes = commits.map(commit => `- ${commit}`).join('\n');
+  
+  changelog = changelog.replace('# Changelog', `# Changelog\n\n${newEntry}${changes}\n`);
+  fs.writeFileSync('./CHANGELOG.md', changelog);
+}
+
 // Fonction pour créer la release
 function createRelease() {
   console.log('🚀 Création de la release...');
   try {
-    // S'assurer que tous les fichiers sont à jour
-    execGitCommand('git add .');
+    const newVersion = updateVersion();
+    updateChangelog();
     
-    // Exécuter standard-version avec des options plus permissives
-    execGitCommand('npx standard-version --no-verify --skip-git');
-    
-    // Faire le commit manuellement
+    // Faire le commit
     execGitCommand('git add .');
-    execGitCommand('git commit -m "chore(release): bump version"');
+    execGitCommand(`git commit -m "chore(release): ${newVersion}"`);
     
     // Créer le tag
-    const version = require('./package.json').version;
-    execGitCommand(`git tag -a v${version} -m "Release v${version}"`);
+    execGitCommand(`git tag -a v${newVersion} -m "Release v${newVersion}"`);
   } catch (error) {
     console.error('❌ Erreur lors de la création de la release');
     console.error(error.message);
