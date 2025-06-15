@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/ThomasFourties/sc-planner/compare/v0.3.0...v0.3.1) (2025-06-15)
+
+
+### 🛠️ Chore
+
+* **release:** update release script to include git push with tags ([96fb896](https://github.com/ThomasFourties/sc-planner/commit/96fb896e2e1a7e0f466d6abfd4dcd06dea9c385b))
+
+
+### 🐛 Bug Fixes
+
+* remove git push command from release script ([e3dff13](https://github.com/ThomasFourties/sc-planner/commit/e3dff13622033d9d9a8438e1f4f48eaf1de281bc))
+
 ## [0.3.0](https://github.com/ThomasFourties/sc-planner/compare/v0.2.9...v0.3.0) (2025-06-15)
 
 
