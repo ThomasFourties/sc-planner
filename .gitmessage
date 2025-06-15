@@ -1,19 +1,16 @@
-# Type de commit: description courte (max 50 caractères)
+# Type de commit: description courte (max 20 caractères)
 #
-# Type peut être:
+# Types :
 #   feat     - nouvelle fonctionnalité
 #   fix      - correction de bug
-#   docs     - documentation
-#   style    - formatage, points-virgules manquants, etc.
-#   refactor - refactorisation sans ajout de fonctionnalité
-#   test     - ajout ou modification de tests
-#   chore    - tâches de maintenance, mise à jour deps
-#   perf     - amélioration de performance
-#   ci       - changements CI/CD
-#   build    - changements système de build
+#   chore    - tâches techniques / non fonctionnelles
+#   docs     - documentation uniquement
+#   refactor - changement sans ajout de fonctionnalité
+#   style    - indentation, espaces, etc.
+#   test     - ajout ou modif de tests
+#   ci       - modifs des workflows, intégration continue
 #
-# Exemples:
-#   feat: add user authentication
-#   fix: resolve database connection issue
-#   feat!: redesign API (breaking change)
-#   feat(auth): add OAuth2 support
+# Exemples :
+#   feat(auth): implement reset password
+#   fix(server): correct API base URL
+#   chore: bump version to 0.0.2
