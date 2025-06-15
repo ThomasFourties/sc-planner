@@ -2,6 +2,11 @@
 
 ## [0.1.0] - 2025-06-15
 
+- chore: comment out the changelog workflow for future reference
+
+
+## [0.1.0] - 2025-06-15
+
 - chore: mise à jour du script de release
 - chore: mise à jour du script de release
 - chore: mise à jour du script de release
