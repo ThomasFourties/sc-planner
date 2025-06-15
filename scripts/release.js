@@ -58,10 +58,6 @@ try {
   } catch (error) {
     console.warn('ℹ️ Nothing to commit, skipping commit step.');
   }
-  execSync(`git tag -a v${version} -m "Version ${version}"`, { stdio: 'inherit' });
-
-  // Push changes and tags
-  execSync('git push --follow-tags origin master', { stdio: 'inherit' });
 
   // Create GitHub release
   execSync(`node scripts/create-github-release.js ${version}`, { stdio: 'inherit' });
