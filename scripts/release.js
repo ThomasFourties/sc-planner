@@ -39,8 +39,8 @@ try {
     fs.writeFileSync(serverPackageJsonPath, JSON.stringify(serverPackageJson, null, 2) + '\n');
   }
 
-  // Run standard-version with --skip-git to handle git operations ourselves
-  execSync(`npx standard-version --release-as ${version} --no-verify --skip-git --skip-commit`, { stdio: 'inherit' });
+  // Run standard-version with all git operations disabled
+  execSync(`npx standard-version --release-as ${version} --no-verify --skip-git --skip-commit --skip-tag --dry-run`, { stdio: 'inherit' });
 
   // Add all changes and create a single commit
   execSync('git add .', { stdio: 'inherit' });
@@ -54,11 +54,6 @@ try {
   execSync(`node scripts/create-github-release.js ${version}`, { stdio: 'inherit' });
 
   console.log(`\n✅ Successfully released version ${version}`);
-  console.log('\nNext steps:');
-  console.log('1. Review the changes in CHANGELOG.md');
-  console.log('2. Push the changes and tags:');
-  console.log('   git push --follow-tags origin master');
-  console.log('3. Create a new release on GitHub with the generated changelog');
 } catch (error) {
   console.error('Error during release:', error.message);
   process.exit(1);
