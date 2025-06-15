@@ -41,6 +41,11 @@ function pullLatestChanges() {
 }
 
 // Fonction pour obtenir la version actuelle
+function getCurrentVersion() {
+  const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
+  return packageJson.version;
+}
+
 // Fonction pour analyser les commits et déterminer la version
 function analyzeCommits() {
   console.log('🔍 Analyse des commits...');
@@ -55,7 +60,12 @@ function analyzeCommits() {
   } else {
     // Si des tags existent, on prend les commits depuis le dernier tag
     const lastTag = tags[tags.length - 1];
-    commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
+    try {
+      commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
+    } catch (error) {
+      // En cas d'erreur, on prend tous les commits
+      commits = execGitCommand('git log --pretty=format:"%s"').split('\n');
+    }
   }
   
   let major = false;
@@ -79,25 +89,32 @@ function analyzeCommits() {
 function updateVersion() {
   console.log('📝 Mise à jour de la version...');
   const { major, minor, patch } = analyzeCommits();
+  const currentVersion = getCurrentVersion();
+  const [majorVersion, minorVersion, patchVersion] = currentVersion.split('.').map(Number);
   
-  // Lire la version actuelle
-  const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
-  const [x, y, z] = packageJson.version.split('.').map(Number);
-  
-  // Calculer la nouvelle version
   let newVersion;
   if (major) {
-    newVersion = `${x + 1}.0.0`;
+    newVersion = `${majorVersion + 1}.0.0`;
   } else if (minor) {
-    newVersion = `${x}.${y + 1}.0`;
+    newVersion = `${majorVersion}.${minorVersion + 1}.0`;
   } else if (patch) {
-    newVersion = `${x}.${y}.${z + 1}`;
+    newVersion = `${majorVersion}.${minorVersion}.${patchVersion + 1}`;
   } else {
-    newVersion = packageJson.version;
+    newVersion = currentVersion;
   }
-  
-  // Mettre à jour les fichiers package.json
+
+  // Mettre à jour package.json
+  const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
   packageJson.version = newVersion;
+  fs.writeFileSync(path.join(rootDir, 'package.json'), JSON.stringify(packageJson, null, 2));
+
+  // Mettre à jour client/package.json
+  const clientPackageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'client/package.json'), 'utf8'));
+  clientPackageJson.version = newVersion;
+  fs.writeFileSync(path.join(rootDir, 'client/package.json'), JSON.stringify(clientPackageJson, null, 2));
+
+  // Mettre à jour server/package.json
+  const serverPackageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'server/package.json'), 'utf8'));
   fs.writeFileSync(path.join(rootDir, 'package.json'), JSON.stringify(packageJson, null, 2) + '\n');
   
   // Mettre à jour les autres package.json
