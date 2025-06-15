@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "SC Planner client",
   "author": "Thomas Fourties",
   "private": true,
