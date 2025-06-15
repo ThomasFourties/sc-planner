@@ -40,6 +40,7 @@ function pullLatestChanges() {
   execGitCommand('git pull origin master');
 }
 
+// Fonction pour obtenir la version actuelle
 // Fonction pour analyser les commits et déterminer la version
 function analyzeCommits() {
   console.log('🔍 Analyse des commits...');
