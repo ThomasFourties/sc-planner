@@ -1,6 +1,6 @@
 {
   "name": "sc-planner",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "SC Planner",
   "scripts": {
     "setup": "chmod +x scripts/setup-git.sh && ./scripts/setup-git.sh",
