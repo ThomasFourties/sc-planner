@@ -43,8 +43,14 @@ function pullLatestChanges() {
 // Fonction pour analyser les commits et déterminer la version
 function analyzeCommits() {
   console.log('🔍 Analyse des commits...');
-  const lastTag = execGitCommand('git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"');
-  const commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
+  let commits;
+  try {
+    const lastTag = execGitCommand('git describe --tags --abbrev=0 2>/dev/null');
+    commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
+  } catch (error) {
+    // Si aucun tag n'existe, on prend tous les commits
+    commits = execGitCommand('git log --pretty=format:"%s"').split('\n');
+  }
   
   let major = false;
   let minor = false;
