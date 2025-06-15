@@ -13,19 +13,23 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 ### ✨ Features
-- ✨ feat(auth): add JWT-based login and registration system
-- ✨ feat(auth): implement password reset with email token
-- ✨ feat: add health check endpoint for deployment monitoring
-- ✨ feat: integrate Swagger UI for API documentation
+
+* ✨ feat(auth): add JWT-based login and registration system
+* ✨ feat(auth): implement password reset with email token
+* ✨ feat: add health check endpoint for deployment monitoring
+* ✨ feat: integrate Swagger UI for API documentation
 
 ### 👷 CI/CD
-- 👷 ci: add GitHub Actions workflow for automatic staging deployment
-- 👷 ci: add production deployment workflow with tagging
+
+* 👷 ci: add GitHub Actions workflow for automatic staging deployment
+* 👷 ci: add production deployment workflow with tagging
 
 ### 📚 Documentation
-- 📚 docs: add setup instructions for local development
-- 📚 docs: document authentication flows and endpoints
+
+* 📚 docs: add setup instructions for local development
+* 📚 docs: document authentication flows and endpoints
 
 ### 🛠️ Chore
-- 🔨 chore: add changelog generation workflow with standard-version
-- 🔨 chore: configure commit linting and release tagging
+
+* 🔨 chore: add changelog generation workflow with standard-version
+* 🔨 chore: configure commit linting and release tagging
