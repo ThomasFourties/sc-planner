@@ -2,13 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.2.9](https://github.com/ThomasFourties/sc-planner/compare/v0.2.8...v0.2.9) (2025-06-15)
-
-
-### 🛠️ Chore
-
-* **release:** 0.2.8 ([6148898](https://github.com/ThomasFourties/sc-planner/commit/614889839ea723b7ed820956c41f4caca8bb4893))
-
 ### [0.2.8](https://github.com/ThomasFourties/sc-planner/compare/v0.2.7...v0.2.8) (2025-06-15)
 
 
