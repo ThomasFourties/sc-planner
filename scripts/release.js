@@ -40,7 +40,7 @@ try {
   }
 
   // Run standard-version with --skip-git to handle git operations ourselves
-  execSync(`npx standard-version --release-as ${version} --no-verify --skip-git`, { stdio: 'inherit' });
+  execSync(`npx standard-version --release-as ${version} --no-verify --skip-git --skip-commit`, { stdio: 'inherit' });
 
   // Add all changes and create a single commit
   execSync('git add .', { stdio: 'inherit' });
