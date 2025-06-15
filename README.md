@@ -115,9 +115,50 @@ feat!: breaking change     # → version major (0.1.0 → 1.0.0)
 npm run dev                # Lancer en mode développement
 npm run build             # Construire les images Docker
 npm run logs              # Voir les logs des conteneurs
-
-# Versioning (optionnel - automatique sur master)
-npm run version:patch     # Version patch (0.1.0 → 0.1.1)
-npm run version:minor     # Version minor (0.1.0 → 0.2.0)
-npm run version:major     # Version major (0.1.0 → 1.0.0)
 ```
+
+## Processus de Release
+
+### Prérequis
+1. Assurez-vous d'avoir un token GitHub avec accès au repo
+2. Définissez le token dans votre environnement :
+   ```bash
+   export GITHUB_TOKEN=votre_token_ici
+   ```
+
+### Étapes pour Créer une Release
+
+1. **Créer la Release**
+   ```bash
+   pnpm release <version>
+   ```
+   Exemple : `pnpm release 0.3.0`
+
+   Cela va :
+   - Vérifier si le tag de version existe déjà
+   - Mettre à jour la version dans tous les fichiers package.json
+   - Générer/mettre à jour le CHANGELOG.md
+   - Créer un commit git et un tag
+   - Créer une release GitHub avec le contenu du changelog
+
+2. **Pousser les Changements**
+   ```bash
+   git push --follow-tags origin master
+   ```
+
+### Dépannage
+
+Si vous obtenez une erreur concernant un tag existant :
+1. Supprimer le tag local :
+   ```bash
+   git tag -d v<version>
+   ```
+2. Supprimer le tag distant :
+   ```bash
+   git push origin :refs/tags/v<version>
+   ```
+3. Réessayer le processus de release
+
+### Format de Version
+- Utiliser le versioning sémantique : `x.y.z`
+- Exemples : `0.1.0`, `1.0.0`, `2.1.3`
