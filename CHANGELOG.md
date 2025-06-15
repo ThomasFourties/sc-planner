@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/ThomasFourties/sc-planner/compare/v0.3.1...v0.3.2) (2025-06-15)
+
+
+### 🛠️ Chore
+
+* **release:** bump version to 0.3.1 for client and server ([ed80e31](https://github.com/ThomasFourties/sc-planner/commit/ed80e31715a4be03d601187c653e9fcb6c3c6450))
+
 ### [0.3.1](https://github.com/ThomasFourties/sc-planner/compare/v0.3.0...v0.3.1) (2025-06-15)
 
 
