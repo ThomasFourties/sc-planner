@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.2.7](https://github.com/ThomasFourties/sc-planner/compare/v0.2.6...v0.2.7) (2025-06-15)
 
+
+### ✨ Features
+
+* add script to automate GitHub release creation ([36099de](https://github.com/ThomasFourties/sc-planner/commit/36099de901ec6ee15871d6051cb6caf2d3c499ec))
+
+
+### 🐛 Bug Fixes
+
+* **release:** add --skip-commit flag to standard-version command ([159d531](https://github.com/ThomasFourties/sc-planner/commit/159d53153994082e6d3b2eb3f7b5f693f2abdc6a))
+* **release:** update standard-version command to include --dry-run and --skip-tag options ([07f4631](https://github.com/ThomasFourties/sc-planner/commit/07f4631833e6118ad64011993943535f708b3a54))
+
+
+### ♻️ Refactoring
+
+* **release:** simplify standard-version command by removing git operations ([0c96c4e](https://github.com/ThomasFourties/sc-planner/commit/0c96c4e3b02b7a4f41147344373413e3d36584db))
+
+
+### 🛠️ Chore
+
+* add @octokit/rest as a dev dependency ([6d3c521](https://github.com/ThomasFourties/sc-planner/commit/6d3c52106dad7c86b82d0c3b82371f522f1e6787))
+* **release:** 0.2.7 ([780b79f](https://github.com/ThomasFourties/sc-planner/commit/780b79f3ff95f259596fbe6fe72ec73bfcb30762))
+* **release:** enhance release script to manage git operations manually ([36f7f74](https://github.com/ThomasFourties/sc-planner/commit/36f7f74c7e06080297f5dfea398c4dff9354ec35))
+
+### [0.2.7](https://github.com/ThomasFourties/sc-planner/compare/v0.2.6...v0.2.7) (2025-06-15)
+
 ### [0.2.6](https://github.com/ThomasFourties/sc-planner/compare/v0.2.4...v0.2.6) (2025-06-15)
 
 
