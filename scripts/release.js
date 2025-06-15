@@ -61,12 +61,16 @@ function analyzeCommits() {
     // Si des tags existent, on prend les commits depuis le dernier tag
     const lastTag = tags[tags.length - 1];
     try {
-      commits = execGitCommand(`git log ${lastTag}..HEAD --pretty=format:"%s"`).split('\n');
+      // Utiliser -- pour séparer les révisions des chemins
+      commits = execGitCommand(`git log ${lastTag}..HEAD -- --pretty=format:"%s"`).split('\n');
     } catch (error) {
-      // En cas d'erreur, on prend tous les commits
+      console.log('⚠️ Erreur lors de la récupération des commits depuis le dernier tag, utilisation de tous les commits...');
       commits = execGitCommand('git log --pretty=format:"%s"').split('\n');
     }
   }
+  
+  // Filtrer les commits vides
+  commits = commits.filter(commit => commit.trim());
   
   let major = false;
   let minor = false;
