@@ -47,12 +47,7 @@ try {
   }
 
   // Run standard-version with --no-verify to skip hooks
-  execSync(`npx standard-version --release-as ${version} --no-verify --skip-git`, { stdio: 'inherit' });
-
-  // Add all changes and create a single commit
-  execSync('git add .', { stdio: 'inherit' });
-  execSync(`git commit -m "release: ${version}"`, { stdio: 'inherit' });
-  execSync(`git tag -a v${version} -m "Version ${version}"`, { stdio: 'inherit' });
+  execSync(`npx standard-version --release-as ${version} --no-verify`, { stdio: 'inherit' });
 
   console.log(`\n✅ Successfully released version ${version}`);
   console.log('\nNext steps:');
