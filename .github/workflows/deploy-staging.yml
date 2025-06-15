@@ -68,7 +68,6 @@ jobs:
         push: true
         tags: |
           thoomaas123/sc-planner-client:staging-${{ steps.short_sha.outputs.sha_short }}
-          thoomaas123/sc-planner-client:${{ steps.git_tag.outputs.tag }}
 
   server:
     name: Build and Push Server
@@ -112,7 +111,6 @@ jobs:
         push: true
         tags: |
           thoomaas123/sc-planner-server:staging-${{ steps.short_sha.outputs.sha_short }}
-          thoomaas123/sc-planner-server:${{ steps.git_tag.outputs.tag }}
 
   deploy:
     name: Deploy to Staging Server
