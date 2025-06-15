@@ -9,16 +9,7 @@
     "dev": "docker compose -f docker-compose.prod.yml up -d --build",
     "prod": "docker compose -f docker-compose.prod.yml up -d --build",
     "down": "docker compose -f docker-compose.dev.yml down",
-    "logs": "docker compose logs -f",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "version:patch": "npm version patch && npm run sync-versions",
-    "version:minor": "npm version minor && npm run sync-versions",
-    "version:major": "npm version major && npm run sync-versions",
-    "sync-versions": "node scripts/sync-versions.js",
-    "release": "node scripts/release.js",
-    "release:patch": "npm version patch && npm run release",
-    "release:minor": "npm version minor && npm run release",
-    "release:major": "npm version major && npm run release"
+    "logs": "docker compose logs -f"
   },
   "repository": {
     "type": "git",
