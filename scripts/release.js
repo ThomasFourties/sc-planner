@@ -39,8 +39,13 @@ try {
     fs.writeFileSync(serverPackageJsonPath, JSON.stringify(serverPackageJson, null, 2) + '\n');
   }
 
-  // Run standard-version
-  execSync(`npx standard-version --release-as ${version} --no-verify`, { stdio: 'inherit' });
+  // Run standard-version with --skip-git to handle git operations ourselves
+  execSync(`npx standard-version --release-as ${version} --no-verify --skip-git --skip-commit --skip-tag`, { stdio: 'inherit' });
+
+  // Add all changes and create a single commit
+  execSync('git add .', { stdio: 'inherit' });
+  execSync(`git commit -m "chore(release): ${version}"`, { stdio: 'inherit' });
+  execSync(`git tag -a v${version} -m "Version ${version}"`, { stdio: 'inherit' });
 
   // Push changes and tags
   execSync('git push --follow-tags origin master', { stdio: 'inherit' });
