@@ -13,22 +13,10 @@ All notable changes to this project will be documented in this file. See [standa
 ### 🛠️ Chore
 
 * **release:** 0.2.9 ([9778834](https://github.com/ThomasFourties/sc-planner/commit/97788345b37106e3786f8898964f85c171905fab))
+* **release:** 0.3.0 ([1124e1e](https://github.com/ThomasFourties/sc-planner/commit/1124e1ed12d627689318f50269401bf327bb1ee5))
 * **release:** 0.3.0 ([3c633e5](https://github.com/ThomasFourties/sc-planner/commit/3c633e5ea4c68a56f33ef80bc9fec0789ee5d9c2))
 * **release:** 0.3.0 ([1e13632](https://github.com/ThomasFourties/sc-planner/commit/1e1363211fefbf59ce2197485f5905b5b9fc7013))
 * **release:** remove git tag and push commands from release script ([1caf5db](https://github.com/ThomasFourties/sc-planner/commit/1caf5db84b05d88ab40616bc5ed9507158fd1006))
-* **release:** update CHANGELOG format and add release-and-push script ([4ec856d](https://github.com/ThomasFourties/sc-planner/commit/4ec856dafd98e9fb630631c1695f6a5e211e8356))
-
-## [0.3.0](https://github.com/ThomasFourties/sc-planner/compare/v0.2.9...v0.3.0) (2025-06-15)
-
-
-### ✨ Features
-
-* **release:** add script for automated release and push process ([177dc33](https://github.com/ThomasFourties/sc-planner/commit/177dc33096c1aec4b0f640d609502593c2bf8d90))
-
-
-### 🛠️ Chore
-
-* **release:** 0.2.9 ([9778834](https://github.com/ThomasFourties/sc-planner/commit/97788345b37106e3786f8898964f85c171905fab))
 * **release:** update CHANGELOG format and add release-and-push script ([4ec856d](https://github.com/ThomasFourties/sc-planner/commit/4ec856dafd98e9fb630631c1695f6a5e211e8356))
 
 ### [0.2.9](https://github.com/ThomasFourties/sc-planner/compare/v0.2.8...v0.2.9) (2025-06-15)
