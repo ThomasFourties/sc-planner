@@ -2,9 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.9](https://github.com/ThomasFourties/sc-planner/compare/v0.2.8...v0.2.9) (2025-06-15)
+
+
 ### 🐛 Bug Fixes
 
 * **release:** update regex to match new changelog format for version sections ([6e75f03](https://github.com/ThomasFourties/sc-planner/commit/6e75f030d18117c37cb13617ee4bc1197107596b))
+
+
+### ✨ Features
+
+* **release:** add check for existing version tag before release ([0fd0120](https://github.com/ThomasFourties/sc-planner/commit/0fd01209a373cb1f46d34c5c8a606fa9b9893bfa))
+
+
+### 🛠️ Chore
+
+* **release:** 0.2.8 ([1870e90](https://github.com/ThomasFourties/sc-planner/commit/1870e90b4ec3390929696632c51b6a9064cf3029))
+* **release:** 0.2.8 ([6148898](https://github.com/ThomasFourties/sc-planner/commit/614889839ea723b7ed820956c41f4caca8bb4893))
+* **release:** 0.2.9 ([1bc8a56](https://github.com/ThomasFourties/sc-planner/commit/1bc8a56e7fa66e7a81385beeda6dc7934f3c57b4))
+* **release:** 0.2.9 ([d1cc53f](https://github.com/ThomasFourties/sc-planner/commit/d1cc53f421b28fbde827bafb03dae471b1e715fa))
+* **release:** downgrade version to 0.2.8 in package.json ([6b81d57](https://github.com/ThomasFourties/sc-planner/commit/6b81d57cbde4051481feaf9490f1e4c0d46b9888))
+* **release:** remove outdated 0.2.9 entry from CHANGELOG ([cafb365](https://github.com/ThomasFourties/sc-planner/commit/cafb3655939d15d229180cd39ea237bc9a451f67))
+* **release:** update CHANGELOG to remove outdated 0.2.9 entry ([188a993](https://github.com/ThomasFourties/sc-planner/commit/188a9931ba015eb1522184cca49041af228360ff))
 
 ### [0.2.8](https://github.com/ThomasFourties/sc-planner/compare/v0.2.7...v0.2.8) (2025-06-15)
 
