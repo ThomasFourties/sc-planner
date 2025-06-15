@@ -110,7 +110,7 @@ All notable changes to this project will be documented in this file. See [standa
 * update CHANGELOG to format entries as bullet points ([ff6b6ad](https://github.com/ThomasFourties/sc-planner/commit/ff6b6ad26ecd38f42d06d88d9953d9bf9b25334b))
 
 
-## [0.1.0](https://github.com/ThomasFourties/sc-planner/compare/v1.0.0...v0.1.0) (2025-06-15)
+## [0.1.0] (2025-06-15)
 
 
 ### ✨ Features
