@@ -43,8 +43,17 @@ function createRelease() {
   try {
     // S'assurer que tous les fichiers sont à jour
     execGitCommand('git add .');
-    // Exécuter standard-version
-    execGitCommand('npx standard-version --no-verify');
+    
+    // Exécuter standard-version avec des options plus permissives
+    execGitCommand('npx standard-version --no-verify --skip-git');
+    
+    // Faire le commit manuellement
+    execGitCommand('git add .');
+    execGitCommand('git commit -m "chore(release): bump version"');
+    
+    // Créer le tag
+    const version = require('./package.json').version;
+    execGitCommand(`git tag -a v${version} -m "Release v${version}"`);
   } catch (error) {
     console.error('❌ Erreur lors de la création de la release');
     console.error(error.message);
@@ -55,6 +64,7 @@ function createRelease() {
 // Fonction pour pousser les changements
 function pushChanges() {
   console.log('📤 Push des changements...');
+  execGitCommand('git push origin master');
   execGitCommand('git push --follow-tags origin master');
 }
 
