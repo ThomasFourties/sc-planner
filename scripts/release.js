@@ -16,13 +16,11 @@ if (!/^\d+\.\d+\.\d+$/.test(version)) {
   process.exit(1);
 }
 
-// Check if tag already exists
 try {
   execSync(`git rev-parse v${version}`, { stdio: 'ignore' });
-  console.error(`❌ Tag v${version} already exists. Please use a different version.`);
-  process.exit(1);
+  console.warn(`⚠️ Tag v${version} already exists. Skipping manual tagging.`);
 } catch {
-  // Tag doesn't exist, continue
+  execSync(`git tag -a v${version} -m "Version ${version}"`, { stdio: 'inherit' });
 }
 
 try {
