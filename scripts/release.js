@@ -44,7 +44,11 @@ try {
 
   // Add all changes and create a single commit
   execSync('git add .', { stdio: 'inherit' });
-  execSync(`git commit -m "chore(release): ${version}"`, { stdio: 'inherit' });
+  try {
+    execSync(`git commit -m "chore(release): ${version}"`, { stdio: 'inherit' });
+  } catch (error) {
+    console.warn('ℹ️ Nothing to commit, skipping commit step.');
+  }
   execSync(`git tag -a v${version} -m "Version ${version}"`, { stdio: 'inherit' });
 
   // Push changes and tags
