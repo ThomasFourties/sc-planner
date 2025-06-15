@@ -23,7 +23,8 @@ async function createRelease(version) {
     const changelog = fs.readFileSync(changelogPath, 'utf8');
 
     // Extract the section for this version
-    const versionRegex = new RegExp(`## \\[${version}\\] - [\\d-]+\\n\\n([\\s\\S]*?)(?=\\n## |$)`);
+    // const versionRegex = new RegExp(`## \\[${version}\\] - [\\d-]+\\n\\n([\\s\\S]*?)(?=\\n## |$)`);
+    const versionRegex = new RegExp(`### \\[${version}\\].*?\\n+([\\s\\S]*?)(?=\\n### |$)`);
     const match = changelog.match(versionRegex);
 
     if (!match) {
