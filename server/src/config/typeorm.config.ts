@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { User } from '../users/entities/user.entity';
+import { Task } from '../tasks/entities/task.entity';
 
 export default new DataSource({
   type: 'postgres',
@@ -8,7 +9,7 @@ export default new DataSource({
   username: process.env.DATABASE_USER || 'user',
   password: process.env.DATABASE_PASSWORD || 'password',
   database: process.env.DATABASE_NAME || 'sc-planner-db',
-  entities: [User],
+  entities: [User, Task],
   migrations: ['src/database/migrations/**/*.ts'],
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',

@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from './config/database.config';
 import { HealthModule } from './health/health.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { HealthModule } from './health/health.module';
     UsersModule,
     AuthModule,
     HealthModule,
+    TasksModule,
   ],
 })
 export class AppModule {}
