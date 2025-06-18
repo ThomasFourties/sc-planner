@@ -20,9 +20,16 @@
           <img src="/images/profile.png" alt="Profile" />
         </div>
         <div class="info">
-          <p class="name">Thomas Fourties</p>
-          <p class="email">thomas@supercolor.cool</p>
+          <p class="name">{{ authStore.currentUser?.first_name }} {{ authStore.currentUser?.last_name }}</p>
+          <p class="email">{{ authStore.currentUser?.email }}</p>
+          <p class="role">{{ authStore.currentUser?.role }}</p>
         </div>
+      </div>
+
+      <div class="logout">
+        <button class="logout-btn" @click="handleLogout">
+          Déconnexion
+        </button>
       </div>
     </div>
   </div>
@@ -31,6 +38,14 @@
 <script setup>
 import settings from './assets/icons/settings.svg';
 import help from './assets/icons/help.svg';
+import { useAuthStore } from '~/stores/auth';
+
+const authStore = useAuthStore();
+
+const handleLogout = () => {
+  authStore.logout();
+  navigateTo('/login');
+}
 </script>
 
 <style lang="scss" scoped>
@@ -51,6 +66,16 @@ import help from './assets/icons/help.svg';
     flex-direction: row;
     overflow: hidden;
     padding: 0;
+  }
+
+  .role {
+    font-size: 8px;
+    color: $black;
+    text-transform: lowercase;
+  }
+
+  .logout {
+    margin-top: 20px;
   }
 
   .top {
