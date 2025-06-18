@@ -1,21 +1,28 @@
 <template>
   <div class="dashboard">
-    <div class="dashboard-header">
-      <div class="user-info">
-        <span class="user-role">{{ getRoleDisplay(currentUser?.role) }}</span> !
-      </div>
-      <button @click="handleLogout" class="logout-btn">
-        Déconnexion
-      </button>
-    </div>
     <div class="txt-wp">
       <p class="surtitle">{{ formattedDate }}</p>
-      <h1 class="h1">Bonjour {{ currentUser?.first_name || 'Utilisateur' }} !</h1>
-      <p class="soustitle">Aujourd'hui, <span>5 tâches</span> vous sont assignés dans 2 projets différents</p>
+      <h1 class="h1">Bonjour, {{ currentUser?.first_name || 'Utilisateur' }} !</h1>
+      <p class="soustitle" v-if="!loadingTasks">
+        Aujourd'hui, <span>{{ tasks.filter(task => {
+          const today = new Date();
+          const taskDate = new Date(task.start_date);
+          return taskDate.getFullYear() === today.getFullYear() &&
+                 taskDate.getMonth() === today.getMonth() &&
+                 taskDate.getDate() === today.getDate();
+        }).length }} tâches</span> vous sont assignées
+      </p>
+      <p class="soustitle" v-else>
+        Chargement de vos tâches...
+      </p>
     </div>
     <div class="dashboard-content">
-      <div class="left"></div>
-      <div class="right"></div>
+      <div class="left">
+        <PieChart />
+      </div>
+      <div class="right">
+        <Chart />
+      </div>
     </div>
   </div>
 </template>
@@ -25,14 +32,44 @@ definePageMeta({
   middleware: 'auth'
 });
 
+const { getAssignedTasks } = useTasks();
+
+const tasks = ref([]);
+const loadingTasks = ref(true);
+
+const loadTasks = async () => {
+  try {
+    loadingTasks.value = true;
+    tasks.value = await getAssignedTasks();
+  } catch (error) {
+    console.error('Erreur lors du chargement des tâches:', error);
+  } finally {
+    loadingTasks.value = false;
+  }
+};
+
+const getStatusText = (status) => {
+  switch (status) {
+    case 'todo': return 'À faire';
+    case 'in_progress': return 'En cours';
+    case 'done': return 'Terminé';
+    case 'blocked': return 'Bloqué';
+    case 'not_started': return 'Non commencé';
+    default: return status;
+  }
+};
+
+
 const authStore = useAuthStore();
 
-onMounted(() => {
+onMounted(async () => {
   const dashboardLink = document.querySelector('.dashboard.nav-link');
 
   if (dashboardLink) {
     dashboardLink.classList.add('active');
   }
+
+  await loadTasks();
 });
 
 const date = new Date();
@@ -45,10 +82,8 @@ const options = {
 
 const formattedDate = date.toLocaleDateString('fr-FR', options);
 
-// Récupérer les données de l'utilisateur connecté
 const currentUser = computed(() => authStore.currentUser);
 
-// Méthode pour afficher le rôle en français
 const getRoleDisplay = (role) => {
   switch (role) {
     case 'SALARIE':
@@ -63,7 +98,6 @@ const getRoleDisplay = (role) => {
   }
 };
 
-// Méthode de déconnexion
 const handleLogout = async () => {
   authStore.logout();
   await navigateTo('/login');
@@ -115,7 +149,7 @@ const handleLogout = async () => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-bottom: 120px;
+    margin-bottom: 80px;
   }
 
   .surtitle {
@@ -145,26 +179,32 @@ const handleLogout = async () => {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    width: 80%;
+    width: 90%;
     margin: 0 auto;
-    height: 300px;
 
     @include down(md) {
       width: 100%;
       flex-direction: column;
       gap: 10px;
+      height: auto;
     }
 
     .left,
     .right {
-      background-color: $white;
+      background-color: transparent;
       height: 100%;
-      border: 1px solid $gray;
+      border: none;
       border-radius: 4px;
+      border: 1px solid $lightGray;
+
+      @include down(md) {
+        height: 400px;
+      }
     }
 
     .left {
-      width: 33%;
+      width: 35%;
+      background: $white;
 
       @include down(md) {
         width: 100%;
@@ -172,10 +212,143 @@ const handleLogout = async () => {
     }
 
     .right {
-      width: 66%;
+      width: 65%;
+      background: $white;
 
       @include down(md) {
         width: 100%;
+      }
+    }
+  }
+
+  // Styles pour les cartes
+  .tasks-card {
+    background: $white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    overflow-y: auto;
+
+    h3 {
+      margin: 0 0 20px 0;
+      color: $black;
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+
+  .tasks-card {
+
+    .loading,
+    .empty {
+      text-align: center;
+      color: $gray;
+      padding: 40px;
+    }
+
+    .tasks-list {
+      .task-item {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .task-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+
+          h4 {
+            margin: 0;
+            font-size: 16px;
+            color: $black;
+          }
+
+          .task-priority {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+
+            &.priority-high {
+              background: #fee2e2;
+              color: #ef4444;
+            }
+
+            &.priority-medium {
+              background: #fef3c7;
+              color: #f59e0b;
+            }
+
+            &.priority-low {
+              background: #d1fae5;
+              color: #10b981;
+            }
+          }
+        }
+
+        .task-description {
+          margin: 0 0 10px 0;
+          font-size: 14px;
+          color: $gray;
+          line-height: 1.4;
+        }
+
+        .task-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+
+          .task-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+
+            &.status-todo {
+              background: #f3f4f6;
+              color: #6b7280;
+            }
+
+            &.status-in_progress {
+              background: #dbeafe;
+              color: #3b82f6;
+            }
+
+            &.status-done {
+              background: #d1fae5;
+              color: #10b981;
+            }
+
+            &.status-blocked {
+              background: #fee2e2;
+              color: #ef4444;
+            }
+          }
+
+          .task-duration {
+            font-size: 12px;
+            color: $gray;
+            background: #e5e7eb;
+            padding: 2px 6px;
+            border-radius: 8px;
+          }
+        }
+
+        .task-assignee {
+          font-size: 12px;
+          color: $gray;
+          font-style: italic;
+        }
       }
     }
   }
