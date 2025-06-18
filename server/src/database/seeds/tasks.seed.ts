@@ -1,5 +1,9 @@
 import { DataSource } from 'typeorm';
-import { Task, TaskStatus, TaskPriority } from '../../tasks/entities/task.entity';
+import {
+  Task,
+  TaskStatus,
+  TaskPriority,
+} from '../../tasks/entities/task.entity';
 import { User } from '../../users/entities/user.entity';
 
 export async function seedTasks(dataSource: DataSource): Promise<void> {
@@ -8,9 +12,9 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
 
   // Récupérer des utilisateurs existants
   const users = await userRepository.find({ take: 2 });
-  
+
   if (users.length < 2) {
-    console.log('Pas assez d\'utilisateurs pour créer des tâches d\'exemple');
+    console.log("Pas assez d'utilisateurs pour créer des tâches d'exemple");
     return;
   }
 
@@ -27,7 +31,8 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
   const tasks = [
     {
       name: "Configurer l'environnement de développement",
-      description: 'Installer Node.js, NestJS, et configurer la base de données',
+      description:
+        'Installer Node.js, NestJS, et configurer la base de données',
       duration: 4,
       assigned_to_id: user1.id,
       created_by_id: user2.id,
@@ -89,7 +94,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
   ];
 
   // Créer et sauvegarder les tâches
-  const taskEntities = tasks.map(taskData => taskRepository.create(taskData));
+  const taskEntities = tasks.map((taskData) => taskRepository.create(taskData));
   const savedTasks = await taskRepository.save(taskEntities);
 
   // Mettre à jour les dépendances
@@ -100,11 +105,11 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
   const uiTask = savedTasks.find(
     (task) => task.name === "Créer l'interface utilisateur",
   );
-  
+
   if (apiTask && uiTask) {
     uiTask.dependency_id = apiTask.id;
     await taskRepository.save(uiTask);
   }
 
   console.log(`${savedTasks.length} tâches d'exemple créées`);
-} 
+}
