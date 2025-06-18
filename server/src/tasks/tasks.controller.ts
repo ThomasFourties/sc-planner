@@ -81,6 +81,8 @@ export class TasksController {
   })
   @ApiResponse({ status: 401, description: 'Non autorisé.' })
   findAssignedToMe(@Request() req): Promise<Task[]> {
+    console.log('👤 Utilisateur dans findAssignedToMe:', req.user);
+    console.log('🔍 Recherche des tâches pour userId:', req.user?.userId);
     return this.tasksService.findAssignedTo(req.user.userId);
   }
 
