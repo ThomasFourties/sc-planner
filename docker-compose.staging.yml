@@ -1,0 +1,48 @@
+services:
+  client:
+    image: thoomaas123/sc-planner-client:${CLIENT_TAG}
+    ports:
+      - '3001:80'
+    env_file:
+      - ./.env.staging
+    depends_on:
+      - server
+    pull_policy: always
+    networks:
+      - sc-planner-network
+
+  server:
+    image: thoomaas123/sc-planner-server:${SERVER_TAG}
+    ports: []
+    env_file:
+      - ./.env.staging
+    pull_policy: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+    depends_on:
+      - database
+    networks:
+      - sc-planner-network
+
+  database:
+    image: postgres:13
+    env_file:
+      - ./.env.staging
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - sc_planner_db_data:/var/lib/postgresql/data
+    networks:
+      - sc-planner-network
+
+volumes:
+  sc_planner_db_data:
+
+networks:
+  sc-planner-network:
+    driver: bridge

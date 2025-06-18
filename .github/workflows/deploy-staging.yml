@@ -143,11 +143,11 @@ jobs:
           eval $(ssh-agent) ssh-add ~/.ssh/thomas
           git pull origin dev
 
-          export CLIENT_TAG=${{ steps.git_tag.outputs.tag }}
-          export SERVER_TAG=${{ steps.git_tag.outputs.tag }}
+          export CLIENT_TAG=staging-${{ steps.short_sha.outputs.sha_short }}
+          export SERVER_TAG=staging-${{ steps.short_sha.outputs.sha_short }}
 
-          docker-compose -f docker-compose.prod.yml pull
-          docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+          docker-compose -f docker-compose.staging.yml pull
+          docker-compose -f docker-compose.staging.yml up -d --remove-orphans
 
     - name: Clean up unused images
       run: |
