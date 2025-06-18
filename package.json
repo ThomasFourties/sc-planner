@@ -6,7 +6,7 @@
     "setup": "chmod +x scripts/setup-git.sh && ./scripts/setup-git.sh",
     "ssh": "eval $(ssh-agent) ssh-add ~/.ssh/perso",
     "check": "node scripts/check-setup.js",
-    "dev": "docker compose -f docker-compose.prod.yml up -d --build",
+    "dev": "docker compose -f docker-compose.dev.yml up -d --build",
     "prod": "docker compose -f docker-compose.prod.yml up -d --build",
     "down": "docker compose -f docker-compose.dev.yml down",
     "logs": "docker compose logs -f",
