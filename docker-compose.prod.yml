@@ -1,6 +1,6 @@
 services:
   client:
-    image: thoomaas123/sc-planner-client:${CLIENT_TAG:-latest}
+    image: thoomaas123/sc-planner-client:latest
     ports:
       - '3001:80'
     env_file: 
@@ -12,7 +12,7 @@ services:
       - sc-planner-network
 
   server:
-    image: thoomaas123/sc-planner-server:${SERVER_TAG:-latest}
+    image: thoomaas123/sc-planner-server:latest
     ports: []
     env_file:
       - ./.env
