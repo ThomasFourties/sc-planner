@@ -4,7 +4,7 @@ services:
     ports:
       - '3001:80'
     env_file:
-      - ./.env.staging
+      - ./.env
     depends_on:
       - server
     pull_policy: always
@@ -15,7 +15,7 @@ services:
     image: thoomaas123/sc-planner-server:${SERVER_TAG}
     ports: []
     env_file:
-      - ./.env.staging
+      - ./.env
     pull_policy: always
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -30,18 +30,18 @@ services:
   database:
     image: postgres:13
     env_file:
-      - ./.env.staging
+      - ./.env
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     volumes:
-      - sc_planner_db_data:/var/lib/postgresql/data
+      - _database:/var/lib/postgresql/data
     networks:
       - sc-planner-network
 
 volumes:
-  sc_planner_db_data:
+  _database:
 
 networks:
   sc-planner-network:
