@@ -75,7 +75,7 @@ export default defineNuxtConfig({
     // 'nuxt-swiper',
   ],
 
-  //  site: { url: 'https://sc-planner.thomasfourties.fr' },
+  site: { url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000' },
 
   // gtag: {
   //   enabled: process.env.ENV_STATUS === 'production',
