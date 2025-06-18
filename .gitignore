@@ -17,7 +17,6 @@ yarn-error.log*
 
 # Dependency directories
 /pnpm-debug.log
-/pnpm-lock.yaml
 
 # Docker
 *.tgz
