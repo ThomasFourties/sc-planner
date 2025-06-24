@@ -2,6 +2,7 @@
   <NuxtLayout>
     <!-- <WindowSize /> -->
     <!-- <Grid /> -->
+    <!-- COMMENT -->
     <NuxtPage />
   </NuxtLayout>
 </template>
