@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Delete, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
+
 import {
   ApiTags,
   ApiOperation,
@@ -8,13 +17,16 @@ import {
   ApiConflictResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
+
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UserDTO } from './dto/user.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Users')
 @ApiBearerAuth('access-token')
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

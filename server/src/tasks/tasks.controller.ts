@@ -90,7 +90,7 @@ export class TasksController {
   @ApiOperation({ summary: "Récupérer les tâches créées par l'utilisateur connecté" })
   @ApiResponse({
     status: 200,
-    description: 'Tâches créées récupérées avec succès.',
+    description: "Tâches de l'utilisateur récupérées avec succès.",
     type: [Task],
   })
   @ApiResponse({ status: 401, description: 'Non autorisé.' })
@@ -109,33 +109,6 @@ export class TasksController {
   @ApiResponse({ status: 401, description: 'Non autorisé.' })
   findByUser(@Param('userId') userId: string): Promise<Task[]> {
     return this.tasksService.findByUser(userId);
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Récupérer une tâche par son ID' })
-  @ApiParam({ name: 'id', description: 'ID de la tâche' })
-  @ApiResponse({
-    status: 200,
-    description: 'Tâche récupérée avec succès.',
-    type: Task,
-  })
-  @ApiResponse({ status: 404, description: 'Tâche non trouvée.' })
-  @ApiResponse({ status: 401, description: 'Non autorisé.' })
-  findOne(@Param('id') id: string): Promise<Task> {
-    return this.tasksService.findOne(id);
-  }
-
-  @Get(':id/dependents')
-  @ApiOperation({ summary: 'Récupérer les tâches qui dépendent de cette tâche' })
-  @ApiParam({ name: 'id', description: 'ID de la tâche' })
-  @ApiResponse({
-    status: 200,
-    description: 'Tâches dépendantes récupérées avec succès.',
-    type: [Task],
-  })
-  @ApiResponse({ status: 401, description: 'Non autorisé.' })
-  findDependentTasks(@Param('id') id: string): Promise<Task[]> {
-    return this.tasksService.findDependentTasks(id);
   }
 
   @Patch(':id')
@@ -164,5 +137,32 @@ export class TasksController {
   @ApiResponse({ status: 401, description: 'Non autorisé.' })
   remove(@Param('id') id: string): Promise<void> {
     return this.tasksService.remove(id);
+  }
+
+  @Get(':id/dependents')
+  @ApiOperation({ summary: 'Récupérer les tâches qui dépendent de cette tâche' })
+  @ApiParam({ name: 'id', description: 'ID de la tâche' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tâches dépendantes récupérées avec succès.',
+    type: [Task],
+  })
+  @ApiResponse({ status: 401, description: 'Non autorisé.' })
+  findDependentTasks(@Param('id') id: string): Promise<Task[]> {
+    return this.tasksService.findDependentTasks(id);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Récupérer une tâche par son ID' })
+  @ApiParam({ name: 'id', description: 'ID de la tâche' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tâche récupérée avec succès.',
+    type: Task,
+  })
+  @ApiResponse({ status: 404, description: 'Tâche non trouvée.' })
+  @ApiResponse({ status: 401, description: 'Non autorisé.' })
+  findOne(@Param('id') id: string): Promise<Task> {
+    return this.tasksService.findOne(id);
   }
 } 

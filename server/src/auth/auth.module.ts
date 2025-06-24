@@ -17,8 +17,8 @@ import { EmailService } from './email.service';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'your-secret-key',
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET') || 'secret-key',
         signOptions: { expiresIn: '7d' },
       }),
       inject: [ConfigService],
@@ -28,4 +28,4 @@ import { EmailService } from './email.service';
   providers: [AuthService, LocalStrategy, JwtStrategy, EmailService],
   exports: [AuthService],
 })
-export class AuthModule {} 
+export class AuthModule {}
