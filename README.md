@@ -30,7 +30,7 @@ Créez un fichier `.env` à la racine du projet et remplissez les informations s
 
 ```bash
 # Client
-API_URL=http://localhost:3001
+API_URL=http://localhost:3000
 API_AUTH_TOKEN=<votre_token_authentification>
 
 # Server
