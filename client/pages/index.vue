@@ -11,6 +11,8 @@ if (authStore.isLoggedIn) {
   navigateTo('/login');
 }
 
+// comments
+
 definePageMeta({
   layout: false,
 });

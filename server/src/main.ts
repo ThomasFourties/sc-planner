@@ -8,8 +8,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // get the tag from the image
-
   app.enableCors({
     origin: ['http://localhost:3000', 'https://sc-planner.thomasfourties.fr'],
     credentials: true,
