@@ -98,13 +98,4 @@ jobs:
             docker-compose -f docker-compose.staging.yml pull
             docker-compose -f docker-compose.staging.yml up -d --remove-orphans
 
-            docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | while read -r line; do
-              image_tag=$(echo $line | awk '{print $1}')
-              image_id=$(echo $line | awk '{print $2}')
-              in_use=$(docker ps -a --format "{{.Image}}" | grep -w "$image_tag" || true)
-              is_staging=$(echo $image_tag | grep -E 'staging-[a-f0-9]{7}$' || true)
-              if [[ -z "$in_use" && -z "$is_staging" ]]; then
-                echo "Removing image: $image_tag ($image_id)"
-                docker rmi -f "$image_id" || true
-              fi
-            done
+            docker image prune -a

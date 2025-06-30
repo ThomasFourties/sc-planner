@@ -97,17 +97,4 @@ jobs:
             docker-compose -f docker-compose.prod.yml pull
             docker-compose -f docker-compose.prod.yml up -d --remove-orphans
 
-            docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | while read -r line; do
-              image_tag=$(echo $line | awk '{print $1}')
-              image_id=$(echo $line | awk '{print $2}')
-              in_use=$(docker ps -a --format "{{.Image}}" | grep -w "$image_tag" || true)
-              is_important=$(echo $image_tag | grep -E ':(latest|v[0-9]+\.[0-9]+\.[0-9]+)$' || true)
-              if [[ -z "$in_use" && -z "$is_important" ]]; then
-                echo "Removing unused image: $image_tag ($image_id)"
-                docker rmi -f "$image_id" || true
-              fi
-            done
-
-            docker container prune -f
-
-            docker volume prune -f
+            docker image prune -a
