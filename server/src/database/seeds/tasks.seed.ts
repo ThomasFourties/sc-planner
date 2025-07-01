@@ -1,115 +1,67 @@
-import { DataSource } from 'typeorm';
-import {
-  Task,
-  TaskStatus,
-  TaskPriority,
-} from '../../tasks/entities/task.entity';
-import { User } from '../../users/entities/user.entity';
+// import { DataSource } from 'typeorm';
+// // import {
+// //   Task,
+// //   TaskStatus,
+// //   TaskPriority,
+// // } from '../../tasks/entities/task.entity';
+// import { User } from '../../users/entities/user.entity';
 
-export async function seedTasks(dataSource: DataSource): Promise<void> {
-  const taskRepository = dataSource.getRepository(Task);
-  const userRepository = dataSource.getRepository(User);
+// export async function seedTasks(dataSource: DataSource): Promise<void> {
+//   // const taskRepository = dataSource.getRepository(Task);
+//   const userRepository = dataSource.getRepository(User);
 
-  // Récupérer des utilisateurs existants
-  const users = await userRepository.find({ take: 2 });
+//   // Vérifier si des tâches existent déjà
+//   // const existingTasks = await taskRepository.count();
+//   // if (existingTasks > 0) {
+//   //   console.log('Tasks already exist, skipping seed...');
+//   //   return;
+//   // }
 
-  if (users.length < 2) {
-    console.log("Pas assez d'utilisateurs pour créer des tâches d'exemple");
-    return;
-  }
+//   // Récupérer un utilisateur pour les tests
+//   const users = await userRepository.find();
+//   if (users.length === 0) {
+//     console.log('No users found, skipping task seed...');
+//     return;
+//   }
 
-  const [user1, user2] = users;
+//   const testUser = users[0];
 
-  // Vérifier si des tâches existent déjà
-  const existingTasks = await taskRepository.count();
-  if (existingTasks > 0) {
-    console.log('Des tâches existent déjà, seed ignoré');
-    return;
-  }
+//   // Créer quelques tâches de test
+//   const sampleTasks = [
+//     {
+//       title: "Développer l'API des tâches",
+//       description: 'Créer les endpoints pour gérer les tâches',
+//       status: 'IN_PROGRESS',
+//       priority: 'HIGH',
+//       estimated_hours: 8,
+//       actual_hours: 3,
+//       created_by_id: testUser.id,
+//     },
+//     {
+//       title: "Créer l'interface utilisateur",
+//       description: "Développer les composants Vue.js pour l'interface",
+//       status: TaskStatus.PENDING,
+//       priority: TaskPriority.MEDIUM,
+//       estimated_hours: 6,
+//       actual_hours: 0,
+//       created_by_id: testUser.id,
+//     },
+//     {
+//       title: "Tester l'application",
+//       description: 'Effectuer les tests fonctionnels et unitaires',
+//       status: TaskStatus.PENDING,
+//       priority: TaskPriority.LOW,
+//       estimated_hours: 4,
+//       actual_hours: 0,
+//       created_by_id: testUser.id,
+//     },
+//   ];
 
-  // Créer des tâches d'exemple
-  const tasks = [
-    {
-      name: "Configurer l'environnement de développement",
-      description:
-        'Installer Node.js, NestJS, et configurer la base de données',
-      duration: 4,
-      assigned_to_id: user1.id,
-      created_by_id: user2.id,
-      status: TaskStatus.DONE,
-      priority: TaskPriority.HIGH,
-      start_date: new Date('2024-01-01'),
-      end_date: new Date('2024-01-01'),
-    },
-    {
-      name: "Créer l'API d'authentification",
-      description: 'Implémenter les endpoints de login, register et logout',
-      duration: 8,
-      assigned_to_id: user2.id,
-      created_by_id: user1.id,
-      status: TaskStatus.DONE,
-      priority: TaskPriority.HIGH,
-      start_date: new Date('2024-01-02'),
-      end_date: new Date('2024-01-03'),
-    },
-    {
-      name: "Développer l'API des tâches",
-      description: 'Créer les endpoints CRUD pour la gestion des tâches',
-      duration: 12,
-      assigned_to_id: user1.id,
-      created_by_id: user2.id,
-      status: TaskStatus.IN_PROGRESS,
-      priority: TaskPriority.HIGH,
-      start_date: new Date('2024-01-04'),
-      end_date: new Date('2024-01-06'),
-    },
-    {
-      name: "Créer l'interface utilisateur",
-      description: "Développer les composants Vue.js pour l'interface",
-      duration: 16,
-      assigned_to_id: user2.id,
-      created_by_id: user1.id,
-      status: TaskStatus.TODO,
-      priority: TaskPriority.MEDIUM,
-      // dependency_id sera ajouté après la création
-    },
-    {
-      name: 'Tests unitaires',
-      description: 'Écrire les tests pour toutes les fonctionnalités',
-      duration: 6,
-      assigned_to_id: user1.id,
-      created_by_id: user2.id,
-      status: TaskStatus.TODO,
-      priority: TaskPriority.MEDIUM,
-    },
-    {
-      name: 'Documentation',
-      description: 'Rédiger la documentation technique et utilisateur',
-      duration: 4,
-      assigned_to_id: user2.id,
-      created_by_id: user1.id,
-      status: TaskStatus.TODO,
-      priority: TaskPriority.LOW,
-    },
-  ];
+//   // Sauvegarder les tâches
+//   // for (const taskData of sampleTasks) {
+//   //   const task = taskRepository.create(taskData);
+//   //   await taskRepository.save(task);
+//   // }
 
-  // Créer et sauvegarder les tâches
-  const taskEntities = tasks.map((taskData) => taskRepository.create(taskData));
-  const savedTasks = await taskRepository.save(taskEntities);
-
-  // Mettre à jour les dépendances
-  // La tâche "Créer l'interface utilisateur" dépend de "Développer l'API des tâches"
-  const apiTask = savedTasks.find(
-    (task) => task.name === "Développer l'API des tâches",
-  );
-  const uiTask = savedTasks.find(
-    (task) => task.name === "Créer l'interface utilisateur",
-  );
-
-  if (apiTask && uiTask) {
-    uiTask.dependency_id = apiTask.id;
-    await taskRepository.save(uiTask);
-  }
-
-  console.log(`${savedTasks.length} tâches d'exemple créées`);
-}
+//   //  console.log(`${sampleTasks.length} tâches de test créées avec succès`);
+// }

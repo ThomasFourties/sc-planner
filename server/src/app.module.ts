@@ -1,35 +1,22 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { join } from 'path';
+import { DatabaseModule } from './database/database.module';
+// import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import databaseConfig from './config/database.config';
-import { HealthModule } from './health/health.module';
-import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        join(__dirname, '../../.env'),
-        join(__dirname, '../.env'),
-        '.env',
-      ],
-      load: [databaseConfig],
+      envFilePath: '../../.env',
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        ...configService.get('database'), // eslint-disable-line
-      }),
-    }),
+    DatabaseModule,
+    TypeOrmModule,
+    // HealthModule,
     UsersModule,
     AuthModule,
-    HealthModule,
-    TasksModule,
   ],
 })
 export class AppModule {}

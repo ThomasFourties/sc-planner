@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { User } from '../users/entities/user.entity';
-import { Task } from '../tasks/entities/task.entity';
+// import { Task } from '../tasks/entities/task.entity';
 
 export default registerAs('database', () => ({
   type: 'postgres',
@@ -9,7 +9,7 @@ export default registerAs('database', () => ({
   username: process.env.DATABASE_USER || 'user',
   password: process.env.DATABASE_PASSWORD || 'password',
   database: process.env.DATABASE_NAME || 'sc-planner-db',
-  entities: [User, Task],
+  entities: [User],
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV !== 'production',
 }));

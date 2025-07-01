@@ -1,95 +1,81 @@
 import {
   Injectable,
-  ConflictException,
   NotFoundException,
+  InternalServerErrorException,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { UserDTO } from './dto/user.dto';
-import * as bcrypt from 'bcrypt';
-import { Task } from 'src/tasks/entities/task.entity';
+import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    @InjectRepository(Task)
-    private tasksRepository: Repository<Task>,
+    private userRepository: Repository<User>,
   ) {}
 
-  private isValidUUID(uuid: string): boolean {
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(uuid);
-  }
-
-  private validateUUID(id: string, fieldName: string = 'ID'): void {
-    if (!this.isValidUUID(id)) {
-      throw new BadRequestException(`${fieldName} "${id}" is not a valid UUID`);
-    }
-  }
-
   async findAll(): Promise<User[]> {
-    return this.usersRepository.find({
-      select: {
-        id: true,
-        first_name: true,
-        last_name: true,
-        email: true,
-        role: true,
-        is_admin: true,
-        profile_img: true,
-        created_at: true,
-        updated_at: true,
-      },
-    });
-  }
-
-  async create(userDTO: UserDTO): Promise<User> {
-    const existingUser = await this.usersRepository.findOne({
-      where: { email: userDTO.email },
-    });
-
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
-    }
-
-    const hashedPassword = await bcrypt.hash(userDTO.password, 10);
-
-    const user = this.usersRepository.create({
-      ...userDTO,
-      password: hashedPassword,
-    });
-
-    return this.usersRepository.save(user);
-  }
-
-  async findOne(id: string): Promise<User> {
-    this.validateUUID(id, 'User ID');
-    const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-    return user;
+    return this.userRepository.find();
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({ where: { email } });
   }
 
-  async remove(id: string): Promise<void> {
-    this.validateUUID(id, 'User ID');
-    const user = await this.findOne(id);
+  async findById(id: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { id } });
+  }
 
-    await this.tasksRepository.update(
-      { assigned_to_id: id },
-      { assigned_to_id: undefined },
-    );
-    await this.tasksRepository.delete({ created_by_id: id });
+  async create(userData: Partial<User>): Promise<User> {
+    const user = this.userRepository.create(userData);
+    return this.userRepository.save(user);
+  }
 
-    await this.usersRepository.remove(user);
+  async update(id: string, userData: Partial<User>): Promise<User> {
+    const existingUser = await this.findById(id);
+    if (!existingUser) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    const result = await this.userRepository.update(id, userData);
+
+    if (result.affected === 0) {
+      throw new InternalServerErrorException('Erreur lors de la mise à jour');
+    }
+
+    return this.findById(id) as Promise<User>;
+  }
+
+  async delete(id: string): Promise<{ message: string }> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    if (user.role === UserRole.CHEF_DE_PROJET) {
+      throw new BadRequestException(
+        'Impossible de supprimer un chef de projet',
+      );
+    }
+
+    const result = await this.userRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new InternalServerErrorException('Erreur lors de la suppression');
+    }
+
+    return { message: 'Utilisateur supprimé avec succès' };
+  }
+
+  async getProfile(id: string): Promise<User> {
+    const user = await this.findById(id);
+
+    if (!user) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    return user;
   }
 }
