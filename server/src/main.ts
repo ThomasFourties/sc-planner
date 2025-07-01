@@ -8,13 +8,17 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://sc-planner.thomasfourties.fr'],
+    origin: [
+      'http://localhost:3000',
+      'https://sc-planner.thomasfourties.fr',
+      'https://staging.sc-planner.thomasfourties.fr',
+    ],
     credentials: true,
   });
 
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(3001);
+  await app.listen(3001, '0.0.0.0');
 }
 
 bootstrap();
