@@ -14,3 +14,5 @@ useSeoMeta({
   ogDescription: 'SC Planner est un gestionnaire de tâches simple et efficace.',
 });
 </script>
+
+<!-- comment -->
