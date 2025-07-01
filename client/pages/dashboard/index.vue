@@ -32,17 +32,16 @@ definePageMeta({
   middleware: 'auth'
 });
 
-// const { getAssignedTasks } = useTasks();
-
 const tasks = ref([]);
 const loadingTasks = ref(true);
 
 const loadTasks = async () => {
   try {
     loadingTasks.value = true;
-    // tasks.value = await getAssignedTasks();
+    tasks.value = await $fetch('/api/tasks/my-tasks');
   } catch (error) {
     console.error('Erreur lors du chargement des tâches:', error);
+    tasks.value = [];
   } finally {
     loadingTasks.value = false;
   }

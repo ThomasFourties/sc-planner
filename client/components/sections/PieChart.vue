@@ -31,10 +31,8 @@
 
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-// import { useTasks } from '~/composables/useTasks'
 import { useAuthStore } from '~/stores/auth'
 
-// const { getAllTasks } = useTasks()
 const authStore = useAuthStore()
 
 const tasks = ref([])
@@ -103,15 +101,14 @@ const segments = computed(() => {
 })
 
 const fetchTasks = async () => {
-  if (!authStore.token) return
-
   try {
-    const fetchedTasks = await getAllTasks()
-    tasks.value = fetchedTasks
-    isLoading.value = false
+    isLoading.value = true;
+    tasks.value = await $fetch('/api/tasks/my-tasks');
   } catch (error) {
-    console.error('Erreur lors de la récupération des tâches:', error)
-    isLoading.value = false
+    console.error('Erreur lors de la récupération des tâches:', error);
+    tasks.value = [];
+  } finally {
+    isLoading.value = false;
   }
 }
 

@@ -1,32 +1,23 @@
 <template>
-  <div class="tasks">
-    <div class="tasks-content">
-      <div class="tasks-controls">
-        <button class="add-task-btn">
-          <span class="plus-icon">+</span>
-          Ajouter une tâche
-        </button>
+  <div class="tasks-page">
+    <div class="header">
+      <button @click="showForm = !showForm" class="toggle-form-btn">
+        {{ showForm ? 'Masquer le formulaire' : 'Ajouter une tâche' }}
+      </button>
+    </div>
 
-        <div class="filter-controls">
-          <button class="filter-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 4.6C3 4.03995 3 3.75992 3.10899 3.54601C3.20487 3.35785 3.35785 3.20487 3.54601 3.10899C3.75992 3 4.03995 3 4.6 3H19.4C19.9601 3 20.2401 3 20.454 3.10899C20.6422 3.20487 20.7951 3.35785 20.891 3.54601C21 3.75992 21 4.03995 21 4.6V6.33726C21 6.58185 21 6.70414 20.9724 6.81923C20.9479 6.92127 20.9075 7.01881 20.8526 7.10828C20.7908 7.2092 20.7043 7.29568 20.5314 7.46863L14.4686 13.5314C14.2957 13.7043 14.2092 13.7908 14.1474 13.8917C14.0925 13.9812 14.0521 14.0787 14.0276 14.1808C14 14.2959 14 14.4182 14 14.6627V17L10 21V14.6627C10 14.4182 10 14.2959 9.97237 14.1808C9.94787 14.0787 9.90747 13.9812 9.85264 13.8917C9.7908 13.7908 9.70432 13.7043 9.53137 13.5314L3.46863 7.46863C3.29568 7.29568 3.2092 7.2092 3.14736 7.10828C3.09253 7.01881 3.05213 6.92127 3.02763 6.81923C3 6.70414 3 6.58185 3 6.33726V4.6Z"
-                stroke="currentColor" stroke-width="2" />
-            </svg>
-            Filtrer
-          </button>
+    <!-- Formulaire de création -->
+    <div v-if="showForm" class="form-section">
+      <CreateTaskForm @task-created="onTaskCreated" />
+    </div>
 
-          <button class="sort-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M3 6H21M7 12H17M11 18H13" stroke="currentColor" stroke-width="2" />
-            </svg>
-            Trier
-          </button>
-        </div>
+    <!-- Liste des tâches -->
+    <div class="tasks-section">
+      <div v-if="loadingTasks" class="loading">
+        Chargement des tâches...
       </div>
 
-      <div class="tasks-table-container">
+      <div v-else class="table-container">
         <table class="tasks-table">
           <thead>
             <tr>
@@ -36,442 +27,457 @@
               <th>Créé le</th>
               <th>À faire le</th>
               <th>Projets</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="task in filteredTasks" :key="task.id" class="task-row" @click="openTaskDetail(task)">
-              <td class="task-name">
-                <div class="task-info">
-                  <span class="task-icon">⚫</span>
-                  {{ task.name }}
+            <!-- Message si aucune tâche -->
+            <tr v-if="tasks.length === 0" class="empty-row">
+              <td colspan="7" class="empty-message">
+                <div class="empty-content">
+                  <div class="empty-icon">📝</div>
+                  <div class="empty-text">Aucune tâche trouvée</div>
+                  <div class="empty-subtext">Créez votre première tâche en cliquant sur le bouton ci-dessus</div>
                 </div>
               </td>
+            </tr>
+
+            <!-- Lignes des tâches -->
+            <tr v-else v-for="task in tasks" :key="task.id" class="task-row">
+              <!-- Nom de la tâche -->
+              <td class="task-name">
+                <div class="task-info">
+                  <span class="task-icon" :class="`priority-${task.priority}`">●</span>
+                  <div>
+                    <div class="name">{{ task.name }}</div>
+                    <div v-if="task.description" class="description">{{ task.description }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Statut -->
               <td class="task-status">
-                <span class="status-badge" :class="getStatusClass(task.status)">
-                  {{ getStatusLabel(task.status) }}
+                <span class="status-badge" :class="`status-${task.status}`">
+                  {{ getStatusText(task.status) }}
                 </span>
               </td>
+
+              <!-- Créé par -->
               <td class="task-creator">
-                {{ task.created_by ? `${task.created_by.first_name} ${task.created_by.last_name}` : 'Non défini' }}
+                <div class="user-info">
+                  <div class="name">{{ task.created_by.first_name }} {{ task.created_by.last_name }}</div>
+                  <div class="email">{{ task.created_by.email }}</div>
+                </div>
               </td>
+
+              <!-- Créé le -->
               <td class="task-created">
                 {{ formatDate(task.created_at) }}
               </td>
+
+              <!-- À faire le -->
               <td class="task-due">
-                {{ task.start_date ? formatDate(task.start_date) : formatDate(task.created_at) }}
+                <div v-if="task.start_date">
+                  {{ formatDate(task.start_date) }}
+                </div>
+                <div v-else class="no-date">
+                  Non planifié
+                </div>
               </td>
+
+              <!-- Projets -->
               <td class="task-project">
-                <span class="project-badge" :style="{ backgroundColor: getProjectColor() }">
-                  {{ getProjectName() }}
-                </span>
+                <span class="project-placeholder">-</span>
+              </td>
+
+              <!-- Actions -->
+              <td class="task-actions">
+                <div class="actions-group">
+                  <button @click="editTask(task)" class="edit-btn" title="Modifier">
+                    ✏️
+                  </button>
+                  <button @click="deleteTask(task.id)" class="delete-btn" title="Supprimer">
+                    🗑️
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
-
-        <div v-if="!isLoading && filteredTasks.length === 0" class="empty-state">
-          <p>Aucune tâche trouvée</p>
-        </div>
-
-        <div v-if="isLoading" class="loading-state">
-          <p>Chargement des tâches...</p>
-        </div>
       </div>
     </div>
-
-    <!-- Modal de détail de tâche -->
-    <Modal :isOpen="showTaskDetail" @close="closeTaskDetail">
-      <template #header>
-        <h2>Visualisation de la tâche</h2>
-      </template>
-      <TaskDetailPanel v-if="selectedTask" :task="selectedTask" @save="saveTaskChanges" @close="closeTaskDetail" />
-    </Modal>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from 'vue'
-// import { useTasks } from '~/composables/useTasks'
-import { useAuthStore } from '~/stores/auth'
-import Modal from '~/components/base/Modal.vue'
-import TaskDetailPanel from '~/components/TaskDetailPanel.vue'
+import { ref, onMounted } from 'vue';
+import CreateTaskForm from '~/components/CreateTaskForm.vue';
 
 definePageMeta({
   middleware: 'auth'
-})
+});
 
-// const { getAllTasks } = useTasks()
-const authStore = useAuthStore()
+// État
+const showForm = ref(false);
+const tasks = ref([]);
+const loadingTasks = ref(true);
 
-const tasks = ref([])
-const isLoading = ref(true)
-const searchQuery = ref('')
-const showTaskDetail = ref(false)
-const selectedTask = ref(null)
-let refreshInterval = null
-
-const statusMapping = {
-  'todo': 'À faire',
-  'not_started': 'À faire',
-  'in_progress': 'En cours',
-  'blocked': 'Bloqué',
-  'done': 'Terminé'
-}
-
-const projectColors = [
-  '#10B981', '#3B82F6', '#8B5CF6', '#F59E0B',
-  '#EF4444', '#06B6D4', '#84CC16', '#F97316'
-]
-
-const projectNames = [
-  'EURECIA', 'HELLO ASSO', 'TFC', 'SUPERCOLOR',
-  'THE SEA CLEANERS', 'LA CÔTE ET L\'ARÊTE', 'TDS', 'VOLFONI'
-]
-
-const getStatusLabel = (status) => {
-  return statusMapping[status] || status
-}
-
-const getStatusClass = (status) => {
-  const classMap = {
-    'todo': 'status-todo',
-    'not_started': 'status-todo',
-    'in_progress': 'status-progress',
-    'blocked': 'status-blocked',
-    'done': 'status-done'
+// Charger les tâches
+const loadTasks = async () => {
+  try {
+    loadingTasks.value = true;
+    tasks.value = await $fetch('/api/tasks/my-tasks');
+  } catch (error) {
+    console.error('Erreur lors du chargement des tâches:', error);
+  } finally {
+    loadingTasks.value = false;
   }
-  return classMap[status] || 'status-todo'
-}
+};
 
-const getProjectColor = () => {
-  return projectColors[Math.floor(Math.random() * projectColors.length)]
-}
+// Gestionnaire de création de tâche
+const onTaskCreated = (newTask) => {
+  tasks.value.unshift(newTask);
+  showForm.value = false;
+};
 
-const getProjectName = () => {
-  return projectNames[Math.floor(Math.random() * projectNames.length)]
-}
+// Formatage des textes
+const getStatusText = (status) => {
+  const statuses = {
+    'todo': 'À faire',
+    'not_started': 'Non commencé',
+    'in_progress': 'En cours',
+    'done': 'Terminé',
+    'blocked': 'Bloqué'
+  };
+  return statuses[status] || status;
+};
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'Non défini'
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  })
-}
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
-const filteredTasks = computed(() => {
-  if (!searchQuery.value) return tasks.value
+// Actions sur les tâches
+const editTask = (task) => {
+  // TODO: Implémenter l'édition
+  alert(`Édition de la tâche "${task.name}" - À implémenter`);
+};
 
-  return tasks.value.filter(task =>
-    task.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    getStatusLabel(task.status).toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    (task.created_by &&
-      `${task.created_by.first_name} ${task.created_by.last_name}`.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  )
-})
-
-const fetchTasks = async () => {
-  if (!authStore.token) return
+const deleteTask = async (taskId) => {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+    return;
+  }
 
   try {
-    //  const fetchedTasks = await getAllTasks()
-    // tasks.value = fetchedTasks
-    isLoading.value = false
+    await $fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
+    tasks.value = tasks.value.filter(task => task.id !== taskId);
   } catch (error) {
-    console.error('Erreur lors de la récupération des tâches:', error)
-    isLoading.value = false
+    alert('Erreur lors de la suppression de la tâche');
   }
-}
+};
 
-const startAutoRefresh = () => {
-  refreshInterval = setInterval(() => {
-    fetchTasks()
-  }, 30000)
-}
-
-const stopAutoRefresh = () => {
-  if (refreshInterval) {
-    clearInterval(refreshInterval)
-    refreshInterval = null
-  }
-}
-
+// Chargement initial
 onMounted(() => {
-  const tasksLink = document.querySelector('.tasks.nav-link')
-  if (tasksLink) {
-    tasksLink.classList.add('active')
-  }
-
-  fetchTasks()
-  startAutoRefresh()
-})
-
-onUnmounted(() => {
-  stopAutoRefresh()
-})
-
-const openTaskDetail = (task) => {
-  selectedTask.value = task
-  showTaskDetail.value = true
-}
-
-const closeTaskDetail = () => {
-  showTaskDetail.value = false
-  selectedTask.value = null
-}
-
-const saveTaskChanges = async (updatedTask) => {
-  try {
-    console.log('Sauvegarde de la tâche:', updatedTask)
-
-    const taskIndex = tasks.value.findIndex(t => t.id === updatedTask.id)
-    if (taskIndex !== -1) {
-      tasks.value[taskIndex] = { ...tasks.value[taskIndex], ...updatedTask }
-    }
-
-    closeTaskDetail()
-
-    await fetchTasks()
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde:', error)
-  }
-}
+  loadTasks();
+});
 </script>
 
-<style lang="scss" scoped>
-@use '../../assets/scss/base/variables' as *;
-@use '../../assets/scss/utils/sections' as *;
-
-.tasks-header {
-  margin-bottom: 32px;
-}
-
-.search-container {
-  position: relative;
-  max-width: 400px;
+<style scoped lang="scss">
+.tasks-page {
+  padding: 20px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-.search-input {
-  width: 100%;
-  padding: 12px 48px 12px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  background-color: white;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-}
-
-.search-btn {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-}
-
-.tasks-content {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.tasks-controls {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 30px;
+
+  h1 {
+    margin: 0;
+    color: #333;
+  }
 }
 
-.add-task-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background-color: #3b82f6;
+.toggle-form-btn {
+  padding: 10px 20px;
+  background-color: #007bff;
   color: white;
   border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
+.form-section {
+  margin-bottom: 40px;
+  height: 60vh;
+  overflow: scroll;
+}
+
+.tasks-section {
+  h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.table-container {
+  background: white;
   border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #2563eb;
-  }
-}
-
-.plus-icon {
-  font-size: 18px;
-  line-height: 1;
-}
-
-.filter-controls {
-  display: flex;
-  gap: 12px;
-}
-
-.filter-btn,
-.sort-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: #cbd5e1;
-    background-color: #f8fafc;
-  }
-}
-
-.tasks-table-container {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
   overflow-x: auto;
-  max-height: 600px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  overscroll-behavior: contain;
 }
 
 .tasks-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 800px;
 
   th {
+    background-color: #f8f9fa;
+    padding: 15px 12px;
     text-align: left;
-    padding: 16px 24px;
-    font-weight: 500;
-    color: #64748b;
-    border-bottom: 1px solid #e2e8f0;
-    background-color: #f8fafc;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
     font-size: 14px;
+    white-space: nowrap;
   }
 
   td {
-    padding: 16px 24px;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: middle;
+    padding: 15px 12px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: top;
   }
 }
 
 .task-row {
-  cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #f8fafc;
+    background-color: #f8f9fa;
+  }
+}
+
+.empty-row {
+  .empty-message {
+    text-align: center;
+    padding: 60px 20px;
+    border: none;
+  }
+
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    opacity: 0.5;
+  }
+
+  .empty-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #495057;
+  }
+
+  .empty-subtext {
+    font-size: 14px;
+    color: #6c757d;
+    max-width: 300px;
+    line-height: 1.4;
   }
 }
 
 .task-info {
   display: flex;
-  align-items: center;
-  gap: 12px;
-}
+  align-items: flex-start;
+  gap: 10px;
 
-.task-icon {
-  font-size: 8px;
-  color: #64748b;
-}
+  .task-icon {
+    font-size: 12px;
+    margin-top: 2px;
 
-.task-name {
-  font-weight: 500;
-  color: #1e293b;
+    &.priority-high {
+      color: #dc3545;
+    }
+
+    &.priority-medium {
+      color: #ffc107;
+    }
+
+    &.priority-low {
+      color: #28a745;
+    }
+  }
+
+  .name {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 4px;
+  }
+
+  .description {
+    font-size: 12px;
+    color: #6c757d;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .status-badge {
-  display: inline-flex;
-  align-items: center;
+  display: inline-block;
   padding: 4px 12px;
-  border-radius: 16px;
+  border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
 
   &.status-todo {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: #fff3cd;
+    color: #856404;
   }
 
-  &.status-progress {
-    background-color: #dbeafe;
-    color: #1e40af;
+  &.status-not_started {
+    background-color: #f8d7da;
+    color: #721c24;
   }
 
-  &.status-blocked {
-    background-color: #fee2e2;
-    color: #dc2626;
+  &.status-in_progress {
+    background-color: #cce5ff;
+    color: #004085;
   }
 
   &.status-done {
-    background-color: #d1fae5;
-    color: #065f46;
+    background-color: #d1ecf1;
+    color: #0c5460;
+  }
+
+  &.status-blocked {
+    background-color: #f5c6cb;
+    color: #721c24;
   }
 }
 
-.task-creator,
+.user-info {
+  .name {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 2px;
+  }
+
+  .email {
+    font-size: 12px;
+    color: #6c757d;
+  }
+}
+
 .task-created,
 .task-due {
-  color: #64748b;
   font-size: 14px;
+  color: #495057;
+  white-space: nowrap;
 }
 
-.project-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 500;
-  color: white;
+.no-date {
+  color: #6c757d;
+  font-style: italic;
 }
 
-.empty-state,
-.loading-state {
-  text-align: center;
-  padding: 48px 24px;
-  color: #64748b;
+.project-placeholder {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.actions-group {
+  display: flex;
+  gap: 8px;
+
+  button {
+    padding: 6px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .edit-btn {
+    background-color: #e9ecef;
+
+    &:hover {
+      background-color: #dee2e6;
+    }
+  }
+
+  .delete-btn {
+    background-color: #f8d7da;
+
+    &:hover {
+      background-color: #f5c6cb;
+    }
+  }
 }
 
 @media (max-width: 768px) {
-  .tasks {
-    padding: 16px;
-  }
-
-  .tasks-controls {
+  .header {
     flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
+    gap: 15px;
+    text-align: center;
   }
 
-  .filter-controls {
-    justify-content: center;
+  .table-container {
+    margin: 0 -20px;
+    border-radius: 0;
   }
 
   .tasks-table {
-    font-size: 14px;
+    font-size: 12px;
 
     th,
     td {
-      padding: 12px 16px;
+      padding: 10px 8px;
+    }
+  }
+
+  .task-info .description {
+    max-width: 120px;
+  }
+
+  .empty-content {
+    .empty-icon {
+      font-size: 36px;
+    }
+
+    .empty-text {
+      font-size: 16px;
     }
   }
 }
