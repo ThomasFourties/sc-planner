@@ -9,6 +9,7 @@ services:
       - server
     pull_policy: always
 
+
   server:
     image: thoomaas123/sc-planner-server:${SERVER_TAG}
     ports: []
@@ -47,5 +48,10 @@ services:
     depends_on:
       - database
 
+
 volumes:
   _database:
+
+networks:
+  sc-planner-network:
+    driver: bridge
