@@ -183,10 +183,10 @@ const status = ref(false);
 const statusMessage = ref('');
 
 const getCodeRole = (code: string) => {
-  const codeRoles: { [key: string]: { role: string; isAdmin: boolean } } = {
-    'XAYOP': { role: 'Salarié', isAdmin: false },
-    'PUKXE': { role: 'Freelance', isAdmin: false },
-    'ADMIN': { role: 'Chef de projet', isAdmin: true },
+  const codeRoles: { [key: string]: { role: string; is_admin: boolean } } = {
+    'XAYOP': { role: 'SALARIE', is_admin: false },
+    'PUKXE': { role: 'FREELANCE', is_admin: false },
+    'ADMIN': { role: 'CHEF_DE_PROJET', is_admin: true },
   };
   return codeRoles[code] || null;
 };
@@ -233,12 +233,6 @@ const validateForm = () => {
     return false;
   }
 
-  const passwordRegex = /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
-  if (!passwordRegex.test(form.password)) {
-    error.value = 'Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule et un chiffre';
-    return false;
-  }
-
   return true;
 };
 
@@ -258,8 +252,9 @@ const handleRegister = async () => {
 
     if (form.code) {
       const roleInfo = getCodeRole(form.code);
+
       if (roleInfo) {
-        registrationData.isAdmin = roleInfo.isAdmin;
+        registrationData.is_admin = roleInfo.is_admin;
         registrationData.role = roleInfo.role;
       }
     }
@@ -284,6 +279,8 @@ const handleRegister = async () => {
 
   } catch (err: any) {
     error.value = err.message || "Erreur lors de l'inscription";
+  } finally {
+    loading.value = false;
   }
 };
 </script>

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="planning">
     <div class="planning-header">
       <h1 class="planning-title">Planning</h1>
@@ -55,7 +55,6 @@
       </div>
     </div>
 
-    <!-- Modal de détail de tâche -->
     <Modal :isOpen="showTaskDetail" @close="closeTaskDetail">
       <template #header>
         <h2>Visualisation de la tâche</h2>
@@ -485,4 +484,10 @@ onUnmounted(() => {
     max-width: none;
   }
 }
-</style>
+</style>  -->
+
+<template>
+  <div>
+    <h1 >Planning</h1>
+  </div>
+</template>

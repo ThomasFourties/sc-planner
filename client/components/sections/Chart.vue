@@ -25,17 +25,16 @@
 
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useTasks } from '~/composables/useTasks'
+// import { useTasks } from '~/composables/useTasks'
 import { useAuthStore } from '~/stores/auth'
 
-const { getAllTasks } = useTasks()
+// const { getAllTasks } = useTasks()
 const authStore = useAuthStore()
 
 const tasks = ref([])
 const isLoading = ref(true)
 let refreshInterval = null
 
-// Jours de la semaine
 const daysOfWeek = [
   { name: 'Lundi', index: 1 },
   { name: 'Mardi', index: 2 },
@@ -44,7 +43,6 @@ const daysOfWeek = [
   { name: 'Vendredi', index: 5 }
 ]
 
-// Calcul des tâches par jour
 const tasksByDay = computed(() => {
   const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
 
@@ -53,7 +51,6 @@ const tasksByDay = computed(() => {
       const startDate = new Date(task.start_date)
       const dayOfWeek = startDate.getDay()
 
-      // Convertir dimanche (0) et samedi (6) en jours ouvrables
       if (dayOfWeek >= 1 && dayOfWeek <= 5) {
         counts[dayOfWeek]++
       }
@@ -63,14 +60,12 @@ const tasksByDay = computed(() => {
   return counts
 })
 
-// Valeur maximum pour l'échelle
 const maxValue = computed(() => {
   const values = Object.values(tasksByDay.value)
   const max = Math.max(...values, 1)
   return Math.ceil(max / 2) * 2 // Arrondir au pair supérieur
 })
 
-// Échelle Y
 const yAxisTicks = computed(() => {
   const ticks = []
   for (let i = 0; i <= maxValue.value; i += 2) {
@@ -79,7 +74,6 @@ const yAxisTicks = computed(() => {
   return ticks.reverse()
 })
 
-// Données formatées pour le graphique
 const chartData = computed(() => {
   return daysOfWeek.map(day => {
     const count = tasksByDay.value[day.index]
@@ -89,19 +83,18 @@ const chartData = computed(() => {
     return {
       name: day.name,
       count,
-      height: height || (isOff ? 100 : 0), // Hauteur minimale pour les jours OFF
+      height: height || (isOff ? 100 : 0),
       isOff
     }
   })
 })
 
-// Récupération des tâches
 const fetchTasks = async () => {
   if (!authStore.token) return
 
   try {
-    const fetchedTasks = await getAllTasks()
-    tasks.value = fetchedTasks
+    // const fetchedTasks = await getAllTasks()
+    // tasks.value = fetchedTasks
     isLoading.value = false
   } catch (error) {
     console.error('Erreur lors de la récupération des tâches:', error)
@@ -109,7 +102,6 @@ const fetchTasks = async () => {
   }
 }
 
-// Auto-refresh
 const startAutoRefresh = () => {
   refreshInterval = setInterval(() => {
     fetchTasks()
@@ -205,7 +197,7 @@ defineExpose({
 }
 
 .day-off {
-  background: #DEDEDE;
+  background: #f2f2f2;
   border-radius: 0;
   border-bottom: 1px solid #E0E0E0;
 

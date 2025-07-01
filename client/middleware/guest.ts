@@ -1,11 +1,16 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
-  const authStore = useAuthStore();
+export default defineNuxtRouteMiddleware(async () => {
+  // Ne s'exécute que côté client
+  if (process.server) return;
 
-  // S'assurer que l'authentification est initialisée
-  if (!authStore.isInitialized) {
+  const { $pinia } = useNuxtApp();
+  const authStore = useAuthStore($pinia);
+
+  // Si l'état n'est pas encore initialisé, on l'initialise
+  if (!authStore.user && !authStore.loading) {
     await authStore.initializeAuth();
   }
 
+  // Si l'utilisateur est connecté, redirection vers dashboard
   if (authStore.isLoggedIn) {
     return navigateTo('/dashboard');
   }

@@ -69,7 +69,7 @@
           </tbody>
         </table>
 
-        <div v-if="filteredTasks.length === 0" class="empty-state">
+        <div v-if="!isLoading && filteredTasks.length === 0" class="empty-state">
           <p>Aucune tâche trouvée</p>
         </div>
 
@@ -84,19 +84,14 @@
       <template #header>
         <h2>Visualisation de la tâche</h2>
       </template>
-      <TaskDetailPanel 
-        v-if="selectedTask"
-        :task="selectedTask"
-        @save="saveTaskChanges"
-        @close="closeTaskDetail"
-      />
+      <TaskDetailPanel v-if="selectedTask" :task="selectedTask" @save="saveTaskChanges" @close="closeTaskDetail" />
     </Modal>
   </div>
 </template>
 
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useTasks } from '~/composables/useTasks'
+// import { useTasks } from '~/composables/useTasks'
 import { useAuthStore } from '~/stores/auth'
 import Modal from '~/components/base/Modal.vue'
 import TaskDetailPanel from '~/components/TaskDetailPanel.vue'
@@ -105,7 +100,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
-const { getAllTasks } = useTasks()
+// const { getAllTasks } = useTasks()
 const authStore = useAuthStore()
 
 const tasks = ref([])
@@ -115,7 +110,6 @@ const showTaskDetail = ref(false)
 const selectedTask = ref(null)
 let refreshInterval = null
 
-// Mapping des statuts
 const statusMapping = {
   'todo': 'À faire',
   'not_started': 'À faire',
@@ -124,19 +118,16 @@ const statusMapping = {
   'done': 'Terminé'
 }
 
-// Couleurs des projets (exemples)
 const projectColors = [
   '#10B981', '#3B82F6', '#8B5CF6', '#F59E0B',
   '#EF4444', '#06B6D4', '#84CC16', '#F97316'
 ]
 
-// Noms de projets temporaires
 const projectNames = [
   'EURECIA', 'HELLO ASSO', 'TFC', 'SUPERCOLOR',
   'THE SEA CLEANERS', 'LA CÔTE ET L\'ARÊTE', 'TDS', 'VOLFONI'
 ]
 
-// Fonctions utilitaires
 const getStatusLabel = (status) => {
   return statusMapping[status] || status
 }
@@ -170,7 +161,6 @@ const formatDate = (dateString) => {
   })
 }
 
-// Filtrage des tâches
 const filteredTasks = computed(() => {
   if (!searchQuery.value) return tasks.value
 
@@ -183,13 +173,12 @@ const filteredTasks = computed(() => {
   )
 })
 
-// Récupération des tâches
 const fetchTasks = async () => {
   if (!authStore.token) return
 
   try {
-    const fetchedTasks = await getAllTasks()
-    tasks.value = fetchedTasks
+    //  const fetchedTasks = await getAllTasks()
+    // tasks.value = fetchedTasks
     isLoading.value = false
   } catch (error) {
     console.error('Erreur lors de la récupération des tâches:', error)
@@ -197,7 +186,6 @@ const fetchTasks = async () => {
   }
 }
 
-// Auto-refresh
 const startAutoRefresh = () => {
   refreshInterval = setInterval(() => {
     fetchTasks()
@@ -211,7 +199,6 @@ const stopAutoRefresh = () => {
   }
 }
 
-// Lifecycle
 onMounted(() => {
   const tasksLink = document.querySelector('.tasks.nav-link')
   if (tasksLink) {
@@ -226,7 +213,6 @@ onUnmounted(() => {
   stopAutoRefresh()
 })
 
-// Fonctions pour le modal de détail
 const openTaskDetail = (task) => {
   selectedTask.value = task
   showTaskDetail.value = true
@@ -239,18 +225,15 @@ const closeTaskDetail = () => {
 
 const saveTaskChanges = async (updatedTask) => {
   try {
-    // TODO: Appeler l'API pour sauvegarder les changements
     console.log('Sauvegarde de la tâche:', updatedTask)
-    
-    // Mettre à jour la tâche dans la liste locale
+
     const taskIndex = tasks.value.findIndex(t => t.id === updatedTask.id)
     if (taskIndex !== -1) {
       tasks.value[taskIndex] = { ...tasks.value[taskIndex], ...updatedTask }
     }
-    
+
     closeTaskDetail()
-    
-    // Rafraîchir les données
+
     await fetchTasks()
   } catch (error) {
     console.error('Erreur lors de la sauvegarde:', error)
@@ -393,7 +376,7 @@ const saveTaskChanges = async (updatedTask) => {
 .task-row {
   cursor: pointer;
   transition: background-color 0.2s;
-  
+
   &:hover {
     background-color: #f8fafc;
   }

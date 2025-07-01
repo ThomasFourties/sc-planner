@@ -19,7 +19,7 @@
               <input id="password" v-model="password" type="password" required />
             </div>
 
-            <!-- <p class="msg" :class="{ active: error, red: error }">{{ error || 'Le mot de passe ou l\'email ne correspond à aucun compte' }}</p> -->
+            <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
 
             <button class="btn" type="submit" :disabled="loading">
               <span>Se connecter</span>
@@ -69,7 +69,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useAuthStore } from '~/stores/auth';
 
 definePageMeta({
   middleware: 'guest',
@@ -82,15 +81,21 @@ const loading = ref(false);
 const error = ref('');
 
 const handleLogin = async () => {
-  loading.value = true;
   error.value = '';
+  loading.value = true;
 
   try {
     const authStore = useAuthStore();
-    await authStore.login(email.value, password.value);
+
+    await authStore.login({
+      email: email.value,
+      password: password.value,
+    });
+
     await navigateTo('/dashboard');
+
   } catch (err) {
-    error.value = err.message || 'Erreur de connexion';
+    error.value = err.message || 'Erreur lors de la connexion';
   } finally {
     loading.value = false;
   }

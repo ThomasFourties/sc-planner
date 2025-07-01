@@ -4,13 +4,17 @@
 
     <div class="chart-container">
       <svg viewBox="0 0 200 200" class="pie-svg">
-        <circle v-for="(segment, index) in segments" :key="index" :cx="100" :cy="100" :r="80" :stroke="segment.color"
-          :stroke-width="40"
-          :stroke-dasharray="`${segment.circumference} ${totalCircumference - segment.circumference}`"
-          :stroke-dashoffset="segment.offset" :transform="`rotate(-90 100 100)`" fill="transparent"
-          class="pie-segment" />
+
+        <circle v-if="totalTasks > 0" v-for="(segment, index) in segments" :key="index" :cx="100" :cy="100" :r="80"
+          :stroke="segment.color" :stroke-width="40"
+          :stroke-dasharray="segment.circumference + ' ' + (totalCircumference - segment.circumference)"
+          :stroke-dashoffset="segment.offset" transform="rotate(-90 100 100)" fill="transparent" class="pie-segment" />
+
+
+        <circle v-if="totalTasks === 0" :cx="100" :cy="100" :r="80" :stroke-width="40" class="empty-pie" />
+
         <text x="100" y="105" text-anchor="middle" class="center-text">
-          {{ totalTasks }} tâches
+          {{ totalTasks > 0 ? totalTasks + ' tâches' : 'Aucune tâche' }}
         </text>
       </svg>
     </div>
@@ -27,10 +31,10 @@
 
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useTasks } from '~/composables/useTasks'
+// import { useTasks } from '~/composables/useTasks'
 import { useAuthStore } from '~/stores/auth'
 
-const { getAllTasks } = useTasks()
+// const { getAllTasks } = useTasks()
 const authStore = useAuthStore()
 
 const tasks = ref([])
@@ -46,10 +50,10 @@ const statusMapping = {
 }
 
 const colors = {
-  'À faire': '#ff8c00',   // orange
-  'En cours': '#0066cc',  // bleu
-  'Bloqué': '#cc0000',    // rouge
-  'Terminé': '#009900'    // vert
+  'À faire': '#ff8c00',
+  'En cours': '#0066cc',
+  'Bloqué': '#cc0000',
+  'Terminé': '#009900'
 }
 
 const chartData = computed(() => {
@@ -69,7 +73,7 @@ const chartData = computed(() => {
     label,
     value,
     color: colors[label]
-  })).filter(item => item.value > 0)
+  }))
 })
 
 const totalTasks = computed(() => {
@@ -203,6 +207,11 @@ defineExpose({
   font-weight: 500;
   color: $black;
   flex: 1;
+}
+
+.empty-pie {
+  fill: transparent;
+  stroke: #f2f2f2;
 }
 
 .legend-value {

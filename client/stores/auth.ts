@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
 
 interface User {
   id: string;
@@ -7,139 +6,111 @@ interface User {
   last_name: string;
   email: string;
   role: string;
+  isAdmin: boolean;
 }
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  initialized: boolean;
 }
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     user: null,
-    token: null,
     isAuthenticated: false,
     loading: false,
-    initialized: false,
   }),
 
   getters: {
-    isLoggedIn: (state) => state.isAuthenticated && !!state.token,
+    isLoggedIn: (state) => state.isAuthenticated,
     currentUser: (state) => state.user,
-    isInitialized: (state) => state.initialized,
+    userRole: (state) => state.user?.role,
+    isAdmin: (state) => state.user?.isAdmin === true,
+    userName: (state) => (state.user ? `${state.user.first_name} ${state.user.last_name}` : ''),
   },
 
   actions: {
-    async login(email: string, password: string) {
+    async login(credentials: { email: string; password: string }) {
       this.loading = true;
       try {
-        const response = await axios.post('/api/auth/login', {
-          email,
-          password,
+        const response = await $fetch<{
+          user: User;
+          token: string;
+          message: string;
+        }>('/api/auth/login', {
+          method: 'POST',
+          body: credentials,
         });
 
-        const { accessToken, user } = response.data;
-
-        this.token = accessToken;
-        this.user = user;
+        // Le token est automatiquement mis en cookie par l'API route
+        this.user = response.user;
         this.isAuthenticated = true;
 
+        return { success: true, message: response.message };
+      } catch (error: any) {
+        this.clearAuth();
+        throw new Error(error.data?.message || 'Erreur de connexion');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async register(userData: { first_name: string; last_name: string; email: string; password: string; role?: string; is_admin?: boolean }) {
+      this.loading = true;
+      try {
+        const response = await $fetch<{ message: string }>('/api/auth/register', {
+          method: 'POST',
+          body: userData,
+        });
+        return { success: true, message: response.message };
+      } catch (error: any) {
+        throw new Error(error.data?.message || "Erreur lors de l'inscription");
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async fetchProfile() {
+      this.loading = true;
+      try {
+        const user = await $fetch<User>('/api/auth/me');
+        this.user = user;
+        this.isAuthenticated = true;
+        return true;
+      } catch (error) {
+        // Si l'erreur est 401/403, c'est normal (pas de token valide)
+        // On ne log pas d'erreur pour éviter le spam console
+        this.clearAuth();
+        return false;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async logout() {
+      this.loading = true;
+      try {
+        await $fetch('/api/auth/logout', { method: 'POST' });
+      } catch (error) {
+        console.warn('Erreur lors de la déconnexion côté serveur:', error);
+      } finally {
+        this.clearAuth();
+        this.loading = false;
+
         if (process.client) {
-          localStorage.setItem('auth-token', accessToken);
-          localStorage.setItem('auth-user', JSON.stringify(user));
+          await navigateTo('/login');
         }
-
-        this.setAuthHeader(accessToken);
-
-        return { success: true };
-      } catch (error: any) {
-        this.logout();
-        throw new Error(error.response?.data?.message || 'Erreur de connexion');
-      } finally {
-        this.loading = false;
       }
     },
 
-    async register(userData: { first_name: string; last_name: string; email: string; password: string; confirmPassword: string; code?: string }) {
-      this.loading = true;
-      try {
-        const response = await axios.post('/api/auth/register', userData);
-        return { success: true, message: response.data.message };
-      } catch (error: any) {
-        throw new Error(error.response?.data?.message || "Erreur lors de l'inscription");
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async forgotPassword(email: string) {
-      this.loading = true;
-      try {
-        const response = await axios.post('/api/auth/forgot-password', {
-          email,
-        });
-        return { success: true, message: response.data.message };
-      } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Erreur lors de la réinitialisation');
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async resetPassword(token: string, password: string, confirmPassword: string) {
-      this.loading = true;
-      try {
-        const response = await axios.post('/api/auth/reset-password', {
-          token,
-          password,
-          confirmPassword,
-        });
-        return { success: true, message: response.data.message };
-      } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Erreur lors de la réinitialisation');
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    logout() {
+    clearAuth() {
       this.user = null;
-      this.token = null;
       this.isAuthenticated = false;
-
-      if (process.client) {
-        localStorage.removeItem('auth-token');
-        localStorage.removeItem('auth-user');
-      }
-
-      delete axios.defaults.headers.common['Authorization'];
     },
 
-    initializeAuth() {
-      if (process.client) {
-        const token = localStorage.getItem('auth-token');
-        const userStr = localStorage.getItem('auth-user');
-
-        if (token && userStr) {
-          try {
-            const user = JSON.parse(userStr);
-            this.token = token;
-            this.user = user;
-            this.isAuthenticated = true;
-            this.setAuthHeader(token);
-          } catch (error) {
-            this.logout();
-          }
-        }
-      }
-      this.initialized = true;
-    },
-
-    setAuthHeader(token: string) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    async initializeAuth() {
+      await this.fetchProfile();
     },
   },
 });

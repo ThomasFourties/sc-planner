@@ -1,7 +1,10 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
-  const authStore = useAuthStore();
+export default defineNuxtRouteMiddleware(async (to) => {
+  if (process.server) return;
 
-  if (!authStore.isInitialized) {
+  const { $pinia } = useNuxtApp();
+  const authStore = useAuthStore($pinia);
+
+  if (!authStore.user && !authStore.loading) {
     await authStore.initializeAuth();
   }
 

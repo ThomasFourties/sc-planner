@@ -1,6 +1,9 @@
 export default defineNuxtPlugin(async () => {
   const authStore = useAuthStore();
-  
-  // Initialiser l'authentification depuis le localStorage
-  await authStore.initializeAuth();
-}); 
+
+  // Initialisation de l'auth uniquement si pas déjà en cours
+  // Le middleware s'occupera de la vérification pour les routes protégées
+  if (!authStore.loading && !authStore.user) {
+    await authStore.initializeAuth();
+  }
+});

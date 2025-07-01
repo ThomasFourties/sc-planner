@@ -4,13 +4,13 @@
       <p class="surtitle">{{ formattedDate }}</p>
       <h1 class="h1">Bonjour, {{ currentUser?.first_name || 'Utilisateur' }} !</h1>
       <p class="soustitle" v-if="!loadingTasks">
-        Aujourd'hui, <span>{{ tasks.filter(task => {
+        Aujourd'hui, <span>{{tasks.filter(task => {
           const today = new Date();
           const taskDate = new Date(task.start_date);
           return taskDate.getFullYear() === today.getFullYear() &&
-                 taskDate.getMonth() === today.getMonth() &&
-                 taskDate.getDate() === today.getDate();
-        }).length }} tâches</span> vous sont assignées
+            taskDate.getMonth() === today.getMonth() &&
+            taskDate.getDate() === today.getDate();
+        }).length}} tâches</span> vous sont assignées
       </p>
       <p class="soustitle" v-else>
         Chargement de vos tâches...
@@ -32,7 +32,7 @@ definePageMeta({
   middleware: 'auth'
 });
 
-const { getAssignedTasks } = useTasks();
+// const { getAssignedTasks } = useTasks();
 
 const tasks = ref([]);
 const loadingTasks = ref(true);
@@ -40,7 +40,7 @@ const loadingTasks = ref(true);
 const loadTasks = async () => {
   try {
     loadingTasks.value = true;
-    tasks.value = await getAssignedTasks();
+    // tasks.value = await getAssignedTasks();
   } catch (error) {
     console.error('Erreur lors du chargement des tâches:', error);
   } finally {
