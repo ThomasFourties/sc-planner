@@ -34,6 +34,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('docs', app, document, {
     customSiteTitle: 'SC Planner API Documentation',
     customfavIcon: '/favicon.ico',
