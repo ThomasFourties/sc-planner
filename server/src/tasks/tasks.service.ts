@@ -1,0 +1,67 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Task } from './entities/task.entity';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+
+@Injectable()
+export class TasksService {
+  constructor(
+    @InjectRepository(Task)
+    private tasksRepository: Repository<Task>,
+  ) {}
+
+  async create(
+    createTaskDto: CreateTaskDto,
+    created_by_id: string,
+  ): Promise<Task> {
+    const task = this.tasksRepository.create({
+      ...createTaskDto,
+      created_by_id,
+    });
+
+    return await this.tasksRepository.save(task);
+  }
+
+  async findAll(): Promise<Task[]> {
+    return await this.tasksRepository.find({
+      relations: ['assigned_to', 'created_by'],
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async findOne(id: string): Promise<Task> {
+    const task = await this.tasksRepository.findOne({
+      where: { id },
+      relations: ['assigned_to', 'created_by', 'dependency'],
+    });
+
+    if (!task) {
+      throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+    }
+
+    return task;
+  }
+
+  async findByUser(userId: string): Promise<Task[]> {
+    return await this.tasksRepository.find({
+      where: { assigned_to_id: userId },
+      relations: ['assigned_to', 'created_by'],
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    await this.tasksRepository.update(id, updateTaskDto);
+    return await this.findOne(id);
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.tasksRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+    }
+  }
+}
