@@ -18,8 +18,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL || 'http://localhost:3001/api',
-      API_AUTH_TOKEN: process.env.API_AUTH_TOKEN,
+      API_URL: process.env.API_URL || 'http://localhost:3002/api',
     },
   },
 
@@ -75,7 +74,7 @@ export default defineNuxtConfig({
     // 'nuxt-swiper',
   ],
 
-  site: { url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000' },
+  site: { url: process.env.FRONTEND_URL || 'http://localhost:3000' },
 
   // gtag: {
   //   enabled: process.env.ENV_STATUS === 'production',

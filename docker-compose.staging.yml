@@ -12,7 +12,8 @@ services:
 
   server:
     image: thoomaas123/sc-planner-server:${SERVER_TAG}
-    ports: []
+    ports:
+      - '3002:3002'
     env_file:
       - ./.env
     pull_policy: always
