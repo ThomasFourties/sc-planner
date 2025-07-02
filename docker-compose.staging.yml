@@ -8,6 +8,8 @@ services:
     depends_on:
       - server
     pull_policy: always
+    networks:
+      - sc-planner-network     
 
 
   server:
@@ -24,6 +26,8 @@ services:
       DATABASE_NAME: ${DATABASE_NAME}
     depends_on:
       - database
+    networks:
+      - sc-planner-network 
 
   database:
     image: postgres:13
@@ -48,6 +52,8 @@ services:
       ADMINER_DESIGN: 'pappu687'
     depends_on:
       - database
+    networks:
+      - sc-planner-network
 
 
 volumes:
