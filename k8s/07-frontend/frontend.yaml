@@ -2,7 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
-  namespace: scplanner
+  namespace: sc-planner
+  labels:
+    app: frontend
 spec:
   replicas: 1
   selector:
@@ -15,20 +17,26 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: thoomaas123/sc-planner-client:latest
+        image: nginx:alpine
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
-  namespace: scplanner
+  name: frontend
+  namespace: sc-planner
 spec:
   selector:
     app: frontend
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
+  - port: 80
+    targetPort: 80
   type: ClusterIP

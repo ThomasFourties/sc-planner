@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: sc-planner
+data:
+  # Database configuration
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_REPLICA_HOST: "postgres-replica"
+  
+  # Redis configuration
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  
+  # Service ports
+  AUTH_SERVICE_PORT: "3001"
+  USER_SERVICE_PORT: "3002"
+  TASK_SERVICE_PORT: "3003"
+  CLIENT_SERVICE_PORT: "3004"
+  PROJECT_SERVICE_PORT: "3005"
+  MONITORING_SERVICE_PORT: "3006"
+  
+  # Circuit Breaker configuration
+  CIRCUIT_BREAKER_TIMEOUT: "30000"
+  CIRCUIT_BREAKER_MAX_REQUESTS: "100"
+  
+  # Frontend configuration
+  FRONTEND_PORT: "80"
+  API_BASE_URL: "http://nginx-ingress/api" 
