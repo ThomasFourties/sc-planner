@@ -1,63 +1,74 @@
+---
+# NAMESPACE
 apiVersion: v1
 kind: Namespace
 metadata:
   name: sc-planner
   labels:
-    name: sc-planner apiVersion: v1
+    name: sc-planner
+
+---
+# SECRETS
+apiVersion: v1
 kind: Secret
 metadata:
   name: app-secrets
   namespace: sc-planner
 type: Opaque
 data:
-  JWT_SECRET: c3VwZXJzZWNyZXRqd3RrZXkyMDI0
-  NODE_ENV: ZGV2ZWxvcG1lbnQ=
-  LOG_LEVEL: aW5mbw== apiVersion: v1
+  JWT_SECRET: c3VwZXJzZWNyZXRqd3RrZXkyMDI0    # supersecretjwtkey2024
+  NODE_ENV: ZGV2ZWxvcG1lbnQ=                   # development
+  LOG_LEVEL: aW5mbw==                          # info
+
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: postgres-secrets
   namespace: sc-planner
 type: Opaque
 data:
-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
-  POSTGRES_USER: dXNlcg==
-  POSTGRES_DB: ZGI= apiVersion: v1
+  POSTGRES_PASSWORD: cGFzc3dvcmQ=              # password
+  POSTGRES_USER: dXNlcg==                      # user
+  POSTGRES_DB: ZGI=                            # db
+
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: redis-secrets
   namespace: sc-planner
 type: Opaque
 data:
-  REDIS_PASSWORD: cGFzc3dvcmQ= apiVersion: v1
+  REDIS_PASSWORD: cGFzc3dvcmQ=                 # password
+
+---
+# CONFIGMAP
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: app-config
   namespace: sc-planner
 data:
-  # Database configuration
-  POSTGRES_HOST: "postgres"
+  POSTGRES_HOST: "postgres-master"
   POSTGRES_PORT: "5432"
   POSTGRES_REPLICA_HOST: "postgres-replica"
-  
-  # Redis configuration
   REDIS_HOST: "redis"
   REDIS_PORT: "6379"
-  
-  # Service ports
   AUTH_SERVICE_PORT: "3001"
   USER_SERVICE_PORT: "3002"
   TASK_SERVICE_PORT: "3003"
   CLIENT_SERVICE_PORT: "3004"
   PROJECT_SERVICE_PORT: "3005"
   MONITORING_SERVICE_PORT: "3006"
-  
-  # Circuit Breaker configuration
   CIRCUIT_BREAKER_TIMEOUT: "30000"
   CIRCUIT_BREAKER_MAX_REQUESTS: "100"
-  
-  # Frontend configuration
   FRONTEND_PORT: "80"
-  API_BASE_URL: "http://nginx-ingress/api" apiVersion: v1
+  API_BASE_URL: "http://nginx-ingress/api"
+
+---
+# PERSISTENT VOLUMES
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-master-pvc
@@ -69,6 +80,7 @@ spec:
     requests:
       storage: 2Gi
   storageClassName: standard
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -81,7 +93,11 @@ spec:
   resources:
     requests:
       storage: 2Gi
-  storageClassName: standard apiVersion: apps/v1
+  storageClassName: standard
+
+---
+# DATABASE - POSTGRES MASTER
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres-master
@@ -124,6 +140,7 @@ spec:
       - name: postgres-storage
         persistentVolumeClaim:
           claimName: postgres-master-pvc
+
 ---
 apiVersion: v1
 kind: Service
@@ -136,7 +153,11 @@ spec:
   ports:
   - port: 5432
     targetPort: 5432
-  type: ClusterIP apiVersion: apps/v1
+  type: ClusterIP
+
+---
+# DATABASE - POSTGRES REPLICA
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres-replica
@@ -181,6 +202,7 @@ spec:
       - name: postgres-storage
         persistentVolumeClaim:
           claimName: postgres-replica-pvc
+
 ---
 apiVersion: v1
 kind: Service
@@ -193,7 +215,11 @@ spec:
   ports:
   - port: 5432
     targetPort: 5432
-  type: ClusterIP apiVersion: apps/v1
+  type: ClusterIP
+
+---
+# REDIS
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
@@ -225,6 +251,7 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "100m"
+
 ---
 apiVersion: v1
 kind: Service
@@ -237,7 +264,11 @@ spec:
   ports:
   - port: 6379
     targetPort: 6379
-  type: ClusterIP apiVersion: apps/v1
+  type: ClusterIP
+
+---
+# BACKEND SERVICES - AUTH
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-service
@@ -256,7 +287,7 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: node:18-alpine
+        image: nginx:alpine
         ports:
         - containerPort: 3001
         env:
@@ -271,6 +302,7 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "100m"
+
 ---
 apiVersion: v1
 kind: Service
@@ -283,191 +315,11 @@ spec:
   ports:
   - port: 3001
     targetPort: 3001
-  type: ClusterIP apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: client-service
-  namespace: sc-planner
-  labels:
-    app: client-service
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: client-service
-  template:
-    metadata:
-      labels:
-        app: client-service
-    spec:
-      containers:
-      - name: client-service
-        image: node:18-alpine
-        ports:
-        - containerPort: 3004
-        env:
-        - name: PORT
-          value: "3004"
-        - name: SERVICE_NAME
-          value: "client-service"
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "50m"
-          limits:
-            memory: "128Mi"
-            cpu: "100m"
+  type: ClusterIP
+
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: client-service
-  namespace: sc-planner
-spec:
-  selector:
-    app: client-service
-  ports:
-  - port: 3004
-    targetPort: 3004
-  type: ClusterIP apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: monitoring-service
-  namespace: sc-planner
-  labels:
-    app: monitoring-service
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: monitoring-service
-  template:
-    metadata:
-      labels:
-        app: monitoring-service
-    spec:
-      containers:
-      - name: monitoring-service
-        image: node:18-alpine
-        ports:
-        - containerPort: 3006
-        env:
-        - name: PORT
-          value: "3006"
-        - name: SERVICE_NAME
-          value: "monitoring-service"
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "50m"
-          limits:
-            memory: "128Mi"
-            cpu: "100m"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: monitoring-service
-  namespace: sc-planner
-spec:
-  selector:
-    app: monitoring-service
-  ports:
-  - port: 3006
-    targetPort: 3006
-  type: ClusterIP apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: project-service
-  namespace: sc-planner
-  labels:
-    app: project-service
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: project-service
-  template:
-    metadata:
-      labels:
-        app: project-service
-    spec:
-      containers:
-      - name: project-service
-        image: node:18-alpine
-        ports:
-        - containerPort: 3005
-        env:
-        - name: PORT
-          value: "3005"
-        - name: SERVICE_NAME
-          value: "project-service"
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "50m"
-          limits:
-            memory: "128Mi"
-            cpu: "100m"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: project-service
-  namespace: sc-planner
-spec:
-  selector:
-    app: project-service
-  ports:
-  - port: 3005
-    targetPort: 3005
-  type: ClusterIP apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: task-service
-  namespace: sc-planner
-  labels:
-    app: task-service
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: task-service
-  template:
-    metadata:
-      labels:
-        app: task-service
-    spec:
-      containers:
-      - name: task-service
-        image: node:18-alpine
-        ports:
-        - containerPort: 3003
-        env:
-        - name: PORT
-          value: "3003"
-        - name: SERVICE_NAME
-          value: "task-service"
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "50m"
-          limits:
-            memory: "128Mi"
-            cpu: "100m"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: task-service
-  namespace: sc-planner
-spec:
-  selector:
-    app: task-service
-  ports:
-  - port: 3003
-    targetPort: 3003
-  type: ClusterIP apiVersion: apps/v1
+# BACKEND SERVICES - USER
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-service
@@ -486,7 +338,7 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: node:18-alpine
+        image: nginx:alpine
         ports:
         - containerPort: 3002
         env:
@@ -501,6 +353,7 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "100m"
+
 ---
 apiVersion: v1
 kind: Service
@@ -513,7 +366,215 @@ spec:
   ports:
   - port: 3002
     targetPort: 3002
-  type: ClusterIP apiVersion: apps/v1
+  type: ClusterIP
+
+---
+# BACKEND SERVICES - TASK
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-service
+  namespace: sc-planner
+  labels:
+    app: task-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task-service
+  template:
+    metadata:
+      labels:
+        app: task-service
+    spec:
+      containers:
+      - name: task-service
+        image: nginx:alpine
+        ports:
+        - containerPort: 3003
+        env:
+        - name: PORT
+          value: "3003"
+        - name: SERVICE_NAME
+          value: "task-service"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-service
+  namespace: sc-planner
+spec:
+  selector:
+    app: task-service
+  ports:
+  - port: 3003
+    targetPort: 3003
+  type: ClusterIP
+
+---
+# BACKEND SERVICES - CLIENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-service
+  namespace: sc-planner
+  labels:
+    app: client-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client-service
+  template:
+    metadata:
+      labels:
+        app: client-service
+    spec:
+      containers:
+      - name: client-service
+        image: nginx:alpine
+        ports:
+        - containerPort: 3004
+        env:
+        - name: PORT
+          value: "3004"
+        - name: SERVICE_NAME
+          value: "client-service"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-service
+  namespace: sc-planner
+spec:
+  selector:
+    app: client-service
+  ports:
+  - port: 3004
+    targetPort: 3004
+  type: ClusterIP
+
+---
+# BACKEND SERVICES - PROJECT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-service
+  namespace: sc-planner
+  labels:
+    app: project-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-service
+  template:
+    metadata:
+      labels:
+        app: project-service
+    spec:
+      containers:
+      - name: project-service
+        image: nginx:alpine
+        ports:
+        - containerPort: 3005
+        env:
+        - name: PORT
+          value: "3005"
+        - name: SERVICE_NAME
+          value: "project-service"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-service
+  namespace: sc-planner
+spec:
+  selector:
+    app: project-service
+  ports:
+  - port: 3005
+    targetPort: 3005
+  type: ClusterIP
+
+---
+# BACKEND SERVICES - MONITORING
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitoring-service
+  namespace: sc-planner
+  labels:
+    app: monitoring-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring-service
+  template:
+    metadata:
+      labels:
+        app: monitoring-service
+    spec:
+      containers:
+      - name: monitoring-service
+        image: nginx:alpine
+        ports:
+        - containerPort: 3006
+        env:
+        - name: PORT
+          value: "3006"
+        - name: SERVICE_NAME
+          value: "monitoring-service"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-service
+  namespace: sc-planner
+spec:
+  selector:
+    app: monitoring-service
+  ports:
+  - port: 3006
+    targetPort: 3006
+  type: ClusterIP
+
+---
+# FRONTEND
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
@@ -542,6 +603,7 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "100m"
+
 ---
 apiVersion: v1
 kind: Service
@@ -555,6 +617,9 @@ spec:
   - port: 80
     targetPort: 80
   type: ClusterIP
+
+---
+# INGRESS
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -625,7 +690,56 @@ spec:
           service:
             name: task-service
             port:
-              number: 3003 apiVersion: autoscaling/v2
+              number: 3003
+
+---
+# RBAC
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sc-planner-serviceaccount
+  namespace: sc-planner
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sc-planner-clusterrole
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sc-planner-clusterrolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sc-planner-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: sc-planner-serviceaccount
+  namespace: sc-planner
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dashboard-admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: dashboard-admin-user
+  namespace: kubernetes-dashboard
+
+---
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: auth-service-hpa
@@ -644,6 +758,7 @@ spec:
       target:
         type: Utilization
         averageUtilization: 70
+
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -664,6 +779,7 @@ spec:
       target:
         type: Utilization
         averageUtilization: 70
+
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -690,6 +806,7 @@ spec:
       target:
         type: Utilization
         averageUtilization: 80
+
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -716,6 +833,7 @@ spec:
       target:
         type: Utilization
         averageUtilization: 80
+
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -742,6 +860,7 @@ spec:
       target:
         type: Utilization
         averageUtilization: 80
+
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -767,49 +886,4 @@ spec:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 70 apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: sc-planner-serviceaccount
-  namespace: sc-planner
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: sc-planner-clusterrole
-rules:
-- apiGroups: [""]
-  resources: ["pods", "services"]
-  verbs: ["get", "list", "watch"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: sc-planner-clusterrolebinding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: sc-planner-clusterrole
-subjects:
-- kind: ServiceAccount
-  name: sc-planner-serviceaccount
-  namespace: sc-planner
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: dashboard-admin-user
-  namespace: kubernetes-dashboard
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: dashboard-admin-user
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: dashboard-admin-user
-  namespace: kubernetes-dashboard 
+        averageUtilization: 70 
