@@ -1,0 +1,24 @@
+import { defineEventHandler, readBody, createError, getQuery } from 'h3';
+
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig();
+  const body = await readBody(event);
+  const query = getQuery(event);
+  
+  try {
+    const response = await $fetch<{ message: string }>(`${config.public.API_URL}/auth/reset-password?token=${query.token}`, {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response;
+  } catch (error: any) {
+    throw createError({
+      statusCode: error.status || error.statusCode || 500,
+      statusMessage: error.data?.message || error.message || 'Erreur lors de la réinitialisation du mot de passe',
+    });
+  }
+}); 

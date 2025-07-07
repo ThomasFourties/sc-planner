@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const response = await $fetch(`${config.public.API_URL}/users/me`, {
+    const response = await $fetch(`${config.public.API_URL}/auth/me`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -24,13 +24,6 @@ export default defineEventHandler(async (event) => {
 
     return response;
   } catch (error: any) {
-    // Si le token est invalide, on peut supprimer le cookie
-    if (error.status === 401) {
-      // Note: setCookie avec maxAge: 0 supprime le cookie
-      // mais on ne peut pas l'importer ici sans circular dependency
-      // Le cookie sera nettoyé côté client
-    }
-    
     throw createError({
       statusCode: error.status || error.statusCode || 500,
       statusMessage: error.data?.message || error.message || 'Erreur lors de la récupération du profil',
