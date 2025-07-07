@@ -194,12 +194,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async clearToken() {
-      await $fetch('/api/auth/clear-token');
-    },
-
     clearAuth() {
-      this.clearToken();
       this.user = null;
       this.isAuthenticated = false;
     },
