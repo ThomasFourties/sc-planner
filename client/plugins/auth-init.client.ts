@@ -1,5 +1,6 @@
 export default defineNuxtPlugin(async () => {
   const authStore = useAuthStore();
 
-  await authStore.checkToken();
+  // Récupérer les informations utilisateur si un token est présent
+  await authStore.fetchProfile();
 });
