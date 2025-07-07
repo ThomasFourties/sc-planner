@@ -11,4 +11,4 @@ import { AuthModule } from '../auth/auth.module';
   providers: [TasksService],
   exports: [TasksService],
 })
-export class TasksModule {} 
+export class TasksModule {}
