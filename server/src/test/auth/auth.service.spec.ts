@@ -49,6 +49,7 @@ describe('AuthService', () => {
         last_name: 'Doe',
         email: 'john@example.com',
         password: 'password',
+        confirm_password: 'password',
         role: undefined,
         is_admin: undefined,
       };
@@ -67,7 +68,9 @@ describe('AuthService', () => {
           is_admin: false,
         }),
       );
-      expect(result).toBeUndefined();
+      expect(result).toEqual({
+        message: 'Compte créé avec succès',
+      });
     });
 
     it('should register a user with custom role and admin status', async () => {
@@ -79,11 +82,12 @@ describe('AuthService', () => {
         last_name: 'User',
         email: 'admin@example.com',
         password: 'password',
+        confirm_password: 'password',
         role: 'ADMIN',
         is_admin: true,
       };
 
-      await service.register(dto);
+      const result = await service.register(dto);
 
       expect(mockUsersService.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -91,6 +95,9 @@ describe('AuthService', () => {
           is_admin: true,
         }),
       );
+      expect(result).toEqual({
+        message: 'Compte créé avec succès',
+      });
     });
 
     it('should throw ConflictException when email already exists', async () => {
@@ -104,13 +111,14 @@ describe('AuthService', () => {
         last_name: 'Doe',
         email: 'john@example.com',
         password: 'password',
+        confirm_password: 'password',
         role: undefined,
         is_admin: undefined,
       };
 
       await expect(service.register(dto)).rejects.toThrow(ConflictException);
       await expect(service.register(dto)).rejects.toThrow(
-        'Un utilisateur avec cet email existe déjà',
+        "L'email est deja associe à un compte",
       );
 
       expect(mockUsersService.create).not.toHaveBeenCalled();
