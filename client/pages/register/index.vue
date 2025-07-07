@@ -29,18 +29,18 @@
 
             <div class="form-group">
               <label for="password">Mot de passe</label>
-              <input id="password" v-model="form.password" type="password" required />
+              <input id="password" v-model="form.password" type="password" required minlength="8" />
             </div>
 
             <div class="form-group">
-              <label for="confirmPassword">Répetez le mot de passe</label>
-              <input id="confirmPassword" v-model="form.confirmPassword" type="password" required />
+              <label for="confirm_password">Répetez le mot de passe</label>
+              <input id="confirm_password" v-model="form.confirm_password" type="password" required minlength="8" />
             </div>
 
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="code" class="label-info">Code d'accès (optionnel)
                 <button class="tooltip-button" @click="handleTooltipToggle">
-                  <info class="info-icon" />
+                  <Info class="info-icon" />
                 </button>
                 <p class="toolbox" :class="{ active: showTooltip }" v-if="showTooltip">{{ tooltipMessage }}</p>
               </label>
@@ -52,7 +52,7 @@
 
             <p class="code-msg" :class="{ 'error': codeStatus === 'invalid', 'success': codeStatus === 'valid' }">
               {{ codeMessage }}
-            </p>
+            </p> -->
 
             <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
             <p class="msg" :class="{ active: success, green: success }">{{ successMessage }}</p>
@@ -153,7 +153,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { useAuthStore } from '~/stores/auth';
-import info from './assets/icons/info.svg';
+// import Info from '../../assets/icons/info.svg';
+
 
 definePageMeta({
   middleware: 'guest',
@@ -165,7 +166,7 @@ const form = reactive({
   last_name: '',
   email: '',
   password: '',
-  confirmPassword: '',
+  confirm_password: '',
   code: '',
 });
 
@@ -173,74 +174,61 @@ const loading = ref(false);
 const error = ref('');
 const success = ref(false);
 const successMessage = ref('');
-const showTooltip = ref(false);
-const codeStatus = ref('');
-const codeMessage = ref('');
+// const showTooltip = ref(false);
+// const codeStatus = ref('');
+// const codeMessage = ref('');
 const statusSpinner = ref(true);
-const tooltipMessage = ref('Si aucun code ne vous a été fourni ne remplissez pas ce champ');
+// const tooltipMessage = ref('Si aucun code ne vous a été fourni ne remplissez pas ce champ');
 
 const status = ref(false);
 const statusMessage = ref('');
 
-const getCodeRole = (code: string) => {
-  const codeRoles: { [key: string]: { role: string; is_admin: boolean } } = {
-    'XAYOP': { role: 'SALARIE', is_admin: false },
-    'PUKXE': { role: 'FREELANCE', is_admin: false },
-    'ADMIN': { role: 'CHEF_DE_PROJET', is_admin: true },
-  };
-  return codeRoles[code] || null;
-};
+// const getCodeRole = (code: string) => {
+//   const codeRoles: { [key: string]: { role: string; is_admin: boolean } } = {
+//     'XAYOP': { role: 'SALARIE', is_admin: false },
+//     'PUKXE': { role: 'FREELANCE', is_admin: false },
+//     'ADMIN': { role: 'CHEF_DE_PROJET', is_admin: true },
+//   };
+//   return codeRoles[code] || null;
+// };
 
-const handleTooltipToggle = () => {
-  showTooltip.value = !showTooltip.value;
-};
+// const handleTooltipToggle = () => {
+//   showTooltip.value = !showTooltip.value;
+// };
 
-const handleCodeInput = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const value = target.value.toUpperCase();
+// const handleCodeInput = (event: Event) => {
+//   const target = event.target as HTMLInputElement;
+//   const value = target.value.toUpperCase();
 
-  codeStatus.value = '';
-  codeMessage.value = '';
+//   codeStatus.value = '';
+//   codeMessage.value = '';
 
-  form.code = value;
-  target.value = value;
+//   form.code = value;
+//   target.value = value;
 
-  if (value.length === 5) {
-    const roleInfo = getCodeRole(value);
-    if (roleInfo) {
-      codeStatus.value = 'valid';
-      codeMessage.value = 'Code valide';
-    } else {
-      codeStatus.value = 'invalid';
-      codeMessage.value = 'Code incorrect';
-    }
-  }
-};
+//   if (value.length === 5) {
+//     const roleInfo = getCodeRole(value);
+//     if (roleInfo) {
+//       codeStatus.value = 'valid';
+//       codeMessage.value = 'Code valide';
+//     } else {
+//       codeStatus.value = 'invalid';
+//       codeMessage.value = 'Code incorrect';
+//     }
+//   }
+// };
 
-const validateForm = () => {
-  if (!form.first_name || !form.last_name || !form.email || !form.password || !form.confirmPassword) {
-    error.value = 'Veuillez remplir tous les champs';
-    return false;
-  }
-
-  if (form.password !== form.confirmPassword) {
-    error.value = 'Les mots de passe ne correspondent pas';
-    return false;
-  }
+const handleRegister = async () => {
+  error.value = '';
 
   if (form.password.length < 8) {
     error.value = 'Le mot de passe doit contenir au moins 8 caractères';
     return false;
   }
 
-  return true;
-};
-
-const handleRegister = async () => {
-  error.value = '';
-
-  if (!validateForm()) {
-    return;
+  if (form.password !== form.confirm_password) {
+    error.value = 'Les mots de passe ne correspondent pas';
+    return false;
   }
 
   loading.value = true;
@@ -248,21 +236,15 @@ const handleRegister = async () => {
   try {
     const authStore = useAuthStore();
 
-    const registrationData: any = { ...form };
+    const registrationData = {
+      first_name: form.first_name,
+      last_name: form.last_name,
+      email: form.email,
+      password: form.password,
+      confirm_password: form.confirm_password,
+    };
 
-    if (form.code) {
-      const roleInfo = getCodeRole(form.code);
-
-      if (roleInfo) {
-        registrationData.is_admin = roleInfo.is_admin;
-        registrationData.role = roleInfo.role;
-      }
-    }
-
-    const result = await authStore.register(registrationData);
-
-    success.value = true;
-    successMessage.value = result.message;
+    const response = await authStore.register(registrationData);
 
     status.value = true;
     statusMessage.value = 'Création de votre compte en cours...';
@@ -272,13 +254,13 @@ const handleRegister = async () => {
       statusMessage.value = 'Votre compte a été créé avec succès !';
 
       setTimeout(() => {
-        window.location.href = '/login';
-      }, 500);
+        navigateTo('/login');
+      }, 800);
     }, 1200);
 
-
   } catch (err: any) {
-    error.value = err.message || "Erreur lors de l'inscription";
+    console.log(err);
+    error.value = err.message || 'Une erreur est survenue lors de l\'inscription';
   } finally {
     loading.value = false;
   }

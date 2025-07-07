@@ -126,21 +126,6 @@ const handleLogout = async () => {
         font-weight: 500;
       }
     }
-
-    .logout-btn {
-      background-color: #ef4444;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-
-      &:hover {
-        background-color: #dc2626;
-      }
-    }
   }
 
   .txt-wp {

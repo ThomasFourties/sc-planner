@@ -19,9 +19,10 @@
               <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
               <p class="msg" :class="{ active: success, green: success }">{{ message }}</p>
 
-              <button class="btn" type="submit" :disabled="loading">
-                <span v-if="!loading">Envoyer</span>
-                <span v-else>Envoi...</span>
+              <button class="btn" type="submit" :disabled="loading || cooldown > 0">
+                <span v-if="!loading && cooldown === 0">Envoyer</span>
+                <span v-else-if="loading">Envoi...</span>
+                <span v-else>Renvoyer dans {{ cooldown }}s</span>
               </button>
             </form>
           </div>
@@ -30,70 +31,6 @@
     </section>
   </main>
 </template>
-<!-- 
-<style scoped lang="scss">
-@use '../../assets/scss/base/variables' as *;
-
-.reset-container {
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 550px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
-
-  .title {
-    font-size: 32px;
-    margin-bottom: 10px;
-  }
-
-  .subtitle {
-    font-size: 16px;
-    color: $lightGray;
-    margin-bottom: 30px;
-  }
-}
-
-.reset-form {
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
-
-    label {
-      font-size: 14px;
-      text-align: left;
-    }
-
-    input {
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-  }
-
-  .btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-}
-</style> -->
 
 <script setup lang="ts">
 definePageMeta({
@@ -106,6 +43,24 @@ const loading = ref(false);
 const error = ref('');
 const success = ref(false);
 const message = ref('');
+const cooldown = ref(0);
+const cooldownInterval = ref<NodeJS.Timeout | null>(null);
+
+onMounted(() => {
+  if (process.client) {
+    const savedCooldown = localStorage.getItem('forgot-password-cooldown');
+    if (savedCooldown) {
+      const expirationTime = parseInt(savedCooldown);
+      const now = Date.now();
+      const remainingTime = Math.max(0, Math.ceil((expirationTime - now) / 1000));
+
+      if (remainingTime > 0) {
+        cooldown.value = remainingTime;
+        startCooldownTimer();
+      }
+    }
+  }
+});
 
 const handleForgotPassword = async () => {
   if (!email.value) {
@@ -123,12 +78,49 @@ const handleForgotPassword = async () => {
 
     success.value = true;
     message.value = result.message;
-    console.log('✅ Email envoyé !', result);
+    error.value = '';
+
+    startCooldown();
   } catch (err: any) {
     error.value = err.message || 'Erreur lors de l\'envoi';
-    console.error('❌ Erreur:', err);
+    success.value = false;
+    message.value = '';
   } finally {
     loading.value = false;
   }
 };
+
+const startCooldown = () => {
+  cooldown.value = 60;
+  if (process.client) {
+    const expirationTime = Date.now() + (60 * 1000);
+    localStorage.setItem('forgot-password-cooldown', expirationTime.toString());
+  }
+  startCooldownTimer();
+};
+
+const startCooldownTimer = () => {
+  if (cooldownInterval.value) {
+    clearInterval(cooldownInterval.value);
+  }
+
+  cooldownInterval.value = setInterval(() => {
+    cooldown.value--;
+    if (cooldown.value <= 0) {
+      if (cooldownInterval.value) {
+        clearInterval(cooldownInterval.value);
+      }
+      cooldownInterval.value = null;
+      if (process.client) {
+        localStorage.removeItem('forgot-password-cooldown');
+      }
+    }
+  }, 1000);
+};
+
+onUnmounted(() => {
+  if (cooldownInterval.value) {
+    clearInterval(cooldownInterval.value);
+  }
+});
 </script>
