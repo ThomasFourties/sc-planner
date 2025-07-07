@@ -26,14 +26,6 @@ jobs:
               - 'server/**'
               - '.github/workflows/**'
 
-  skip:
-    name: 🟡 Skip — No Changes
-    needs: changes
-    if: ${{ needs.changes.outputs.client != 'true' && needs.changes.outputs.server != 'true' }}
-    runs-on: ubuntu-22.04
-    steps:
-      - run: echo "✅ Aucun changement détecté dans client/ ou server/ — pipeline ignorée." >> $GITHUB_STEP_SUMMARY
-
   test:
     name: 🧪 Test Server
     needs: changes
