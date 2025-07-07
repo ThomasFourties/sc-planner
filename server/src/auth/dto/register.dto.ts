@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  MinLength,
+} from 'class-validator';
 
 export class RegisterDto {
   @IsNotEmpty()
@@ -11,7 +17,13 @@ export class RegisterDto {
   email: string;
 
   @IsNotEmpty()
+  @MinLength(8, {
+    message: 'Le mot de passe doit contenir au moins 8 caractères',
+  })
   password: string;
+
+  @IsNotEmpty()
+  confirm_password: string;
 
   @IsOptional()
   role?: string;
