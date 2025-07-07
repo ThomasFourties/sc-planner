@@ -16,6 +16,11 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
+  async create(userData: Partial<User>): Promise<User> {
+    const user = this.userRepository.create(userData);
+    return this.userRepository.save(user);
+  }
+
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
   }
@@ -28,13 +33,9 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async create(userData: Partial<User>): Promise<User> {
-    const user = this.userRepository.create(userData);
-    return this.userRepository.save(user);
-  }
-
   async update(id: string, userData: Partial<User>): Promise<User> {
     const existingUser = await this.findById(id);
+
     if (!existingUser) {
       throw new NotFoundException('Utilisateur non trouvé');
     }

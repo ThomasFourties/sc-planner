@@ -10,7 +10,8 @@
     "prod": "docker compose -f docker-compose.prod.yml up -d --build",
     "down": "docker compose -f docker-compose.dev.yml down",
     "logs": "docker compose logs -f",
-    "release": "node scripts/release.js"
+    "release": "node scripts/release.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@octokit/rest": "^22.0.0",
     "conventional-changelog-cli": "^5.0.0",
+    "jest": "^30.0.4",
     "standard-version": "^9.5.0"
   },
   "standard-version": {
