@@ -26,6 +26,23 @@ jobs:
               - 'server/**'
               - '.github/workflows/**'
 
+  test:
+    name: Test
+    needs: changes
+    if: ${{ needs.changes.outputs.client == 'true' || needs.changes.outputs.server == 'true' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies server
+        run: |
+          cd server
+          npm install
+
+      - name: Run tests
+        run: |
+          cd server
+          npm run test
+
   build:
     name: Build and Push Images
     needs: changes
