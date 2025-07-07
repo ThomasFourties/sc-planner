@@ -36,21 +36,19 @@ export class AuthService {
       role: (role as UserRole) || UserRole.CLIENT,
       is_admin: is_admin || false,
     });
-
-    return {
-      message: 'Inscription réussie. Vous pouvez maintenant vous connecter.',
-    };
   }
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
     const user = await this.usersService.findByEmail(email);
+
     if (!user) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
@@ -59,7 +57,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.role,
-      isAdmin: user.is_admin,
+      is_admin: user.is_admin,
     };
 
     const token = this.jwtService.sign(payload);
@@ -71,26 +69,9 @@ export class AuthService {
         last_name: user.last_name,
         email: user.email,
         role: user.role,
-        isAdmin: user.is_admin,
+        is_admin: user.is_admin,
       },
       token,
-      message: 'Connexion réussie',
-    };
-  }
-
-  async validateUser(userId: string) {
-    const user = await this.usersService.findById(userId);
-    if (!user) {
-      throw new UnauthorizedException('Utilisateur non trouvé');
-    }
-
-    return {
-      id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      role: user.role,
-      isAdmin: user.is_admin,
     };
   }
 }

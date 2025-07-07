@@ -19,4 +19,4 @@ export class RegisterDto {
   @IsOptional()
   @IsBoolean()
   is_admin?: boolean;
-} 
+}
