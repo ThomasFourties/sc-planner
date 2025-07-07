@@ -123,9 +123,15 @@ export class CreateTasksTable1700000001000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Supprimer les clés étrangères
-    await queryRunner.query(`ALTER TABLE "tasks" DROP CONSTRAINT "FK_TASKS_DEPENDENCY"`);
-    await queryRunner.query(`ALTER TABLE "tasks" DROP CONSTRAINT "FK_TASKS_CREATED_BY"`);
-    await queryRunner.query(`ALTER TABLE "tasks" DROP CONSTRAINT "FK_TASKS_ASSIGNED_TO"`);
+    await queryRunner.query(
+      `ALTER TABLE "tasks" DROP CONSTRAINT "FK_TASKS_DEPENDENCY"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "tasks" DROP CONSTRAINT "FK_TASKS_CREATED_BY"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "tasks" DROP CONSTRAINT "FK_TASKS_ASSIGNED_TO"`,
+    );
 
     // Supprimer les index
     await queryRunner.query(`DROP INDEX "IDX_TASKS_DATES"`);
@@ -141,4 +147,4 @@ export class CreateTasksTable1700000001000 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE "public"."tasks_priority_enum"`);
     await queryRunner.query(`DROP TYPE "public"."tasks_status_enum"`);
   }
-} 
+}
