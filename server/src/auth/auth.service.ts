@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -18,12 +19,24 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { first_name, last_name, email, password, role, is_admin } =
-      registerDto;
+    const {
+      first_name,
+      last_name,
+      email,
+      password,
+      confirm_password,
+      role,
+      is_admin,
+    } = registerDto;
 
     const existingUser = await this.usersService.findByEmail(email);
+
     if (existingUser) {
-      throw new ConflictException('Un utilisateur avec cet email existe déjà');
+      throw new ConflictException("L'email est deja associe à un compte");
+    }
+
+    if (password !== confirm_password) {
+      throw new BadRequestException('Les mots de passe ne correspondent pas');
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -36,6 +49,10 @@ export class AuthService {
       role: (role as UserRole) || UserRole.CLIENT,
       is_admin: is_admin || false,
     });
+
+    return {
+      message: 'Compte créé avec succès',
+    };
   }
 
   async login(loginDto: LoginDto) {
@@ -72,6 +89,35 @@ export class AuthService {
         is_admin: user.is_admin,
       },
       token,
+    };
+  }
+
+  async resetPassword(
+    token: string,
+    new_password: string,
+    confirm_password: string,
+  ) {
+    let decoded;
+    try {
+      decoded = this.jwtService.verify(token);
+    } catch (err) {
+      throw new UnauthorizedException('Token invalide ou expiré');
+    }
+
+    const user = await this.usersService.findByEmail(decoded.email);
+    if (!user) {
+      throw new UnauthorizedException('Utilisateur introuvable');
+    }
+
+    if (new_password !== confirm_password) {
+      throw new BadRequestException('Les mots de passe ne correspondent pas');
+    }
+
+    const hashedPassword = await bcrypt.hash(new_password, 12);
+    await this.usersService.update(user.id, { password: hashedPassword });
+
+    return {
+      message: 'Mot de passe réinitialisé avec succès',
     };
   }
 }
