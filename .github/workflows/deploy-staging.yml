@@ -107,10 +107,7 @@ jobs:
             eval $(ssh-agent) && ssh-add ~/.ssh/thomas
             git pull origin dev
 
-            export TAG=staging-5cbec5c
-
-            export TAG=staging-5cbec5c
-
+            export TAG=staging-${{ steps.short_sha.outputs.sha_short }}
 
             sed -i "s|image: thoomaas123/sc-planner-client:.*|image: thoomaas123/sc-planner-client:$TAG|" docker-compose.staging.yml
             sed -i "s|image: thoomaas123/sc-planner-server:.*|image: thoomaas123/sc-planner-server:$TAG|" docker-compose.staging.yml
