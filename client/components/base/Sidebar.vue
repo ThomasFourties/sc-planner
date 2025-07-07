@@ -20,9 +20,9 @@
           <img src="/images/profile.png" alt="Profile" />
         </div>
         <div class="info">
-          <p class="name">{{ authStore.currentUser?.first_name }} {{ authStore.currentUser?.last_name }}</p>
-          <p class="email">{{ authStore.currentUser?.email }}</p>
-          <p class="role">{{ authStore.currentUser?.role }}</p>
+          <p class="name">{{ authStore.userName }} {{ authStore.userLastName }}</p>
+          <p class="email">{{ authStore.userEmail }}</p>
+          <p class="role">{{ authStore.userRole }}</p>
         </div>
       </div>
 

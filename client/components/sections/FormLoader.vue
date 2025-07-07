@@ -65,7 +65,7 @@ defineProps({
 
         &.not-ok {
             border: none;
-            background: url('../assets/icons/check-green.svg') no-repeat center center;
+            background: url('../../assets/icons/check-green.svg') no-repeat center center;
             background-size: contain;
             animation: none;
             color: $green;
