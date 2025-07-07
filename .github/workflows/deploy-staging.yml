@@ -116,6 +116,7 @@ jobs:
           script: |
             cd /var/www/vhosts/thomasfourties.fr/staging.sc-planner.thomasfourties.fr
             eval $(ssh-agent) && ssh-add ~/.ssh/thomas
+            git checkout .
             git pull origin dev
 
             export TAG=staging-${{ needs.build.outputs.sha_short }}
