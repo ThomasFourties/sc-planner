@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { getCookie } from 'h3';
 
 interface User {
   id: string;
