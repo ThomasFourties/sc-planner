@@ -1,8 +1,13 @@
 <template>
   <div class="tasks-page">
     <div class="header">
-      <button @click="showForm = !showForm" class="toggle-form-btn">
+      <!-- <button @click="showForm = !showForm" class="toggle-form-btn">
         {{ showForm ? 'Masquer le formulaire' : 'Ajouter une tâche' }}
+      </button> -->
+
+      <button @click="showForm = !showForm" class="toggle-form-btn">
+        <Plus />
+        Ajouter une tâche
       </button>
     </div>
 
@@ -17,100 +22,137 @@
         Chargement des tâches...
       </div>
 
-      <div v-else class="table-container">
-        <table class="tasks-table">
-          <thead>
-            <tr>
-              <th>Nom de la tâche</th>
-              <th>Statut</th>
-              <th>Créé par</th>
-              <th>Créé le</th>
-              <th>À faire le</th>
-              <th>Projets</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Message si aucune tâche -->
-            <tr v-if="tasks.length === 0" class="empty-row">
-              <td colspan="7" class="empty-message">
-                <div class="empty-content">
-                  <div class="empty-icon">📝</div>
-                  <div class="empty-text">Aucune tâche trouvée</div>
-                  <div class="empty-subtext">Créez votre première tâche en cliquant sur le bouton ci-dessus</div>
+      <div v-else class="tasks-container">
+        <!-- Header fixe -->
+        <div class="tasks-header">
+          <div class="header-cell name-cell" @click="sortBy('name')">
+            <span>Nom de la tâche</span>
+            <div class="sort-indicator" :class="getSortClass('name')">
+              <ChevronUp v-if="sortByField === 'name' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'name' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
+          <div class="header-cell status-cell" @click="sortBy('status')">
+            <span>Statut</span>
+            <div class="sort-indicator" :class="getSortClass('status')">
+              <ChevronUp v-if="sortByField === 'status' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'status' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
+          <div class="header-cell creator-cell" @click="sortBy('created_by')">
+            <span>Créé par</span>
+            <div class="sort-indicator" :class="getSortClass('created_by')">
+              <ChevronUp v-if="sortByField === 'created_by' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'created_by' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
+          <div class="header-cell date-cell" @click="sortBy('created_at')">
+            <span>Créé le</span>
+            <div class="sort-indicator" :class="getSortClass('created_at')">
+              <ChevronUp v-if="sortByField === 'created_at' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'created_at' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
+          <div class="header-cell date-cell" @click="sortBy('start_date')">
+            <span>À faire le</span>
+            <div class="sort-indicator" :class="getSortClass('start_date')">
+              <ChevronUp v-if="sortByField === 'start_date' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'start_date' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
+          <div class="header-cell project-cell">
+            <span>Projets</span>
+          </div>
+          <div class="header-cell actions-cell">
+            <span>Actions</span>
+          </div>
+        </div>
+
+        <!-- Contenu scrollable -->
+        <div class="tasks-body">
+          <!-- Message si aucune tâche -->
+          <div v-if="sortedTasks.length === 0" class="empty-state">
+            <div class="empty-content">
+              <div class="empty-icon">📝</div>
+              <div class="empty-text">Aucune tâche trouvée</div>
+              <div class="empty-subtext">Créez votre première tâche en cliquant sur le bouton ci-dessus</div>
+            </div>
+          </div>
+
+          <!-- Lignes des tâches -->
+          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row">
+            <!-- Nom de la tâche -->
+            <div class="task-cell name-cell">
+              <div class="task-info">
+                <span class="task-icon" :class="`priority-${task.priority}`">●</span>
+                <div>
+                  <div class="name">{{ task.name }}</div>
+                  <div v-if="task.description" class="description">{{ task.description }}</div>
                 </div>
-              </td>
-            </tr>
+              </div>
+            </div>
 
-            <!-- Lignes des tâches -->
-            <tr v-else v-for="task in tasks" :key="task.id" class="task-row">
-              <!-- Nom de la tâche -->
-              <td class="task-name">
-                <div class="task-info">
-                  <span class="task-icon" :class="`priority-${task.priority}`">●</span>
-                  <div>
-                    <div class="name">{{ task.name }}</div>
-                    <div v-if="task.description" class="description">{{ task.description }}</div>
-                  </div>
-                </div>
-              </td>
+            <!-- Statut -->
+            <div class="task-cell status-cell">
+              <span class="status-badge" :class="`status-${task.status}`">
+                {{ getStatusText(task.status) }}
+              </span>
+            </div>
 
-              <!-- Statut -->
-              <td class="task-status">
-                <span class="status-badge" :class="`status-${task.status}`">
-                  {{ getStatusText(task.status) }}
-                </span>
-              </td>
+            <!-- Créé par -->
+            <div class="task-cell creator-cell">
+              <div class="user-info">
+                <div class="name">{{ task.created_by.first_name }} {{ task.created_by.last_name }}</div>
+                <div class="email">{{ task.created_by.email }}</div>
+              </div>
+            </div>
 
-              <!-- Créé par -->
-              <td class="task-creator">
-                <div class="user-info">
-                  <div class="name">{{ task.created_by.first_name }} {{ task.created_by.last_name }}</div>
-                  <div class="email">{{ task.created_by.email }}</div>
-                </div>
-              </td>
+            <!-- Créé le -->
+            <div class="task-cell date-cell">
+              {{ formatDate(task.created_at) }}
+            </div>
 
-              <!-- Créé le -->
-              <td class="task-created">
-                {{ formatDate(task.created_at) }}
-              </td>
+            <!-- À faire le -->
+            <div class="task-cell date-cell">
+              <div v-if="task.start_date">
+                {{ formatDate(task.start_date) }}
+              </div>
+              <div v-else class="no-date">
+                Non planifié
+              </div>
+            </div>
 
-              <!-- À faire le -->
-              <td class="task-due">
-                <div v-if="task.start_date">
-                  {{ formatDate(task.start_date) }}
-                </div>
-                <div v-else class="no-date">
-                  Non planifié
-                </div>
-              </td>
+            <!-- Projets -->
+            <div class="task-cell project-cell">
+              <span class="project-placeholder">-</span>
+            </div>
 
-              <!-- Projets -->
-              <td class="task-project">
-                <span class="project-placeholder">-</span>
-              </td>
-
-              <!-- Actions -->
-              <td class="task-actions">
-                <div class="actions-group">
-                  <button @click="editTask(task)" class="edit-btn" title="Modifier">
-                    ✏️
-                  </button>
-                  <button @click="deleteTask(task.id)" class="delete-btn" title="Supprimer">
-                    🗑️
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            <!-- Actions -->
+            <div class="task-cell actions-cell">
+              <div class="actions-group">
+                <button @click="editTask(task)" class="edit-btn" title="Modifier">
+                  ✏️
+                </button>
+                <button @click="deleteTask(task.id)" class="delete-btn" title="Supprimer">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { Plus, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-vue-next';
+import { ref, onMounted, computed } from 'vue';
 import CreateTaskForm from '~/components/CreateTaskForm.vue';
 
 definePageMeta({
@@ -121,6 +163,68 @@ definePageMeta({
 const showForm = ref(false);
 const tasks = ref([]);
 const loadingTasks = ref(true);
+
+// État du tri
+const sortByField = ref('created_at');
+const sortOrder = ref('asc'); // 'asc' ou 'desc'
+
+// Tâches triées
+const sortedTasks = computed(() => {
+  if (tasks.value.length === 0) return [];
+
+  const sorted = [...tasks.value].sort((a, b) => {
+    let aValue, bValue;
+
+    // Gérer les différents types de tri
+    switch (sortByField.value) {
+      case 'name':
+        aValue = a.name?.toLowerCase() || '';
+        bValue = b.name?.toLowerCase() || '';
+        break;
+      case 'status':
+        aValue = a.status || '';
+        bValue = b.status || '';
+        break;
+      case 'created_by':
+        aValue = `${a.created_by?.first_name || ''} ${a.created_by?.last_name || ''}`.toLowerCase();
+        bValue = `${b.created_by?.first_name || ''} ${b.created_by?.last_name || ''}`.toLowerCase();
+        break;
+      case 'created_at':
+      case 'start_date':
+        aValue = a[sortByField.value] ? new Date(a[sortByField.value]).getTime() : 0;
+        bValue = b[sortByField.value] ? new Date(b[sortByField.value]).getTime() : 0;
+        break;
+      default:
+        aValue = a[sortByField.value] || '';
+        bValue = b[sortByField.value] || '';
+    }
+
+    // Comparer les valeurs
+    if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  return sorted;
+});
+
+// Fonction de tri
+const sortBy = (field) => {
+  if (sortByField.value === field) {
+    // Inverser l'ordre si on clique sur la même colonne
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Nouveau champ, commencer par asc
+    sortByField.value = field;
+    sortOrder.value = 'asc';
+  }
+};
+
+// Fonctions pour les indicateurs visuels
+const getSortClass = (field) => {
+  if (sortByField.value !== field) return '';
+  return sortOrder.value === 'asc' ? 'sort-asc' : 'sort-desc';
+};
 
 // Charger les tâches
 const loadTasks = async () => {
@@ -189,9 +293,11 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+@use '../../assets/scss/base/variables' as *;
+@use '../../assets/scss/utils/mixins' as *;
+
+
 .tasks-page {
-  padding: 20px;
-  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -207,23 +313,12 @@ onMounted(() => {
   }
 }
 
-.toggle-form-btn {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-}
-
 .form-section {
   margin-bottom: 40px;
   height: 60vh;
   overflow: scroll;
+
+
 }
 
 .tasks-section {
@@ -239,76 +334,166 @@ onMounted(() => {
   color: #666;
 }
 
-.table-container {
+.tasks-container {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  overflow-x: auto;
+  height: calc(100vh - 314px);
+  display: flex;
+  flex-direction: column;
 }
 
-.tasks-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 800px;
+.tasks-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 0.8fr;
+  gap: 12px;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  padding: 0 12px;
+  min-height: 48px;
+  align-items: center;
+  flex-shrink: 0;
+}
 
-  th {
-    background-color: #f8f9fa;
-    padding: 15px 12px;
-    text-align: left;
-    font-weight: 600;
-    color: #495057;
-    border-bottom: 2px solid #dee2e6;
-    font-size: 14px;
-    white-space: nowrap;
+.header-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 6px;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+
+  &:hover {
+    color: #007bff;
   }
 
-  td {
-    padding: 15px 12px;
-    border-bottom: 1px solid #dee2e6;
-    vertical-align: top;
+  span:first-child {
+    white-space: nowrap;
+  }
+}
+
+.sort-indicator {
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+
+  &.sort-asc,
+  &.sort-desc {
+    opacity: 1;
+    color: #007bff;
+  }
+}
+
+.tasks-body {
+  flex: 1;
+  overflow-y: auto;
+
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c0c3c6;
+    border-radius: 10px;
   }
 }
 
 .task-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 0.8fr;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid #dee2e6;
   transition: background-color 0.2s;
+  min-height: 60px;
+  align-items: center;
 
   &:hover {
     background-color: #f8f9fa;
   }
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
-.empty-row {
-  .empty-message {
-    text-align: center;
-    padding: 60px 20px;
-    border: none;
-  }
+.task-cell {
+  padding: 12px 6px;
+  overflow: hidden;
+}
 
-  .empty-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
+.name-cell {
+  min-width: 200px;
+}
 
-  .empty-icon {
-    font-size: 48px;
-    opacity: 0.5;
-  }
+.status-cell {
+  min-width: 120px;
+}
 
-  .empty-text {
-    font-size: 18px;
-    font-weight: 500;
-    color: #495057;
-  }
+.creator-cell {
+  min-width: 150px;
+}
 
-  .empty-subtext {
-    font-size: 14px;
-    color: #6c757d;
-    max-width: 300px;
-    line-height: 1.4;
-  }
+.date-cell {
+  min-width: 100px;
+  font-size: 14px;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.project-cell {
+  min-width: 80px;
+}
+
+.actions-cell {
+  min-width: 80px;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 60px 20px;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.empty-subtext {
+  font-size: 14px;
+  color: #6c757d;
+  max-width: 300px;
+  line-height: 1.4;
 }
 
 .task-info {
@@ -412,6 +597,8 @@ onMounted(() => {
   font-style: italic;
 }
 
+
+
 .actions-group {
   display: flex;
   gap: 8px;
@@ -453,22 +640,72 @@ onMounted(() => {
     text-align: center;
   }
 
-  .table-container {
+  .tasks-container {
+    // height: calc(100vh - 280px);
     margin: 0 -20px;
     border-radius: 0;
   }
 
-  .tasks-table {
-    font-size: 12px;
+  .tasks-header {
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 0.6fr;
+    gap: 8px;
+    padding: 0 8px;
+    min-height: 44px;
+  }
 
-    th,
-    td {
-      padding: 10px 8px;
-    }
+  .header-cell {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .task-row {
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 0.6fr;
+    gap: 8px;
+    padding: 0 8px;
+    min-height: 56px;
+  }
+
+  .task-cell {
+    padding: 8px 4px;
+  }
+
+  .name-cell {
+    min-width: 120px;
+  }
+
+  .status-cell {
+    min-width: 80px;
+  }
+
+  .creator-cell {
+    min-width: 100px;
+  }
+
+  .date-cell {
+    min-width: 80px;
+    font-size: 12px;
+  }
+
+  .project-cell {
+    min-width: 60px;
+  }
+
+  .actions-cell {
+    min-width: 60px;
   }
 
   .task-info .description {
     max-width: 120px;
+  }
+
+  .user-info {
+    .name {
+      font-size: 12px;
+    }
+
+    .email {
+      font-size: 10px;
+    }
   }
 
   .empty-content {
@@ -478,6 +715,13 @@ onMounted(() => {
 
     .empty-text {
       font-size: 16px;
+    }
+  }
+
+  .actions-group {
+    button {
+      padding: 4px;
+      font-size: 12px;
     }
   }
 }
