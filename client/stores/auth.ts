@@ -200,3 +200,6 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 });
+
+// TODO : ne pas faire le fetchProfile à chaque fois que l'on change de page
+// En preprod le cookie ne marche pas

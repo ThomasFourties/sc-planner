@@ -17,10 +17,17 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    // Déterminer si on est en environnement sécurisé
+    // En preprod/prod, NODE_ENV=production et on devrait utiliser des cookies sécurisés
+    const frontendUrl = process.env.FRONTEND_URL || '';
+    const isSecureEnv = process.env.NODE_ENV === 'production' || 
+                       frontendUrl.includes('https://') ||
+                       process.env.SECURE_COOKIES === 'true';
+
     // Stocker le token dans un cookie httpOnly sécurisé
     setCookie(event, 'auth-token', response.token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecureEnv,
       sameSite: 'strict',
       maxAge: 60 * 60 * 24, // 24 heures
       path: '/',
