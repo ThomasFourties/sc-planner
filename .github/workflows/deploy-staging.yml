@@ -49,6 +49,8 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       sha_short: ${{ steps.short_sha.outputs.sha_short }}
+      client_built: ${{ needs.changes.outputs.client }}
+      server_built: ${{ needs.changes.outputs.server }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -112,14 +114,27 @@ jobs:
             git pull origin dev
 
             export TAG=staging-${{ needs.build.outputs.sha_short }}
+            export CLIENT_BUILT=${{ needs.build.outputs.client_built }}
+            export SERVER_BUILT=${{ needs.build.outputs.server_built }}
 
-            export CLIENT_TAG=$TAG
-            export SERVER_TAG=$TAG
+            SERVICES_TO_UPDATE=""
+            
+            if [ "$CLIENT_BUILT" = "true" ]; then
+              echo "Updating client image tag to $TAG"
+              sed -i "s|image: thoomaas123/sc-planner-client:.*|image: thoomaas123/sc-planner-client:$TAG|" docker-compose.staging.yml
+              SERVICES_TO_UPDATE="$SERVICES_TO_UPDATE client"
+            fi
 
-            sed -i "s|image: thoomaas123/sc-planner-client:.*|image: thoomaas123/sc-planner-client:$TAG|" docker-compose.staging.yml
-            sed -i "s|image: thoomaas123/sc-planner-server:.*|image: thoomaas123/sc-planner-server:$TAG|" docker-compose.staging.yml
+            if [ "$SERVER_BUILT" = "true" ]; then
+              echo "Updating server image tag to $TAG"
+              sed -i "s|image: thoomaas123/sc-planner-server:.*|image: thoomaas123/sc-planner-server:$TAG|" docker-compose.staging.yml
+              SERVICES_TO_UPDATE="$SERVICES_TO_UPDATE server"
+            fi
 
-            docker-compose -f docker-compose.staging.yml pull
-            docker-compose -f docker-compose.staging.yml up -d --remove-orphans
+            if [ -n "$SERVICES_TO_UPDATE" ]; then
+              echo "Pulling and updating services: $SERVICES_TO_UPDATE"
+              docker-compose -f docker-compose.staging.yml pull $SERVICES_TO_UPDATE
+              docker-compose -f docker-compose.staging.yml up -d --remove-orphans
+            fi
 
             docker image prune -a -f
