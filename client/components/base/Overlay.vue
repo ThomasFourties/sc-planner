@@ -2,8 +2,6 @@
     <div class="overlay" :style="{ opacity: opacity }"></div>
 </template>
 
- <!-- TODO: mettre le composant opacity à opacity 1 quand showForm est true avec le store -->
-
 <script setup>
 const props = defineProps({
     opacity: {

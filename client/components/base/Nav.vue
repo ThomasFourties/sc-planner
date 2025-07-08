@@ -15,14 +15,17 @@
     </p> -->
     <i class="separator"></i>
     <p class="nav-link">
-      <ChevronDown />Clients
+      <Users />Clients
+    </p>
+    <p class="nav-link">
+      <FolderOpenDot />Projets
     </p>
     <i class="separator"></i>
   </nav>
 </template>
 
 <script setup>
-import { LayoutDashboard, ListTodo, ChartGantt, ChevronDown } from 'lucide-vue-next';
+import { LayoutDashboard, ListTodo, ChartGantt, ChevronDown, Users, FolderOpenDot } from 'lucide-vue-next';
 </script>
 
 <style lang="scss" scoped>
