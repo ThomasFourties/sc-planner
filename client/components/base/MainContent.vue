@@ -19,9 +19,10 @@
   margin: 30px 0;
   overflow: hidden;
 
+
+
   @include down(md) {
     width: 100%;
-    // height: auto;
     height: calc(100vh - 90px);
     margin: 4% 0;
   }
@@ -31,8 +32,9 @@
     overflow: hidden;
     width: 100%;
     height: 100%;
+    height: 100%;
     padding: 30px;
-    background-color: $beige;
+    background-color: #f9f9f9;
     border-radius: 30px;
 
     @include down(md) {

@@ -1,12 +1,12 @@
 <template>
   <div class="search-bar-container">
     <input type="text" class="search-bar" placeholder="Chercher un projet, une tâche ..." />
-    <search />
+    <Search />
   </div>
 </template>
 
 <script setup>
-import search from './assets/icons/search.svg';
+import { Search } from 'lucide-vue-next';
 </script>
 
 <style lang="scss" scoped>
@@ -16,7 +16,7 @@ import search from './assets/icons/search.svg';
 .search-bar-container {
   position: relative;
   height: 40px;
-  width: 420px;
+  width: 500px;
   margin: 0 auto 80px auto;
 
   @include down(md) {
@@ -38,8 +38,9 @@ import search from './assets/icons/search.svg';
     padding: 8px 12px;
     height: 100%;
 
-    &::placeholder{
-      color: $gray;;
+    &::placeholder {
+      color: $gray;
+      ;
     }
 
     &:focus {
@@ -47,7 +48,7 @@ import search from './assets/icons/search.svg';
     }
   }
 
-  .nuxt-icon {
+  svg {
     position: absolute;
     top: 12px;
     right: 12px;

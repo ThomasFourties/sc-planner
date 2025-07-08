@@ -10,10 +10,10 @@
     </div>
     <div class="bottom">
       <p class="settings">
-        <settings />Paramètres
+        <Settings />Paramètres
       </p>
       <p class="help">
-        <help />Aide
+        <Info />Aide
       </p>
       <div class="profile">
         <div class="img">
@@ -36,8 +36,7 @@
 </template>
 
 <script setup>
-import settings from './assets/icons/settings.svg';
-import help from './assets/icons/help.svg';
+import { Settings, Info } from 'lucide-vue-next';
 import { useAuthStore } from '~/stores/auth';
 
 const authStore = useAuthStore();

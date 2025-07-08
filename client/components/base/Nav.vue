@@ -1,32 +1,28 @@
 <template>
   <nav class="nav">
     <NuxtLink to="/dashboard" class="dashboard nav-link">
-      <dashboard />Dashboard
+      <LayoutDashboard /> Dashboard
     </NuxtLink>
     <NuxtLink to="/mes-taches" class="tasks nav-link">
-      <tasks />Mes tâches
+      <ListTodo /> Mes tâches
     </NuxtLink>
     <NuxtLink to="/planning" class="planning nav-link">
-      <calendar />Planning
+      <ChartGantt />Planning
     </NuxtLink>
-    <i class="separator"></i>
-    <p class="nav-link">
+    <!-- <i class="separator"></i> -->
+    <!-- <p class="nav-link">
       <chevronBottom />Favoris
-    </p>
+    </p> -->
     <i class="separator"></i>
     <p class="nav-link">
-      <chevronBottom />Clients
+      <ChevronDown />Clients
     </p>
     <i class="separator"></i>
   </nav>
 </template>
 
 <script setup>
-import calendar from './assets/icons/calendar.svg';
-import dashboard from './assets/icons/dashboard.svg';
-import tasks from './assets/icons/tasks.svg';
-import chevronBottom from './assets/icons/chevron-bottom.svg';
-// import create from './assets/icons/create.svg';
+import { LayoutDashboard, ListTodo, ChartGantt, ChevronDown } from 'lucide-vue-next';
 </script>
 
 <style lang="scss" scoped>

@@ -19,24 +19,6 @@ h4,
 h1,
 .h1 {
   font-weight: 600;
-  font-size: 60px;
-
-  @include down(lg) {
-    font-size: 55px;
-  }
-
-  @include down(md) {
-    font-size: 50px;
-  }
-
-  @include down(sm) {
-    font-size: 40px;
-  }
-}
-
-h2,
-.h2 {
-  font-weight: 600;
   font-size: 50px;
 
   @include down(lg) {
@@ -44,16 +26,16 @@ h2,
   }
 
   @include down(md) {
-    font-size: 45px;
+    font-size: 40px;
   }
 
   @include down(sm) {
-    font-size: 35px;
+    font-size: 30px;
   }
 }
 
-h3,
-.h3 {
+h2,
+.h2 {
   font-weight: 600;
   font-size: 40px;
 
@@ -64,8 +46,14 @@ h3,
   @include down(md) {
     font-size: 30px;
   }
+}
 
-  @include down(sm) {
+h3,
+.h3 {
+  font-weight: 600;
+  font-size: 30px;
+
+  @include down(lg) {
     font-size: 25px;
   }
 }
@@ -73,13 +61,5 @@ h3,
 h4,
 .h4 {
   font-weight: 600;
-  font-size: 30px;
-
-  @include down(lg) {
-    font-size: 25px;
-  }
-
-  @include down(md) {
-    font-size: 20px;
-  }
+  font-size: 20px;
 }
