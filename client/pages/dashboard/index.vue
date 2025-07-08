@@ -146,7 +146,7 @@ const handleLogout = async () => {
   h1,
   .h1 {
     font-weight: 700;
-    margin-bottom: 24px;
+    margin-bottom: 50px;
   }
 
   .soustitle {
@@ -163,10 +163,11 @@ const handleLogout = async () => {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    width: 90%;
-    margin: 0 auto;
+    height: 100%;
+    // width: 90%;
+    // margin: 0 auto;
 
-    @include down(md) {
+    @include down(lg) {
       width: 100%;
       flex-direction: column;
       gap: 10px;
@@ -176,12 +177,12 @@ const handleLogout = async () => {
     .left,
     .right {
       background-color: transparent;
-      height: 100%;
+      height: auto;
       border: none;
       border-radius: 4px;
       border: 1px solid $lightGray;
 
-      @include down(md) {
+      @include down(lg) {
         height: 400px;
       }
     }
@@ -190,7 +191,7 @@ const handleLogout = async () => {
       width: 35%;
       background: $white;
 
-      @include down(md) {
+      @include down(lg) {
         width: 100%;
       }
     }
@@ -199,7 +200,7 @@ const handleLogout = async () => {
       width: 65%;
       background: $white;
 
-      @include down(md) {
+      @include down(lg) {
         width: 100%;
       }
     }
