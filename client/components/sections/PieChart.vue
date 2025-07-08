@@ -126,7 +126,7 @@ const statusMapping = {
   'not_started': 'À faire',
   'in_progress': 'En cours',
   'blocked': 'Bloqué',
-  'done': 'Terlé'
+  'done': 'Terminé'
 }
 
 const colors = {
