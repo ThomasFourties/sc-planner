@@ -124,7 +124,5 @@ jobs:
             docker-compose -f docker-compose.staging.yml pull
             docker-compose -f docker-compose.staging.yml up -d --remove-orphans
 
-            docker image ls --format "{{.Repository}}:{{.Tag}}" | grep "^thoomaas123/sc-planner" | grep -v "$TAG" | xargs -r docker rmi -f
-
             docker image prune -a -f
             docker volume prune -f
