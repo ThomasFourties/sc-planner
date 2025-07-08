@@ -42,15 +42,13 @@ jobs:
           cd server
           npm run test
 
-  build:
-    name: 🚀 Build & Push Images
+  build-client:
+    name: 🚀 Build & Push Client
     needs: changes
-    if: ${{ needs.changes.outputs.client == 'true' || needs.changes.outputs.server == 'true' }}
+    if: ${{ needs.changes.outputs.client == 'true' }}
     runs-on: ubuntu-22.04
     outputs:
       sha_short: ${{ steps.short_sha.outputs.sha_short }}
-      client_built: ${{ needs.changes.outputs.client }}
-      server_built: ${{ needs.changes.outputs.server }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -71,15 +69,39 @@ jobs:
       - uses: docker/setup-buildx-action@v3
 
       - name: 🛠️ Build & Push Client
-        if: ${{ needs.changes.outputs.client == 'true' }}
         uses: docker/build-push-action@v6
         with:
           context: '{{defaultContext}}:client'
           push: true
           tags: thoomaas123/sc-planner-client:staging-${{ steps.short_sha.outputs.sha_short }}
 
+  build-server:
+    name: 🚀 Build & Push Server
+    needs: changes
+    if: ${{ needs.changes.outputs.server == 'true' }}
+    runs-on: ubuntu-22.04
+    outputs:
+      sha_short: ${{ steps.short_sha.outputs.sha_short }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 🔢 Extract short SHA
+        id: short_sha
+        run: echo "sha_short=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          logout: true
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
       - name: 🛠️ Build & Push Server
-        if: ${{ needs.changes.outputs.server == 'true' }}
         uses: docker/build-push-action@v6
         with:
           context: '{{defaultContext}}:server'
@@ -88,7 +110,7 @@ jobs:
 
   deploy:
     name: 🚚 Deploy to Staging
-    needs: [changes, build]
+    needs: [changes, build-client, build-server]
     if: |
       always() &&
       !cancelled() &&
@@ -113,10 +135,12 @@ jobs:
             git checkout .
             git pull origin dev
 
-            export TAG=staging-${{ needs.build.outputs.sha_short }}
-            export CLIENT_BUILT=${{ needs.build.outputs.client_built }}
-            export SERVER_BUILT=${{ needs.build.outputs.server_built }}
+            # Utiliser le SHA du job client ou server (ils sont identiques)
+            export TAG=staging-${{ needs.build-client.outputs.sha_short || needs.build-server.outputs.sha_short }}
+            export CLIENT_BUILT=${{ needs.changes.outputs.client }}
+            export SERVER_BUILT=${{ needs.changes.outputs.server }}
 
+            # Mettre à jour seulement les tags des images qui ont été construites
             SERVICES_TO_UPDATE=""
             
             if [ "$CLIENT_BUILT" = "true" ]; then
@@ -131,6 +155,7 @@ jobs:
               SERVICES_TO_UPDATE="$SERVICES_TO_UPDATE server"
             fi
 
+            # Faire le pull seulement des services mis à jour et redémarrer
             if [ -n "$SERVICES_TO_UPDATE" ]; then
               echo "Pulling and updating services: $SERVICES_TO_UPDATE"
               docker-compose -f docker-compose.staging.yml pull $SERVICES_TO_UPDATE
