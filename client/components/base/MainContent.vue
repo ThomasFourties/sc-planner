@@ -29,13 +29,27 @@
 
   .content {
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
     width: 100%;
     height: 100%;
     height: 100%;
     padding: 30px;
     background-color: #f9f9f9;
     border-radius: 30px;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #c0c3c6;
+      border-radius: 10px;
+    }
 
     @include down(md) {
       padding: 20px;

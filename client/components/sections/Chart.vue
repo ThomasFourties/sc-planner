@@ -336,7 +336,7 @@ defineExpose({
   display: block;
   font-size: 11px;
   font-weight: 500;
-  color: #A0A9FF;
+  color: $blue;
   margin-top: 2px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -398,7 +398,7 @@ defineExpose({
 
 .bar {
   width: 100%;
-  background: #A0A9FF;
+  background: $blue;
   border-radius: 4px 4px 0 0;
   transition: all 0.3s ease;
   position: relative;
