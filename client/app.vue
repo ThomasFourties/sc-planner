@@ -6,6 +6,8 @@
   </NuxtLayout>
 </template>
 
+<!-- comments -->
+
 <script setup>
 useSeoMeta({
   title: 'SC Planner — Gestionnaire de tâches',
