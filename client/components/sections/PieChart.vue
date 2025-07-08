@@ -1,6 +1,18 @@
 <template>
   <div class="pie-chart">
-    <h3 class="pie-title">Tâches par statut</h3>
+    <div class="pie-header">
+      <h3 class="pie-title">Tâches par statut</h3>
+      
+      <div class="period-selector">
+        <select v-model="selectedPeriod" class="period-select">
+          <option value="today">Aujourd'hui</option>
+          <option value="week">Cette semaine</option>
+          <option value="month">Ce mois</option>
+          <option value="quarter">Ce trimestre</option>
+          <option value="year">Cette année</option>
+        </select>
+      </div>
+    </div>
 
     <div class="chart-container">
       <svg viewBox="0 0 200 200" class="pie-svg">
@@ -39,12 +51,82 @@ const tasks = ref([])
 const isLoading = ref(true)
 let refreshInterval = null
 
+// Période sélectionnée (par défaut: cette semaine)
+const selectedPeriod = ref('week')
+
+// Fonctions utilitaires pour les périodes
+const isToday = (date) => {
+  const today = new Date()
+  const taskDate = new Date(date)
+  return today.toDateString() === taskDate.toDateString()
+}
+
+const isThisWeek = (date) => {
+  const today = new Date()
+  const taskDate = new Date(date)
+  
+  // Début de la semaine (lundi)
+  const weekStart = new Date(today)
+  const day = weekStart.getDay()
+  const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1)
+  weekStart.setDate(diff)
+  weekStart.setHours(0, 0, 0, 0)
+  
+  // Fin de la semaine (dimanche)
+  const weekEnd = new Date(weekStart)
+  weekEnd.setDate(weekStart.getDate() + 6)
+  weekEnd.setHours(23, 59, 59, 999)
+  
+  return taskDate >= weekStart && taskDate <= weekEnd
+}
+
+const isThisMonth = (date) => {
+  const today = new Date()
+  const taskDate = new Date(date)
+  return today.getMonth() === taskDate.getMonth() && today.getFullYear() === taskDate.getFullYear()
+}
+
+const isThisQuarter = (date) => {
+  const today = new Date()
+  const taskDate = new Date(date)
+  
+  if (today.getFullYear() !== taskDate.getFullYear()) return false
+  
+  const currentQuarter = Math.floor(today.getMonth() / 3)
+  const taskQuarter = Math.floor(taskDate.getMonth() / 3)
+  
+  return currentQuarter === taskQuarter
+}
+
+const isThisYear = (date) => {
+  const today = new Date()
+  const taskDate = new Date(date)
+  return today.getFullYear() === taskDate.getFullYear()
+}
+
+const isInSelectedPeriod = (date) => {
+  switch (selectedPeriod.value) {
+    case 'today':
+      return isToday(date)
+    case 'week':
+      return isThisWeek(date)
+    case 'month':
+      return isThisMonth(date)
+    case 'quarter':
+      return isThisQuarter(date)
+    case 'year':
+      return isThisYear(date)
+    default:
+      return false
+  }
+}
+
 const statusMapping = {
   'todo': 'À faire',
   'not_started': 'À faire',
   'in_progress': 'En cours',
   'blocked': 'Bloqué',
-  'done': 'Terminé'
+  'done': 'Terlé'
 }
 
 const colors = {
@@ -63,8 +145,13 @@ const chartData = computed(() => {
   }
 
   tasks.value.forEach(task => {
-    const category = statusMapping[task.status] || 'À faire'
-    counts[category]++
+    // Utiliser start_date si disponible, sinon created_at
+    const taskDate = task.start_date || task.created_at
+    
+    if (taskDate && isInSelectedPeriod(taskDate)) {
+      const category = statusMapping[task.status] || 'À faire'
+      counts[category]++
+    }
   })
 
   return Object.entries(counts).map(([label, value]) => ({
@@ -153,12 +240,44 @@ defineExpose({
   padding: 20px;
 }
 
+.pie-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
 
 .pie-title {
   font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  align-self: flex-start;
+  font-weight: 500;
+  margin: 0;
+}
+
+.period-selector {
+  display: flex;
+  align-items: center;
+}
+
+.period-select {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+
+  &:hover {
+    border-color: #A0A9FF;
+  }
+
+  &:focus {
+    border-color: #A0A9FF;
+    box-shadow: 0 0 0 3px rgba(160, 169, 255, 0.1);
+  }
 }
 
 .chart-container {
@@ -220,6 +339,25 @@ defineExpose({
 @media (max-width: 768px) {
   .pie-chart {
     gap: 1.5rem;
+  }
+
+  .pie-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .pie-title {
+    font-size: 16px;
+  }
+
+  .period-selector {
+    align-self: center;
+  }
+
+  .period-select {
+    font-size: 13px;
+    padding: 5px 10px;
   }
 
   .chart-container {
