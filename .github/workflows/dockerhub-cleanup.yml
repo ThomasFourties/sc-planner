@@ -1,0 +1,56 @@
+name: 🧹 Cleanup Docker Hub Tags
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Tous les jours à 3h du matin UTC
+  workflow_dispatch:     # Exécutable manuellement
+
+jobs:
+  clean:
+    name: 🧼 Keep 5 latest staging tags
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Get all staging tags (client)
+        id: client_tags
+        run: |
+          TAGS=$(curl -s -u "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" \
+            "https://hub.docker.com/v2/repositories/thoomaas123/sc-planner-client/tags?page_size=100" \
+            | jq -r '.results[] | select(.name | startswith("staging-")) | [.name, .last_updated] | @tsv' \
+            | sort -k2 -r)
+
+          echo "$TAGS" > client_tags.txt
+          echo "Found tags:"
+          echo "$TAGS"
+
+      - name: 🧼 Delete old tags (client)
+        run: |
+          TO_DELETE=$(tail -n +6 client_tags.txt | cut -f1)
+
+          for TAG in $TO_DELETE; do
+            echo "Deleting client tag: $TAG"
+            curl -s -X DELETE -u "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" \
+              "https://hub.docker.com/v2/repositories/thoomaas123/sc-planner-client/tags/$TAG/"
+          done
+
+      - name: 📥 Get all staging tags (server)
+        id: server_tags
+        run: |
+          TAGS=$(curl -s -u "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" \
+            "https://hub.docker.com/v2/repositories/thoomaas123/sc-planner-server/tags?page_size=100" \
+            | jq -r '.results[] | select(.name | startswith("staging-")) | [.name, .last_updated] | @tsv' \
+            | sort -k2 -r)
+
+          echo "$TAGS" > server_tags.txt
+          echo "Found tags:"
+          echo "$TAGS"
+
+      - name: 🧼 Delete old tags (server)
+        run: |
+          TO_DELETE=$(tail -n +6 server_tags.txt | cut -f1)
+
+          for TAG in $TO_DELETE; do
+            echo "Deleting server tag: $TAG"
+            curl -s -X DELETE -u "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" \
+              "https://hub.docker.com/v2/repositories/thoomaas123/sc-planner-server/tags/$TAG/"
+          done
