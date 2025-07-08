@@ -153,7 +153,7 @@
 <script setup>
 import { Plus, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-vue-next';
 import { ref, onMounted, computed } from 'vue';
-import CreateTaskForm from '~/components/CreateTaskForm.vue';
+
 
 definePageMeta({
   middleware: 'auth'

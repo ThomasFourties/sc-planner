@@ -1,42 +1,25 @@
 <template>
   <div class="create-task-form">
     <h2>Créer une nouvelle tâche</h2>
-    
+
     <form @submit.prevent="handleSubmit" class="form">
       <!-- Nom de la tâche -->
       <div class="form-group">
         <label for="name">Nom de la tâche *</label>
-        <input 
-          id="name"
-          v-model="form.name" 
-          type="text" 
-          required 
-          placeholder="Ex: Développer la page d'accueil"
-        />
+        <input id="name" v-model="form.name" type="text" required placeholder="Ex: Développer la page d'accueil" />
       </div>
 
       <!-- Description -->
       <div class="form-group">
         <label for="description">Description</label>
-        <textarea 
-          id="description"
-          v-model="form.description" 
-          rows="3"
-          placeholder="Description détaillée de la tâche..."
-        ></textarea>
+        <textarea id="description" v-model="form.description" rows="3"
+          placeholder="Description détaillée de la tâche..."></textarea>
       </div>
 
       <!-- Durée estimée -->
       <div class="form-group">
         <label for="duration">Durée estimée (heures)</label>
-        <input 
-          id="duration"
-          v-model.number="form.duration" 
-          type="number" 
-          min="0"
-          step="0.5"
-          placeholder="Ex: 8"
-        />
+        <input id="duration" v-model.number="form.duration" type="number" min="0" step="0.5" placeholder="Ex: 8" />
       </div>
 
       <!-- Assigné à -->
@@ -44,11 +27,7 @@
         <label for="assigned_to">Assigné à</label>
         <select id="assigned_to" v-model="form.assigned_to_id">
           <option value="">Personne (non assigné)</option>
-          <option 
-            v-for="user in users" 
-            :key="user.id" 
-            :value="user.id"
-          >
+          <option v-for="user in users" :key="user.id" :value="user.id">
             {{ user.first_name }} {{ user.last_name }} ({{ user.email }})
           </option>
         </select>
@@ -58,20 +37,12 @@
       <div class="form-row">
         <div class="form-group">
           <label for="start_date">Date de début</label>
-          <input 
-            id="start_date"
-            v-model="form.start_date" 
-            type="datetime-local"
-          />
+          <input id="start_date" v-model="form.start_date" type="datetime-local" />
         </div>
-        
+
         <div class="form-group">
           <label for="end_date">Date de fin</label>
-          <input 
-            id="end_date"
-            v-model="form.end_date" 
-            type="datetime-local"
-          />
+          <input id="end_date" v-model="form.end_date" type="datetime-local" />
         </div>
       </div>
 
@@ -152,7 +123,7 @@ const handleSubmit = async () => {
   try {
     // Préparer les données
     const taskData = { ...form };
-    
+
     // Nettoyer les champs vides
     if (!taskData.duration) taskData.duration = 0;
     if (!taskData.assigned_to_id) delete taskData.assigned_to_id;
@@ -167,7 +138,7 @@ const handleSubmit = async () => {
     });
 
     success.value = 'Tâche créée avec succès !';
-    
+
     // Réinitialiser le formulaire
     Object.assign(form, {
       name: '',
@@ -193,7 +164,13 @@ const handleSubmit = async () => {
 
 <style scoped lang="scss">
 .create-task-form {
-  max-width: 600px;
+  position: absolute;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  // max-width: 100%;
+  width: calc(100% - 60px);
   margin: 0 auto;
   padding: 20px;
   background: white;
@@ -223,7 +200,9 @@ const handleSubmit = async () => {
     font-size: 14px;
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -283,4 +262,4 @@ const handleSubmit = async () => {
     cursor: not-allowed;
   }
 }
-</style> 
+</style>

@@ -1,4 +1,5 @@
 <template>
+  <Overlay :opacity="0" />
   <div class="wrapper main">
     <Sidebar />
     <MainContent />
