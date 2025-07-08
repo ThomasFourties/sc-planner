@@ -62,17 +62,10 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: [
-    '@pinia/nuxt',
-    '@nuxt/image',
-    '@nuxt/fonts',
-    'nuxt-svgo',
-    '@nuxtjs/sitemap',
-    '@vueuse/nuxt',
-    // 'nuxt-gtag',
-    // 'nuxt-module-hotjar',
-    // 'nuxt-swiper',
-  ],
+  modules: ['@pinia/nuxt', '@nuxt/image', '@nuxt/fonts', 'nuxt-svgo', '@nuxtjs/sitemap', // 'nuxt-gtag',
+  // 'nuxt-module-hotjar',
+  // 'nuxt-swiper',
+  '@vueuse/nuxt', 'nuxt-lucide-icons'],
 
   site: { url: process.env.FRONTEND_URL || 'http://localhost:3000' },
 
