@@ -58,7 +58,7 @@ jobs:
           push: true
           no-cache: true
           platform: linux/amd64
-          tags: thoomaas123/sc-planner-client:staging-${{ needs.short-sha.outputs.sha_short }}
+          tags: thoomaas123/sc-planner-client:latest
 
   build-server:
     name: 🛠️ Build & Push Server
@@ -80,7 +80,7 @@ jobs:
           push: true
           no-cache: true
           platform: linux/amd64
-          tags: thoomaas123/sc-planner-server:staging-${{ needs.short-sha.outputs.sha_short }}
+          tags: thoomaas123/sc-planner-server:latest
 
   test:
     name: 🧪 Test Server
@@ -119,7 +119,7 @@ jobs:
             git checkout .
             git pull origin dev
 
-            export TAG=staging-${{ needs.short-sha.outputs.sha_short }}
+            export TAG=latest
             export CLIENT_TAG=$TAG
             export SERVER_TAG=$TAG
 
@@ -130,3 +130,5 @@ jobs:
             docker-compose -f docker-compose.staging.yml up -d --remove-orphans
 
             docker image prune -a -f
+
+            git checkout .
