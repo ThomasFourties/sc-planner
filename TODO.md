@@ -7,10 +7,18 @@ Mes tâches
 - [ ] Afficher la photo de profil de l'utilisateur créateur de la tâche
 - [ ] Elenler la colonne action
 
-Page Profil 
+Profil 
 - [ ] Afficher les informations du profil
 - [ ] Possiblité de modifier les informations du profil
 - [ ] Ajout photo de profil (stockage S3 ou cloudinary ou bdd base64)
+
+Planning
+- [ ] Faire la table Planning (BDD + API)
+- [ ] Une vue planning sur les taches de la semaine et semaine suivante ou precedente
+- [ ] En fonction de la date de la tache, afficher la date de fin prevue de la tache
+- [ ] En fonction de la durée de la tache, positionner sur le planning -> Une journée 8.75h , une tache peut avoir une durée incrémenté de 0.25h
+- [ ] Drag and drop des taches sur le planning -> Ce qui peut changer la durée (si on l'allonge ou raccourcir) -> Changer de date de debut et de fin
+- [ ] Possiblité de cliquer sur une tache pour faire apparaitre le composant TaskDetailPanel (idem que le composant CreateTaskForm sauf champs modifiables)
 
 Navbar 
 - [ ] Au clic sur le bouton "Projets", afficher la page Projets (à venir)
