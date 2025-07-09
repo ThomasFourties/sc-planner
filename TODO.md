@@ -1,8 +1,8 @@
 Composant Overlay
-- [ ] Mettre le composant opacity à opacity 1 quand showForm est true avec le store
+- [x] Mettre le composant opacity à opacity 1 quand showForm est true avec le store
 
 Mes tâches
-- [ ] Au clic sur le bouton "Ajouter une tâche", le composant CreateTaskForm doit apparaitre
+- [x] Au clic sur le bouton "Ajouter une tâche", le composant CreateTaskForm doit apparaitre
 - [ ] Possiblité de cliquer une tâche pour faire apparaitre le composant TaskDetailPanel (idem que le composant CreateTaskForm sauf champs modifiables)
 - [ ] Afficher la photo de profil de l'utilisateur créateur de la tâche
 - [ ] Elenler la colonne action

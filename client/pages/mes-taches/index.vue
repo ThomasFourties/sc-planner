@@ -1,19 +1,18 @@
 <template>
   <div class="tasks-page">
     <div class="header">
-      <!-- <button @click="showForm = !showForm" class="toggle-form-btn">
-        {{ showForm ? 'Masquer le formulaire' : 'Ajouter une tâche' }}
-      </button> -->
-
-      <button @click="showForm = !showForm" class="toggle-form-btn">
+      <button @click="uiStore.toggleTaskForm()" class="toggle-form-btn">
         <Plus />
         Ajouter une tâche
       </button>
     </div>
 
+    <!-- Overlay -->
+    <Overlay :opacity="uiStore.isTaskFormVisible ? 1 : 0" @click="uiStore.closeTaskForm()" />
+
     <!-- Formulaire de création -->
-    <div v-if="showForm" class="form-section">
-      <CreateTaskForm @task-created="onTaskCreated" />
+    <div v-if="uiStore.isTaskFormVisible" class="form-section">
+      <CreateTaskForm @task-created="onTaskCreated" @close="uiStore.closeTaskForm()" />
     </div>
 
     <!-- Liste des tâches -->
@@ -153,14 +152,16 @@
 <script setup>
 import { Plus, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-vue-next';
 import { ref, onMounted, computed } from 'vue';
-
+import { useUIStore } from '~/stores/ui';
 
 definePageMeta({
   middleware: 'auth'
 });
 
+// Store
+const uiStore = useUIStore();
+
 // État
-const showForm = ref(false);
 const tasks = ref([]);
 const loadingTasks = ref(true);
 
@@ -241,7 +242,7 @@ const loadTasks = async () => {
 // Gestionnaire de création de tâche
 const onTaskCreated = (newTask) => {
   tasks.value.unshift(newTask);
-  showForm.value = false;
+  uiStore.closeTaskForm();
 };
 
 // Formatage des textes
@@ -314,11 +315,7 @@ onMounted(() => {
 }
 
 .form-section {
-  margin-bottom: 40px;
-  height: 60vh;
-  overflow: scroll;
-
-
+  // Le formulaire est maintenant en position fixed, plus besoin de styles spéciaux
 }
 
 .tasks-section {

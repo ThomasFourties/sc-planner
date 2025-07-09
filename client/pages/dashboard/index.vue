@@ -140,17 +140,17 @@ const handleLogout = async () => {
     text-transform: capitalize;
     color: $gray;
     font-weight: 400;
-    font-size: 15px;
+    font-size: 16px;
   }
 
   h1,
   .h1 {
     font-weight: 700;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
   }
 
   .soustitle {
-    font-size: 15px;
+    font-size: 16px;
     color: $black;
     font-weight: 400;
 
