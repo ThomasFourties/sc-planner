@@ -286,6 +286,7 @@ onBeforeUnmount(() => {
   flex: 1;
   font-size: 24px;
   font-weight: 600;
+  border-radius: 0;
   border: none;
   outline: none;
   padding: 8px 0;

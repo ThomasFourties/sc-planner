@@ -10,9 +10,16 @@
     <!-- Overlay -->
     <Overlay :opacity="uiStore.isTaskFormVisible ? 1 : 0" @click="uiStore.closeTaskForm()" />
 
-    <!-- Formulaire de création -->
+    <!-- Formulaire de création/modification -->
     <div v-if="uiStore.isTaskFormVisible" class="form-section">
-      <CreateTaskForm @task-created="onTaskCreated" @close="uiStore.closeTaskForm()" />
+      <CreateTaskForm 
+        :task-id="uiStore.isEditing ? uiStore.currentTask?.id : null"
+        :initial-task="uiStore.currentTask"
+        @task-created="onTaskCreated" 
+        @task-updated="onTaskUpdated"
+        @task-deleted="onTaskDeleted"
+        @close="uiStore.closeTaskForm()" 
+      />
     </div>
 
     <!-- Liste des tâches -->
@@ -87,7 +94,7 @@
           <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row">
             <!-- Nom de la tâche -->
             <div class="task-cell name-cell">
-              <div class="task-info">
+              <div class="task-info" @click="editTask(task)">
                 <span class="task-icon" :class="`priority-${task.priority}`">●</span>
                 <div>
                   <div class="name">{{ task.name }}</div>
@@ -245,6 +252,21 @@ const onTaskCreated = (newTask) => {
   uiStore.closeTaskForm();
 };
 
+// Gestionnaire de modification de tâche
+const onTaskUpdated = (updatedTask) => {
+  const index = tasks.value.findIndex(task => task.id === updatedTask.id);
+  if (index !== -1) {
+    tasks.value[index] = updatedTask;
+  }
+  uiStore.closeTaskForm();
+};
+
+// Gestionnaire de suppression de tâche
+const onTaskDeleted = (taskId) => {
+  tasks.value = tasks.value.filter(task => task.id !== taskId);
+  uiStore.closeTaskForm();
+};
+
 // Formatage des textes
 const getStatusText = (status) => {
   const statuses = {
@@ -270,8 +292,7 @@ const formatDate = (dateString) => {
 
 // Actions sur les tâches
 const editTask = (task) => {
-  // TODO: Implémenter l'édition
-  alert(`Édition de la tâche "${task.name}" - À implémenter`);
+  uiStore.openTaskEdit(task);
 };
 
 const deleteTask = async (taskId) => {
@@ -496,6 +517,12 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
 
   .task-icon {
     font-size: 12px;

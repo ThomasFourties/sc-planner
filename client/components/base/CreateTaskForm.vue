@@ -1,103 +1,160 @@
-<!-- <template>
-  <div class="create-task-form">
-    <div class="form-header">
-      <button type="button" @click="$emit('close')" class="close-btn" title="Fermer">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/200/svg">
-          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" />
-        </svg>
-      </button>
+<template>
+  <div class="create-task">
+    <div class="task-header">
+      <div class="left" @click="$emit('close')">
+        <X />
+      </div>
+      <div class="right">
+        <MarkCompletedButton 
+          v-model="form.status" 
+          @completed="handleTaskCompleted"
+          :disabled="!taskId"
+        />
+        <TaskActionsMenu 
+          v-if="taskId"
+          :task-id="taskId"
+          @share="handleShare"
+          @duplicate="handleDuplicate"
+          @export="handleExport"
+          @archive="handleArchive"
+          @delete="handleDelete"
+        />
+        <EllipsisVertical v-else />
+      </div>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="form">
-      <div class="form-group">
-        <input class="input-task-name" id="name" v-model="form.name" type="text" required
-          placeholder="Nom de la tâche" />
+    <div class="task-body" :class="{ 'completed': form.status === 'done' }">
+      <div class="task-top">
+        <input v-model="form.name" class="task-title-input"
+          :placeholder="taskId ? 'Nom de la tâche' : 'Créer une nouvelle tâche'" required />
+
+        <PrioritySelector v-model="form.priority" />
       </div>
 
-      <div class="form-group">
-        <label for="assigned_to">Responsable</label>
-        <select id="assigned_to" v-model="form.assigned_to_id">
-          <option value="">Personne (non assigné)</option>
-          <option v-for="user in users" :key="user.id" :value="user.id">
-            {{ user.first_name }} {{ user.last_name }}
-          </option>
-        </select>
-      </div>
+      <div class="separator"></div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="start_date">Echéance</label>
-          <input id="start_date" v-model="form.start_date" type="datetime-local" />
+      <UserSelector v-model="form.assigned_to_id" :users="users" label="Assigné à" />
+
+      <DateSelector v-model="form.start_date" label="Échéance" />
+
+      <StatusSelector v-model="form.status" />
+
+      <TimeSelector 
+        v-model="form.duration" 
+        label="Durée estimée"
+        :show-timezone="false"
+      />
+
+      <UserSelector v-model="createdBy" :users="[currentUser]" label="Créé par" :disabled="true" />
+
+      <div class="task-nav">
+        <div v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
+          :class="['tab', { active: activeTab === tab.id }]">
+          {{ tab.label }}
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="start_date">Projets</label>
-          <input id="start_date" v-model="form.start_date" />
+      <!-- Contenu des onglets -->
+      <div class="tab-content">
+        <!-- Description -->
+        <div v-if="activeTab === 'description'">
+          <textarea v-model="form.description" placeholder="Description de la tâche..." class="description-textarea" />
+        </div>
+
+        <!-- Commentaires -->
+        <div v-else-if="activeTab === 'comments'" class="placeholder-content">
+          <p>Fonctionnalité des commentaires en cours de développement...</p>
+        </div>
+
+        <!-- Historique -->
+        <div v-else-if="activeTab === 'history'" class="placeholder-content">
+          <p>Historique des modifications en cours de développement...</p>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="duration">Durée estimée (heures)</label>
-        <input id="duration" v-model.number="form.duration" type="number" min="0" step="0.5" placeholder="Ex: 8" />
+      <div class="separator"></div>
+
+      <div class="task-footer">
+        <div class="files">
+          <p>Fichiers</p>
+          <div class="files-list">
+            <!-- Files placeholder - à implémenter avec S3 -->
+            <div class="file" v-for="file in mockFiles" :key="file.id">
+              <div class="left">
+                <img :src="file.thumbnail" :alt="file.name" />
+              </div>
+              <div class="right">
+                <p class="file-name">{{ file.name }}</p>
+                <div class="footer">
+                  <p class="file-type">{{ file.type }} —</p>
+                  <a href="#" class="download">Télécharger</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="add-file" @click="handleFileUpload">
+              <Plus />
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages d'erreur/succès -->
+        <div v-if="error" class="error-message">{{ error }}</div>
+        <div v-if="success" class="success-message">{{ success }}</div>
+
+        <button @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
+          <span v-if="loading">
+            {{ taskId ? 'Modification...' : 'Création...' }}
+          </span>
+          <span v-else>
+            {{ taskId ? 'Modifier la tâche' : 'Créer la tâche' }}
+          </span>
+        </button>
       </div>
-
-      <div class="form-group">
-        <label for="priority">Priorité</label>
-        <select id="priority" v-model="form.priority">
-          <option value="low">Faible</option>
-          <option value="medium">Moyenne</option>
-          <option value="high">Élevée</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="status">Statut</label>
-        <select id="status" v-model="form.status">
-          <option value="todo">À faire</option>
-          <option value="not_started">Non commencé</option>
-          <option value="in_progress">En cours</option>
-          <option value="done">Terminé</option>
-          <option value="blocked">Bloqué</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" v-model="form.description" rows="3"
-          placeholder="Description détaillée de la tâche..."></textarea>
-      </div>
-
-
-      <p v-if="error" class="error-message">{{ error }}</p>
-      <p v-if="success" class="success-message">{{ success }}</p>
-
-      <button type="submit" :disabled="loading" class="submit-btn">
-        <span v-if="loading">Création...</span>
-        <span v-else>Créer la tâche</span>
-      </button>
-    </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { X, EllipsisVertical, Plus } from 'lucide-vue-next';
+import { useAuthStore } from '~/stores/auth';
+import PrioritySelector from '~/components/form/PrioritySelector.vue';
+import StatusSelector from '~/components/form/StatusSelector.vue';
+import UserSelector from '~/components/form/UserSelector.vue';
+import DateSelector from '~/components/form/DateSelector.vue';
+import TimeSelector from '~/components/form/TimeSelector.vue';
+import TaskActionsMenu from '~/components/form/TaskActionsMenu.vue';
+import MarkCompletedButton from '~/components/form/MarkCompletedButton.vue';
 
-// Props et émissions
-const emit = defineEmits(['taskCreated', 'close']);
+// Props
+const props = defineProps({
+  taskId: {
+    type: [String, Number],
+    default: null
+  },
+  initialTask: {
+    type: Object,
+    default: null
+  }
+});
+
+// Émissions
+const emit = defineEmits(['taskCreated', 'taskUpdated', 'close', 'taskDeleted']);
+
+// Stores
+const authStore = useAuthStore();
+const currentUser = computed(() => authStore.currentUser);
 
 // État du formulaire
 const form = reactive({
   name: '',
   description: '',
   duration: null,
-  assigned_to_id: '',
-  start_date: '',
-  end_date: '',
+  assigned_to_id: null,
+  start_date: null,
   priority: 'medium',
-  status: 'todo',
+  status: 'todo'
 });
 
 // État de l'interface
@@ -105,291 +162,180 @@ const loading = ref(false);
 const error = ref('');
 const success = ref('');
 const users = ref([]);
+const activeTab = ref('description');
+const createdBy = ref(null);
 
-// Charger les utilisateurs au montage
+// Configuration des onglets
+const tabs = [
+  { id: 'description', label: 'Description' },
+  { id: 'comments', label: 'Commentaires' },
+  { id: 'history', label: 'Historique' }
+];
+
+// Mock files (à remplacer par la vraie logique d'upload)
+const mockFiles = ref([
+  {
+    id: 1,
+    name: 'Guidelines.pdf',
+    type: 'PDF',
+    thumbnail: 'https://picsum.photos/40/40?random=1'
+  },
+  {
+    id: 2,
+    name: 'Screenshot.png',
+    type: 'PNG',
+    thumbnail: 'https://picsum.photos/40/40?random=2'
+  }
+]);
+
+// Charger les données initiales
 onMounted(async () => {
+  await loadUsers();
+
+  if (currentUser.value) {
+    createdBy.value = currentUser.value.id;
+  }
+
+  if (props.taskId && props.initialTask) {
+    loadTaskData(props.initialTask);
+  }
+});
+
+// Watcher pour les changements de tâche initiale
+watch(() => props.initialTask, (newTask) => {
+  if (newTask) {
+    loadTaskData(newTask);
+  }
+}, { immediate: true });
+
+// Méthodes
+const loadUsers = async () => {
   try {
     users.value = await $fetch('/api/users');
   } catch (err) {
     console.error('Erreur lors du chargement des utilisateurs:', err);
   }
-});
+};
 
-// Soumettre le formulaire
+const loadTaskData = (task) => {
+  Object.assign(form, {
+    name: task.name || '',
+    description: task.description || '',
+    duration: task.duration || null,
+    assigned_to_id: task.assigned_to_id || null,
+    start_date: task.start_date || null,
+    priority: task.priority || 'medium',
+    status: task.status || 'todo'
+  });
+};
+
 const handleSubmit = async () => {
+  if (!form.name.trim()) {
+    error.value = 'Le nom de la tâche est requis';
+    return;
+  }
+
   error.value = '';
   success.value = '';
   loading.value = true;
 
   try {
-    // Préparer les données
     const taskData = { ...form };
 
     // Nettoyer les champs vides
     if (!taskData.duration) taskData.duration = 0;
     if (!taskData.assigned_to_id) delete taskData.assigned_to_id;
     if (!taskData.start_date) delete taskData.start_date;
-    if (!taskData.end_date) delete taskData.end_date;
     if (!taskData.description) delete taskData.description;
 
-    // Créer la tâche
-    const newTask = await $fetch('/api/tasks', {
-      method: 'POST',
-      body: taskData,
-    });
+    let result;
 
-    success.value = 'Tâche créée avec succès !';
+    if (props.taskId) {
+      // Modification d'une tâche existante
+      result = await $fetch(`/api/tasks/${props.taskId}`, {
+        method: 'PUT',
+        body: taskData,
+      });
 
-    // Réinitialiser le formulaire
-    Object.assign(form, {
-      name: '',
-      description: '',
-      duration: null,
-      assigned_to_id: '',
-      start_date: '',
-      end_date: '',
-      priority: 'medium',
-      status: 'todo',
-    });
+      success.value = 'Tâche modifiée avec succès !';
+      emit('taskUpdated', result);
+    } else {
+      // Création d'une nouvelle tâche
+      result = await $fetch('/api/tasks', {
+        method: 'POST',
+        body: taskData,
+      });
 
-    // Émettre l'événement
-    emit('taskCreated', newTask);
+      success.value = 'Tâche créée avec succès !';
+      emit('taskCreated', result);
+
+      // Réinitialiser le formulaire pour une nouvelle création
+      resetForm();
+    }
+
+    // Fermer la modal après création/modification
+    setTimeout(() => {
+      emit('close');
+    }, 1000);
 
   } catch (err) {
-    error.value = err.data?.message || err.message || 'Erreur lors de la création de la tâche';
+    error.value = err.data?.message || err.message ||
+      `Erreur lors de la ${props.taskId ? 'modification' : 'création'} de la tâche`;
   } finally {
     loading.value = false;
   }
 };
-</script>
 
-<style scoped lang="scss">
-.create-task-form {
-  position: fixed;
-  z-index: 100;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(100% - 60px);
-  max-width: 55vw;
-  margin: 0 auto;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
+const resetForm = () => {
+  Object.assign(form, {
+    name: '',
+    description: '',
+    duration: null,
+    assigned_to_id: null,
+    start_date: null,
+    priority: 'medium',
+    status: 'todo'
+  });
+  activeTab.value = 'description';
+};
 
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+const handleFileUpload = () => {
+  // TODO: Implémenter l'upload de fichiers avec S3
+  console.log('Upload de fichier à implémenter');
+};
 
-  h2 {
-    margin: 0;
-    color: #333;
+// Nouvelles méthodes pour les actions
+const handleTaskCompleted = (isCompleted) => {
+  if (isCompleted) {
+    success.value = 'Tâche marquée comme terminée !';
+  } else {
+    success.value = 'Tâche remise en cours !';
   }
-}
+};
 
-.close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  color: #666;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const handleShare = (taskId) => {
+  success.value = 'Lien de la tâche copié dans le presse-papiers !';
+};
 
-  &:hover {
-    background-color: #f0f0f0;
-    color: #333;
-  }
+const handleDuplicate = (taskId) => {
+  // Logique pour dupliquer la tâche
+  console.log('Dupliquer la tâche:', taskId);
+};
 
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-}
+const handleExport = (taskId) => {
+  // Logique pour exporter la tâche
+  console.log('Exporter la tâche:', taskId);
+};
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+const handleArchive = (taskId) => {
+  // Logique pour archiver la tâche
+  console.log('Archiver la tâche:', taskId);
+};
 
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-
-  label {
-    font-weight: 500;
-    color: #555;
-    font-size: 14px;
-  }
-
-  input,
-  textarea,
-  select {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    width: fit-content;
-
-    &:focus {
-      outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-    }
-  }
-
-  .input-task-name {
-    font-size: 30px;
-    border: none;
-    outline: none;
-    border-radius: 0;
-    width: 100%;
-    padding: 10px;
-    // border-bottom: 1px solid #ddd;
-    margin-bottom: 20px;
-  }
-
-  textarea {
-    resize: vertical;
-  }
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.error-message {
-  color: #dc3545;
-  font-size: 14px;
-  margin: 0;
-}
-
-.success-message {
-  color: #28a745;
-  font-size: 14px;
-  margin: 0;
-}
-
-.submit-btn {
-  padding: 12px 24px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover:not(:disabled) {
-    background-color: #0056b3;
-  }
-
-  &:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
-}
-</style> -->
-
-<template>
-  <div class="create-task">
-    <div class="task-header">
-      <div class="left">
-        <X />
-      </div>
-
-      <div class="right">
-        <EllipsisVertical />
-      </div>
-    </div>
-
-    <div class="task-body">
-      <div class="task-top">
-        <h2>Créer une nouvelle tâche</h2>
-        <p class="priority">Priorité : <span>
-            <Flag /> Moyenne
-          </span></p>
-      </div>
-      <div class="separator"></div>
-      <p class="assigned-to">Assigné à : <span><i class="pdp"></i> John Doe</span></p>
-      <p class="due-date">Echéance : <span>2021-01-01</span></p>
-      <p class="status">Statut : <span> <i class="square"></i> À faire</span></p>
-      <p class="duration">Durée estimée : <span>8 heures</span></p>
-      <p class="created-by">Créé par : <span><i class="pdp"></i> John Doe</span></p>
-      <div class="task-nav">
-        <div class="description active">Description</div>
-        <div class="comments">Commentaires</div>
-        <div class="history">Historique</div>
-      </div>
-
-      <textarea placeholder="Description de la tâche" class="description-textarea" />
-      <div class="separator"></div>
-      <div class="task-footer">
-        <div class="files">
-          <p>Fichier</p>
-
-          <div class="files-list">
-            <div class="file">
-              <div class="left">
-                <img src="https://picsum.photos/200/200" alt="pdf" />
-              </div>
-
-              <div class="right">
-                <p class="file-name">Guideline.pdf</p>
-                <div class="footer">
-                  <p class="file-type">PDF —</p>
-                  <a href="#" class="download">Télécharger</a>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="file">
-              <div class="left">
-                <img src="https://picsum.photos/200/200" alt="pdf" />
-              </div>
-
-              <div class="right">
-                <p class="file-name">Screenshot.png</p>
-                <div class="footer">
-                  <p class="file-type">PNG —</p>
-                  <a href="#" class="download">Télécharger</a>
-                </div>
-              </div>
-            </div>
-
-            <div class="add-file">
-              <Plus />
-            </div>
-          </div>
-        </div>
-
-        <button class="submit-btn">Créer la tâche</button>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { X, EllipsisVertical, Plus, Flag } from 'lucide-vue-next';
-
+const handleDelete = (taskId) => {
+  emit('taskDeleted', taskId);
+  emit('close');
+};
 </script>
 
 <style scoped lang="scss">
@@ -405,7 +351,10 @@ import { X, EllipsisVertical, Plus, Flag } from 'lucide-vue-next';
   padding: 20px;
   width: 40vw;
   min-width: 700px;
+  max-height: 90vh;
   border-radius: 8px;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 
   .task-header {
     display: flex;
@@ -413,19 +362,40 @@ import { X, EllipsisVertical, Plus, Flag } from 'lucide-vue-next';
     align-items: center;
     margin-bottom: 20px;
 
-    .left,
-    .right {
-      cursor: pointer;
-    }
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-
     .left {
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #f3f4f6;
+      }
+
       svg {
+        width: 20px;
+        height: 20px;
         stroke-width: 1.5;
+      }
+    }
+
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 1.5;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #f3f4f6;
+        }
       }
     }
   }
@@ -434,16 +404,38 @@ import { X, EllipsisVertical, Plus, Flag } from 'lucide-vue-next';
     display: flex;
     flex-direction: column;
     gap: 20px;
+    transition: opacity 0.3s ease;
+
+    &.completed {
+      opacity: 0.4; // Effet d'opacité quand terminé
+    }
 
     .task-top {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 15px;
+    }
 
-      h2 {
-        margin-bottom: 0;
+    .task-title-input {
+      font-size: 24px;
+      font-weight: 700;
+      border: none;
+      outline: none;
+      border-radius: 0;
+      padding: 8px 0;
+      background: transparent;
+      color: $black;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-bottom-color: #3b82f6;
       }
 
+      &::placeholder {
+        color: #9ca3af;
+        font-weight: 600;
+      }
     }
 
     .separator {
@@ -452,58 +444,10 @@ import { X, EllipsisVertical, Plus, Flag } from 'lucide-vue-next';
       background-color: #e0e0e0;
     }
 
-    .description-textarea {
-      width: 100%;
-      height: 100px;
-      border-radius: 5px;
-      border: none;
-      padding: 15px;
-      resize: none;
-      background-color: #f2f2f2;
-    }
-
-    .priority,
-    .assigned-to,
-    .due-date,
-    .status,
-    .duration,
-    .created-by {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #6b6b6b;
-      width: 10%;
-
-      span {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 5px;
-        background-color: #f2f2f2;
-        border-radius: 4px;
-        font-size: 12px;
-        color: $black;
-        font-weight: 400;
-
-        .square {
-          width: 8px;
-          height: 8px;
-          background: red;
-          border-radius: 2px;
-        }
-
-        .pdp {
-          width: 15px;
-          height: 15px;
-          background: red;
-          border-radius: 50px;
-        }
-
-        svg {
-          width: 15px;
-        }
+    .selected-user {
+      svg {
+        stroke-width: 1.5;
+        width: 10px;
       }
     }
 
@@ -511,14 +455,61 @@ import { X, EllipsisVertical, Plus, Flag } from 'lucide-vue-next';
       display: flex;
       gap: 20px;
       width: 100%;
+      border-bottom: 1px solid #e0e0e0;
 
-      div {
+      .tab {
         cursor: pointer;
-        padding: 10px;
+        padding: 10px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #6b7280;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
 
         &.active {
           font-weight: 600;
-          border-bottom: 1px solid $black;
+          color: $black;
+          border-bottom-color: $black;
+        }
+
+        &:hover:not(.active) {
+          color: #374151;
+        }
+      }
+    }
+
+    .tab-content {
+      .description-textarea {
+        width: 100%;
+        height: 100px;
+        border-radius: 5px;
+        border: 1px solid #e5e7eb;
+        padding: 15px;
+        resize: vertical;
+        background-color: #f9fafb;
+        font-size: 14px;
+        line-height: 1.5;
+
+        &:focus {
+          outline: none;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+      }
+
+      .placeholder-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100px;
+        background-color: #f9fafb;
+        border-radius: 5px;
+        border: 1px dashed #d1d5db;
+
+        p {
+          color: #6b7280;
+          font-style: italic;
+          margin: 0;
         }
       }
     }
@@ -526,32 +517,39 @@ import { X, EllipsisVertical, Plus, Flag } from 'lucide-vue-next';
     .task-footer {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
 
       .files {
         display: flex;
         flex-direction: column;
         gap: 10px;
 
+        >p {
+          font-size: 14px;
+          font-weight: 600;
+          color: $black;
+          margin: 0;
+        }
+
         .files-list {
           display: flex;
           gap: 10px;
+          flex-wrap: wrap;
 
           .file {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             gap: 10px;
-            width: fit-content;
-            padding: 5px 20px 5px 5px;
+            padding: 8px 16px 8px 8px;
             border: 1px solid #cecece;
             border-radius: 4px;
+            background: white;
 
             .left {
               width: 40px;
-              aspect-ratio: 1/1;
               height: 40px;
-
+              border-radius: 4px;
+              overflow: hidden;
 
               img {
                 width: 100%;
@@ -561,54 +559,104 @@ import { X, EllipsisVertical, Plus, Flag } from 'lucide-vue-next';
             }
 
             .right {
-              width: 100%;
-
               .file-name {
                 font-size: 12px;
                 font-weight: 600;
+                margin: 0 0 4px 0;
+                color: $black;
               }
 
-              .file-type {
-                font-size: 10px;
-                color: $gray;
-              }
+              .footer {
+                display: flex;
+                gap: 4px;
+                align-items: center;
 
-              .download {
-                font-size: 10px;
-                color: $gray;
-              }
-            }
+                .file-type,
+                .download {
+                  font-size: 10px;
+                  color: #6b7280;
+                  margin: 0;
+                }
 
-            .footer {
-              display: flex;
-              gap: 4px;
+                .download {
+                  text-decoration: none;
+                  cursor: pointer;
+
+                  &:hover {
+                    color: #3b82f6;
+                  }
+                }
+              }
             }
           }
-
 
           .add-file {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px;
-            border: 1px solid #cecece;
+            padding: 16px;
+            border: 1px dashed #cecece;
             border-radius: 4px;
-            aspect-ratio: 1 / 1;
-            width: 52px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 72px;
+
+            &:hover {
+              border-color: #3b82f6;
+              background-color: #f8fafc;
+            }
 
             svg {
               width: 20px;
               height: 20px;
               stroke-width: 1.5;
+              color: #6b7280;
             }
           }
         }
       }
-    }
 
-    .submit-btn {
-      align-self: flex-end;
-      margin-top: 10px;
+      .error-message {
+        color: #dc2626;
+        font-size: 14px;
+        padding: 8px 12px;
+        background: #fee2e2;
+        border-radius: 6px;
+        border: 1px solid #fca5a5;
+      }
+
+      .success-message {
+        color: #059669;
+        font-size: 14px;
+        padding: 8px 12px;
+        background: #d1fae5;
+        border-radius: 6px;
+        border: 1px solid #6ee7b7;
+      }
+
+      .submit-btn {
+        align-self: flex-end;
+        padding: 12px 24px;
+        background-color: $black;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover:not(:disabled) {
+          background-color: #374151;
+          transform: translateY(-1px);
+        }
+
+        &:disabled {
+          background-color: #9ca3af;
+          cursor: not-allowed;
+          transform: none;
+        }
+      }
     }
   }
 }
