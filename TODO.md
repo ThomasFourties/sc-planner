@@ -3,9 +3,9 @@ Composant Overlay
 
 Mes tâches
 - [x] Au clic sur le bouton "Ajouter une tâche", le composant CreateTaskForm doit apparaitre
-- [ ] Possiblité de cliquer une tâche pour faire apparaitre le composant TaskDetailPanel (idem que le composant CreateTaskForm sauf champs modifiables)
+- [x] Possiblité de cliquer une tâche pour faire apparaitre le composant TaskDetailPanel (idem que le composant CreateTaskForm sauf champs modifiables)
 - [ ] Afficher la photo de profil de l'utilisateur créateur de la tâche
-- [ ] Elenler la colonne action
+- [x] Elenler la colonne action
 
 Profil 
 - [ ] Afficher les informations du profil
