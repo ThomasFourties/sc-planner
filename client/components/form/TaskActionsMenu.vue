@@ -1,10 +1,6 @@
 <template>
   <div class="task-actions-menu" ref="menuRef">
-    <button 
-      @click="toggleMenu" 
-      class="menu-trigger"
-      :class="{ 'active': isOpen }"
-    >
+    <button @click="toggleMenu" class="menu-trigger" :class="{ 'active': isOpen }">
       <EllipsisVertical :size="20" />
     </button>
 
@@ -13,24 +9,24 @@
         <Share2 :size="16" />
         <span>Partager</span>
       </div>
-      
+
       <div class="menu-item" @click="handleDuplicate">
         <Copy :size="16" />
         <span>Dupliquer</span>
       </div>
-      
+
       <div class="menu-item" @click="handleExport">
         <Download :size="16" />
         <span>Exporter</span>
       </div>
-      
+
       <div class="menu-separator"></div>
-      
+
       <div class="menu-item" @click="handleArchive">
         <Archive :size="16" />
         <span>Archiver</span>
       </div>
-      
+
       <div class="menu-item danger" @click="handleDelete">
         <Trash2 :size="16" />
         <span>Supprimer</span>
@@ -41,13 +37,13 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { 
-  EllipsisVertical, 
-  Share2, 
-  Copy, 
-  Download, 
-  Archive, 
-  Trash2 
+import {
+  EllipsisVertical,
+  Share2,
+  Copy,
+  Download,
+  Archive,
+  Trash2
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -59,7 +55,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'share',
-  'duplicate', 
+  'duplicate',
   'export',
   'archive',
   'delete'
@@ -81,10 +77,10 @@ const handleShare = async () => {
     // Copier le lien dans le presse-papiers
     const taskUrl = `${window.location.origin}/tasks/${props.taskId}`;
     await navigator.clipboard.writeText(taskUrl);
-    
+
     // Vous pouvez ajouter une notification ici
     console.log('Lien copié dans le presse-papiers');
-    
+
     emit('share', props.taskId);
   } catch (error) {
     console.error('Erreur lors de la copie du lien:', error);
@@ -148,6 +144,11 @@ onUnmounted(() => {
     cursor: pointer;
     transition: all 0.2s;
     color: #6b7280;
+    padding: 0;
+
+    .lucide-ellipsis-vertical-icon {
+      stroke-width: 2;
+    }
 
     &:hover {
       background-color: #f3f4f6;
@@ -183,6 +184,7 @@ onUnmounted(() => {
         opacity: 0;
         transform: translateY(-8px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -199,6 +201,12 @@ onUnmounted(() => {
       color: #374151;
       cursor: pointer;
       transition: all 0.2s;
+
+      svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 1.5;
+      }
 
       &:hover {
         background-color: #f9fafb;
@@ -229,4 +237,4 @@ onUnmounted(() => {
     }
   }
 }
-</style> 
+</style>

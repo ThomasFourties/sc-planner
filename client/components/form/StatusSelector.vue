@@ -42,10 +42,16 @@ const dropdown = ref(null);
 
 const statuses = [
   { value: 'todo', label: 'À faire' },
-  { value: 'not_started', label: 'Non commencé' },
   { value: 'in_progress', label: 'En cours' },
-  { value: 'done', label: 'Terminé' },
-  { value: 'blocked', label: 'Bloqué' }
+  { value: 'waiting_for_info', label: 'En attente d\'informations' },
+  { value: 'blocked', label: 'Bloqué' },
+  { value: 'cancelled', label: 'Annulé' },
+  { value: 'to_validate', label: 'À valider' },
+  { value: 'validated', label: 'Validé' },
+  { value: 'to_timer', label: 'À timer' },
+  { value: 'processed_prod', label: 'Traité en prod' },
+  { value: 'processed_preprod', label: 'Traité en préprod' },
+  { value: 'done', label: 'Terminé' }
 ];
 
 const getStatusLabel = (value) => {
@@ -127,7 +133,8 @@ onUnmounted(() => {
       border: 1px solid #e5e7eb;
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      min-width: 140px;
+      // min-width: 140px;
+      width: 185px;
       margin-top: 4px;
 
       .dropdown-item {
@@ -147,7 +154,6 @@ onUnmounted(() => {
         &:last-child {
           border-radius: 0 0 6px 6px;
         }
-
         &:hover {
           background-color: #f3f4f6;
         }
@@ -160,24 +166,48 @@ onUnmounted(() => {
     height: 8px;
     border-radius: 2px;
 
-    &.status-todo {
-      background-color: #fbbf24; // Yellow
-    }
-
-    &.status-not_started {
-      background-color: #9ca3af; // Gray
-    }
-
-    &.status-in_progress {
-      background-color: #3b82f6; // Blue
-    }
-
-    &.status-done {
-      background-color: #10b981; // Green
+    &.status-waiting_for_info {
+      background-color: #f87171;
     }
 
     &.status-blocked {
-      background-color: #ef4444; // Red
+      background-color: #f22121;
+    }
+
+    &.status-todo {
+      background-color: #fb923c;
+    }
+
+    &.status-in_progress {
+      background-color: #d97706;
+    }
+
+    &.status-processed_preprod {
+      background-color: #7dd3fc;
+    }
+
+    &.status-processed_prod {
+      background-color: #f9a8d4;
+    }
+
+    &.status-to_validate {
+      background-color: #fde047;
+    }
+
+    &.status-validated {
+      background-color: #bef264;
+    }
+
+    &.status-cancelled {
+      background-color: #a3a3a3;
+    }
+
+    &.status-to_timer {
+      background-color: #e9d5ff;
+    }
+
+    &.status-done {
+      background-color: #a3e635;
     }
   }
 }

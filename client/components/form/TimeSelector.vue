@@ -2,16 +2,10 @@
   <div class="time-selector">
     <label class="label">{{ label }} :</label>
     <div class="time-input-wrapper">
-      <VDatePicker 
-        v-model="internalValue" 
-        mode="time" 
-        :timezone="timezone"
-        :popover="{ 
-          placement: 'bottom-start',
-          keepVisibleOnInput: true
-        }"
-        @input="handleTimeChange"
-      >
+      <VDatePicker v-model="internalValue" mode="time" :timezone="timezone" :popover="{
+        placement: 'bottom-start',
+        keepVisibleOnInput: true
+      }" @input="handleTimeChange">
         <template #default="{ inputValue, inputEvents, togglePopover }">
           <div class="time-display" @click="togglePopover">
             <Clock :size="16" />
@@ -20,13 +14,13 @@
           </div>
         </template>
       </VDatePicker>
-      
+
       <!-- Affichage de la durée en heures -->
       <div v-if="durationHours" class="duration-hours">
         {{ durationHours }}h
       </div>
     </div>
-    
+
     <!-- Option pour basculer entre local et UTC -->
     <div class="timezone-selector" v-if="showTimezone">
       <label class="timezone-label">
@@ -69,7 +63,7 @@ const timezone = ref('');
 const internalValue = computed({
   get() {
     if (!props.modelValue) return null;
-    
+
     // Convertir les heures en objet Date pour VCalendar
     const hours = typeof props.modelValue === 'string' ? parseFloat(props.modelValue) : props.modelValue;
     const date = new Date();
@@ -77,7 +71,7 @@ const internalValue = computed({
     date.setMinutes((hours % 1) * 60);
     date.setSeconds(0);
     date.setMilliseconds(0);
-    
+
     return date;
   },
   set(value) {
@@ -85,12 +79,12 @@ const internalValue = computed({
       emit('update:modelValue', null);
       return;
     }
-    
+
     // Convertir l'heure en nombre d'heures décimales
     const hours = value.getHours();
     const minutes = value.getMinutes();
     const totalHours = hours + (minutes / 60);
-    
+
     emit('update:modelValue', totalHours);
   }
 });
@@ -103,7 +97,7 @@ const durationHours = computed(() => {
 
 const formatTimeValue = (inputValue) => {
   if (!inputValue) return '';
-  
+
   // Extraire les heures et minutes de la chaîne de temps
   const match = inputValue.match(/(\d{1,2}):(\d{2})/);
   if (match) {
@@ -112,7 +106,7 @@ const formatTimeValue = (inputValue) => {
     const totalHours = hours + (minutes / 60);
     return `${totalHours.toFixed(2)}h`;
   }
-  
+
   return inputValue;
 };
 
@@ -127,7 +121,8 @@ const handleTimeChange = (value) => {
 
 .time-selector {
   display: flex;
-  flex-direction: column;
+  // flex-direction: column;
+  align-items: center;
   gap: 10px;
   font-size: 14px;
   font-weight: 500;
@@ -222,11 +217,11 @@ const handleTimeChange = (value) => {
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   padding: 6px;
-  
+
   &:focus {
-    border-color: #3b82f6;
+    border-color: $lightBlue;
     outline: none;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 }
-</style> 
+</style>

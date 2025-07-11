@@ -2,10 +2,12 @@
   <div class="date-selector">
     <label class="label">{{ label }} :</label>
     <div class="date-input-wrapper">
-      <VDatePicker v-model="internalValue" :masks="{ input: 'DD/MM/YYYY' }" mode="date"
-        :popover="{ placement: 'bottom-start' }">
-        <template #default="{ inputValue, inputEvents }">
-          <div class="date-display" v-on="inputEvents">
+      <VDatePicker v-model="internalValue" :masks="{ input: 'DD/MM/YYYY' }" mode="date" :popover="{
+        placement: 'bottom-start',
+        visibility: 'click'
+      }" ref="datePicker">
+        <template #default="{ inputValue, togglePopover }">
+          <div class="date-display" @click="togglePopover">
             <Calendar :size="16" />
             <span v-if="inputValue">{{ inputValue }}</span>
             <span v-else class="placeholder">{{ placeholder }}</span>
@@ -17,7 +19,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Calendar } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -36,6 +38,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue']);
+
+const datePicker = ref(null);
 
 const internalValue = computed({
   get() {
@@ -78,6 +82,12 @@ const internalValue = computed({
       transition: all 0.2s;
       min-width: 120px;
 
+      button {
+        background-color: transparent !important;
+        border: none;
+        cursor: pointer;
+      }
+
       &:hover {
         opacity: 0.8;
       }
@@ -105,16 +115,101 @@ const internalValue = computed({
 
 :deep(.vc-header) {
   padding: 12px;
+  height: auto;
+  margin-top: 0;
+
+  button {
+    background-color: transparent !important;
+  }
+
+  .vc-title {
+    color: $black;
+    font-weight: 600;
+  }
+
+  .vc-arrow {
+    color: $black;
+
+    &:hover {
+      background-color: #f3f4f6;
+      color: $black;
+    }
+  }
+}
+
+:deep(button.vc-nav-item) {
+  color: $black !important;
+  background-color: transparent !important;
+}
+
+:deep(button.vc-nav-item.is-active) {
+  color: $white !important;
+  background-color: $blue !important;
+}
+
+:deep(.vc-day-content.vc-focusable.vc-focus.vc-attr.vc-attr.vc-highlight-content-solid.vc-blue) {
+  color: $white !important;
+  background-color: $blue !important;
+}
+
+:deep(.vc-nav-header) {
+  button {
+    background-color: transparent !important;
+  }
+}
+
+:deep(.vc-weekday) {
+  color: #6b7280;
+  font-weight: 500;
 }
 
 :deep(.vc-day) {
+  color: $black;
+
   &:hover {
     background-color: #f3f4f6;
   }
 
   &.is-selected {
-    background-color: #3b82f6;
+    background-color: $black;
     color: white;
+  }
+
+  &.is-today {
+    background-color: #f3f4f6;
+    color: $black;
+    font-weight: 600;
+  }
+}
+
+:deep(.vc-nav) {
+  .vc-nav-title {
+    color: $black;
+
+    &:hover {
+      background-color: #f3f4f6;
+    }
+  }
+
+  .vc-nav-arrow {
+    color: $black;
+
+    &:hover {
+      background-color: #f3f4f6;
+    }
+  }
+
+  .vc-nav-item {
+    color: $black;
+
+    &:hover {
+      background-color: #f3f4f6;
+    }
+
+    &.is-active {
+      background-color: $black;
+      color: white;
+    }
   }
 }
 </style>
