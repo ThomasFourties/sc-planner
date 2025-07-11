@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { seedUsers } from './users.seed';
-// import { seedTasks } from './tasks.seed';
+import { seedTasks } from './tasks.seed';
 import { config } from 'dotenv';
 
 config();
@@ -22,7 +22,7 @@ async function runSeed() {
     console.log('Running seeds...');
 
     await seedUsers(dataSource);
-    // await seedTasks(dataSource);
+    await seedTasks(dataSource);
     console.log('Seeds completed successfully');
     process.exit(0);
   } catch (error) {

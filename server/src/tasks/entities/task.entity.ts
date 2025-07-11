@@ -10,17 +10,24 @@ import {
 import { User } from '../../users/entities/user.entity';
 
 export enum TaskStatus {
-  NOT_STARTED = 'not_started',
-  IN_PROGRESS = 'in_progress',
-  DONE = 'done',
-  TODO = 'todo',
   BLOCKED = 'blocked',
+  WAITING_FOR_INFO = 'waiting_for_info',
+  TODO = 'todo',
+  IN_PROGRESS = 'in_progress',
+  PROCESSED_PREPROD = 'processed_preprod',
+  PROCESSED_PROD = 'processed_prod',
+  TO_VALIDATE = 'to_validate',
+  VALIDATED = 'validated',
+  CANCELLED = 'cancelled',
+  TO_TIMER = 'to_timer',
+  DONE = 'done',
 }
 
 export enum TaskPriority {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
+  URGENT = 'urgent',
 }
 
 @Entity('tasks')

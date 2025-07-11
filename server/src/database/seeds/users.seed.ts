@@ -16,6 +16,14 @@ export async function seedUsers(dataSource: DataSource) {
       is_admin: true,
     },
     {
+      first_name: 'Thomas',
+      last_name: 'Fourties',
+      email: 'thomas.fourties@icloud.com',
+      password: await bcrypt.hash('password123', 10),
+      role: UserRole.CHEF_DE_PROJET,
+      is_admin: true,
+    },
+    {
       first_name: 'Jane',
       last_name: 'Smith',
       email: 'jane.smith@example.com',
