@@ -92,11 +92,17 @@ let refreshInterval = null
 
 // Couleurs par statut
 const statusColors = {
-  'todo': '#fbbf24',      // orange/jaune
-  'not_started': '#fbbf24',
-  'in_progress': '#3b82f6', // bleu
-  'blocked': '#ef4444',     // rouge
-  'done': '#10b981'         // vert
+  'todo': '#fb923c',
+  'in_progress': '#d97706',
+  'waiting_for_info': '#f87171',
+  'blocked': '#f22121',
+  'cancelled': '#a3a3a3',
+  'to_validate': '#fde047',
+  'validated': '#bef264',
+  'to_timer': '#e9d5ff',
+  'processed_prod': '#f9a8d4',
+  'processed_preprod': '#7dd3fc',
+  'done': '#a3e635'
 }
 
 // Calcul des jours de la semaine

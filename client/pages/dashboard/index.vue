@@ -3,18 +3,13 @@
     <div class="txt-wp">
       <p class="surtitle">{{ formattedDate }}</p>
       <h1 class="h1">Bonjour, {{ currentUser?.first_name || 'Utilisateur' }} !</h1>
-      <p class="soustitle" v-if="!loadingTasks">
-        Aujourd'hui, <span>{{tasks.filter(task => {
-          const today = new Date();
-          const taskDate = new Date(task.start_date);
-          return taskDate.getFullYear() === today.getFullYear() &&
-            taskDate.getMonth() === today.getMonth() &&
-            taskDate.getDate() === today.getDate();
-        }).length}} tâches</span> vous sont assignées
-      </p>
-      <p class="soustitle" v-else>
-        Chargement de vos tâches...
-      </p>
+      <p class="soustitle">
+        Aujourd'hui,
+        <NuxtLink to="/mes-taches" class="link">
+          <span>{{tasks.filter(task => getMyTodayTasks(task, currentUser)).length}}</span>
+        </NuxtLink>
+        {{tasks.filter(task => getMyTodayTasks(task)).length <= 1 ? 'tâche vous est attribuée'
+          : 'tâches vous sont attribuées'}} </p>
     </div>
     <div class="dashboard-content">
       <div class="left">
@@ -47,13 +42,32 @@ const loadTasks = async () => {
   }
 };
 
+const getMyTodayTasks = (task, currentUser) => {
+  if (!currentUser) {
+    return false;
+  }
+
+  const todayDay = new Date().getDate();
+  const taskDay = new Date(task.start_date).getDate();
+
+  const myTaks = task.assigned_to.id === currentUser.id && taskDay === todayDay;
+
+  return myTaks;
+}
+
 const getStatusText = (status) => {
   switch (status) {
     case 'todo': return 'À faire';
     case 'in_progress': return 'En cours';
-    case 'done': return 'Terminé';
+    case 'waiting_for_info': return 'En attente d\'informations';
     case 'blocked': return 'Bloqué';
-    case 'not_started': return 'Non commencé';
+    case 'cancelled': return 'Annulé';
+    case 'to_validate': return 'À valider';
+    case 'validated': return 'Validé';
+    case 'to_timer': return 'À timer';
+    case 'processed_prod': return 'Traité en prod';
+    case 'processed_preprod': return 'Traité en préprod';
+    case 'done': return 'Terminé';
     default: return status;
   }
 };
@@ -162,7 +176,7 @@ const handleLogout = async () => {
   .dashboard-content {
     display: flex;
     justify-content: space-between;
-    gap: 20px;
+    gap: 40px;
     height: 100%;
     // width: 90%;
     // margin: 0 auto;
@@ -263,19 +277,24 @@ const handleLogout = async () => {
             font-weight: 500;
             text-transform: uppercase;
 
+            &.priority-urgent {
+              background: #fef2f2;
+              color: #f87171;
+            }
+
             &.priority-high {
-              background: #fee2e2;
-              color: #ef4444;
+              background: #fef3c7;
+              color: #fb923c;
             }
 
             &.priority-medium {
-              background: #fef3c7;
-              color: #f59e0b;
+              background: #fefce8;
+              color: #facc15;
             }
 
             &.priority-low {
-              background: #d1fae5;
-              color: #10b981;
+              background: #f0fdf4;
+              color: #86efac;
             }
           }
         }
@@ -299,24 +318,59 @@ const handleLogout = async () => {
             font-size: 12px;
             font-weight: 500;
 
+            &.status-waiting_for_info {
+              background: #fef2f2;
+              color: #f87171;
+            }
+
             &.status-todo {
-              background: #f3f4f6;
-              color: #6b7280;
+              background: #fef3c7;
+              color: #fb923c;
             }
 
             &.status-in_progress {
-              background: #dbeafe;
-              color: #3b82f6;
+              background: #fef3c7;
+              color: #d97706;
+            }
+
+            &.status-processed_preprod {
+              background: #f0f9ff;
+              color: #7dd3fc;
+            }
+
+            &.status-processed_prod {
+              background: #fdf2f8;
+              color: #f9a8d4;
+            }
+
+            &.status-to_validate {
+              background: #fefce8;
+              color: #fde047;
+            }
+
+            &.status-validated {
+              background: #f0fdf4;
+              color: #bef264;
+            }
+
+            &.status-cancelled {
+              background: #f3f4f6;
+              color: #a3a3a3;
+            }
+
+            &.status-to_timer {
+              background: #faf5ff;
+              color: #e9d5ff;
             }
 
             &.status-done {
-              background: #d1fae5;
-              color: #10b981;
+              background: #f0fdf4;
+              color: #a3e635;
             }
 
             &.status-blocked {
-              background: #fee2e2;
-              color: #ef4444;
+              background-color: #f22121;
+              color: $white;
             }
           }
 

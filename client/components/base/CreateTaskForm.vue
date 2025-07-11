@@ -5,20 +5,9 @@
         <X />
       </div>
       <div class="right">
-        <MarkCompletedButton 
-          v-model="form.status" 
-          @completed="handleTaskCompleted"
-          :disabled="!taskId"
-        />
-        <TaskActionsMenu 
-          v-if="taskId"
-          :task-id="taskId"
-          @share="handleShare"
-          @duplicate="handleDuplicate"
-          @export="handleExport"
-          @archive="handleArchive"
-          @delete="handleDelete"
-        />
+        <!-- <MarkCompletedButton v-model="form.status" @completed="handleTaskCompleted" :disabled="!taskId" /> -->
+        <TaskActionsMenu v-if="taskId" :task-id="taskId" @share="handleShare" @duplicate="handleDuplicate"
+          @export="handleExport" @archive="handleArchive" @delete="handleDelete" />
         <EllipsisVertical v-else />
       </div>
     </div>
@@ -39,13 +28,9 @@
 
       <StatusSelector v-model="form.status" />
 
-      <TimeSelector 
-        v-model="form.duration" 
-        label="Durée estimée"
-        :show-timezone="false"
-      />
+      <TimeSelector v-model="form.duration" label="Durée estimée" :show-timezone="false" />
 
-      <UserSelector v-model="createdBy" :users="[currentUser]" label="Créé par" :disabled="true" />
+      <!-- <UserSelector v-model="createdBy" :users="[currentUser]" label="Créé par" :disabled="true" /> -->
 
       <div class="task-nav">
         <div v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
@@ -99,8 +84,8 @@
         </div>
 
         <!-- Messages d'erreur/succès -->
-        <div v-if="error" class="error-message">{{ error }}</div>
-        <div v-if="success" class="success-message">{{ success }}</div>
+        <!-- <div v-if="error" class="error-message">{{ error }}</div>
+        <div v-if="success" class="success-message">{{ success }}</div> -->
 
         <button @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
           <span v-if="loading">
@@ -188,6 +173,18 @@ const mockFiles = ref([
   }
 ]);
 
+const loadTaskData = (task) => {
+  Object.assign(form, {
+    name: task.name || '',
+    description: task.description || '',
+    duration: task.duration || null,
+    assigned_to_id: task.assigned_to_id || null,
+    start_date: task.start_date || null,
+    priority: task.priority || 'medium',
+    status: task.status || 'todo'
+  });
+};
+
 // Charger les données initiales
 onMounted(async () => {
   await loadUsers();
@@ -217,17 +214,7 @@ const loadUsers = async () => {
   }
 };
 
-const loadTaskData = (task) => {
-  Object.assign(form, {
-    name: task.name || '',
-    description: task.description || '',
-    duration: task.duration || null,
-    assigned_to_id: task.assigned_to_id || null,
-    start_date: task.start_date || null,
-    priority: task.priority || 'medium',
-    status: task.status || 'todo'
-  });
-};
+
 
 const handleSubmit = async () => {
   if (!form.name.trim()) {
@@ -304,14 +291,14 @@ const handleFileUpload = () => {
   console.log('Upload de fichier à implémenter');
 };
 
-// Nouvelles méthodes pour les actions
-const handleTaskCompleted = (isCompleted) => {
-  if (isCompleted) {
-    success.value = 'Tâche marquée comme terminée !';
-  } else {
-    success.value = 'Tâche remise en cours !';
-  }
-};
+// // Nouvelles méthodes pour les actions
+// const handleTaskCompleted = (isCompleted) => {
+//   if (isCompleted) {
+//     success.value = 'Tâche marquée comme terminée !';
+//   } else {
+//     success.value = 'Tâche remise en cours !';
+//   }
+// };
 
 const handleShare = (taskId) => {
   success.value = 'Lien de la tâche copié dans le presse-papiers !';
@@ -343,6 +330,7 @@ const handleDelete = (taskId) => {
 
 .create-task {
   position: fixed;
+  color: $black;
   z-index: 100;
   top: 50%;
   left: 50%;
@@ -362,11 +350,17 @@ const handleDelete = (taskId) => {
     align-items: center;
     margin-bottom: 20px;
 
-    .left {
+    .left,
+    .right {
       cursor: pointer;
       padding: 8px;
+      width: 32px;
       border-radius: 4px;
       transition: background-color 0.2s;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
         background-color: #f3f4f6;
@@ -379,23 +373,10 @@ const handleDelete = (taskId) => {
       }
     }
 
-    .right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .left {
 
       svg {
-        width: 20px;
-        height: 20px;
-        stroke-width: 1.5;
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 4px;
-        transition: background-color 0.2s;
-
-        &:hover {
-          background-color: #f3f4f6;
-        }
+        stroke-width: 2;
       }
     }
   }
@@ -406,9 +387,6 @@ const handleDelete = (taskId) => {
     gap: 20px;
     transition: opacity 0.3s ease;
 
-    &.completed {
-      opacity: 0.4; // Effet d'opacité quand terminé
-    }
 
     .task-top {
       display: flex;
@@ -429,7 +407,7 @@ const handleDelete = (taskId) => {
       transition: border-color 0.2s;
 
       &:focus {
-        border-bottom-color: #3b82f6;
+        border-bottom-color: $lightBlue;
       }
 
       &::placeholder {
@@ -492,7 +470,7 @@ const handleDelete = (taskId) => {
 
         &:focus {
           outline: none;
-          border-color: #3b82f6;
+          border-color: $lightBlue;
           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
       }
@@ -583,7 +561,7 @@ const handleDelete = (taskId) => {
                   cursor: pointer;
 
                   &:hover {
-                    color: #3b82f6;
+                    color: $lightBlue;
                   }
                 }
               }
@@ -602,7 +580,7 @@ const handleDelete = (taskId) => {
             min-width: 72px;
 
             &:hover {
-              border-color: #3b82f6;
+              border-color: $lightBlue;
               background-color: #f8fafc;
             }
 

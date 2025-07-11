@@ -7,12 +7,12 @@
         <button @click="previousWeek" class="nav-button">
           <ChevronLeft />
         </button>
-        
+
         <div class="week-display">
           <span class="week-text">{{ weekDisplayText }}</span>
           <span v-if="isCurrentWeek" class="current-week-indicator">Actuelle</span>
         </div>
-        
+
         <button @click="nextWeek" class="nav-button">
           <ChevronRight />
         </button>
@@ -31,7 +31,10 @@
               <span v-if="day.isOff" class="bar-text">OFF</span>
             </div>
           </div>
-          <span class="day-label">{{ day.name }}</span>
+          <div class="day-info">
+            <span class="day-label">{{ day.name }}</span>
+            <span v-if="day.isToday" class="today-indicator">Aujourd'hui</span>
+          </div>
         </div>
       </div>
 
@@ -47,15 +50,11 @@
 <script setup>
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useAuthStore } from '~/stores/auth'
-
-const authStore = useAuthStore()
 
 const tasks = ref([])
 const isLoading = ref(true)
 let refreshInterval = null
 
-// État pour la semaine sélectionnée
 const selectedWeek = ref(new Date())
 
 const daysOfWeek = [
@@ -66,14 +65,14 @@ const daysOfWeek = [
   { name: 'Vendredi', index: 5 }
 ]
 
-// Fonctions utilitaires pour les dates
 const getWeekStart = (date) => {
   const d = new Date(date)
   const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1) // Ajuster pour que lundi soit le début
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1) // on commence le lundi
   const weekStart = new Date(d)
   weekStart.setDate(diff)
   weekStart.setHours(0, 0, 0, 0)
+
   return weekStart
 }
 
@@ -82,6 +81,7 @@ const getWeekEnd = (date) => {
   const weekEnd = new Date(weekStart)
   weekEnd.setDate(weekStart.getDate() + 6)
   weekEnd.setHours(23, 59, 59, 999)
+
   return weekEnd
 }
 
@@ -95,7 +95,6 @@ const isInCurrentWeek = (taskDate) => {
   return task >= weekStart && task <= weekEnd
 }
 
-// Fonctions de navigation
 const previousWeek = () => {
   const newWeek = new Date(selectedWeek.value)
   newWeek.setDate(newWeek.getDate() - 7)
@@ -108,11 +107,8 @@ const nextWeek = () => {
   selectedWeek.value = newWeek
 }
 
-const goToCurrentWeek = () => {
-  selectedWeek.value = new Date()
-}
 
-// Texte d'affichage de la semaine
+
 const weekDisplayText = computed(() => {
   const weekStart = getWeekStart(selectedWeek.value)
   const weekEnd = getWeekEnd(selectedWeek.value)
@@ -127,13 +123,11 @@ const weekDisplayText = computed(() => {
   return `${formatDate(weekStart)} - ${formatDate(weekEnd)}`
 })
 
-// Vérifier si on est sur la semaine actuelle
 const isCurrentWeek = computed(() => {
   const today = new Date()
   const currentWeekStart = getWeekStart(today)
   const selectedWeekStart = getWeekStart(selectedWeek.value)
 
-  // Comparer les dates normalisées (début de semaine)
   const currentWeekStartTime = currentWeekStart.getTime()
   const selectedWeekStartTime = selectedWeekStart.getTime()
 
@@ -143,12 +137,10 @@ const isCurrentWeek = computed(() => {
 const tasksByDay = computed(() => {
   const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
 
-  // Filtrer uniquement les tâches "À faire" et "En cours"
-  const validStatuses = ['todo', 'not_started', 'in_progress']
+  const validStatuses = ['todo', 'in_progress', 'waiting_for_info', 'blocked', 'to_validate', 'to_timer']
 
   tasks.value.forEach(task => {
     if (task.start_date && validStatuses.includes(task.status)) {
-      // Vérifier si la tâche est dans la semaine sélectionnée
       if (isInCurrentWeek(task.start_date)) {
         const startDate = new Date(task.start_date)
         const dayOfWeek = startDate.getDay()
@@ -170,14 +162,13 @@ const maxValue = computed(() => {
 
 const yAxisTicks = computed(() => {
   if (maxValue.value === 0) {
-    return [] // Pas de ticks si pas de tâches
+    return []
   }
 
   const max = maxValue.value
   let step = 1
   let tickMax = max
 
-  // Logique adaptative pour le pas et la valeur max
   if (max <= 5) {
     step = 1
     tickMax = max
@@ -210,16 +201,21 @@ const chartMaxValue = computed(() => {
 })
 
 const chartData = computed(() => {
+  const today = new Date()
+  const todayDayOfWeek = today.getDay()
+
   return daysOfWeek.map(day => {
     const count = tasksByDay.value[day.index]
     const height = chartMaxValue.value > 0 ? (count / chartMaxValue.value) * 100 : 0
     const isOff = count === 0 && day.index === 5
+    const isToday = isCurrentWeek.value && day.index === todayDayOfWeek
 
     return {
       name: day.name,
       count,
       height: height || (isOff ? 100 : 0),
-      isOff
+      isOff,
+      isToday
     }
   })
 })
@@ -294,6 +290,7 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 12px;
+  height: 35px;
 }
 
 .nav-button {
@@ -321,6 +318,8 @@ defineExpose({
   }
 }
 
+
+
 .week-display {
   min-width: 120px;
   text-align: center;
@@ -334,8 +333,8 @@ defineExpose({
 
 .current-week-indicator {
   display: block;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 600;
   color: $blue;
   margin-top: 2px;
   text-transform: uppercase;
@@ -428,14 +427,33 @@ defineExpose({
   white-space: nowrap;
 }
 
-.day-label {
-  font-size: 14px;
-  color: #6b7280;
+.day-info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 4px;
   text-align: center;
 }
 
+.day-label {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.today-indicator {
+  position: absolute;
+  font-size: 10px;
+  font-weight: 600;
+  color: $blue;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  bottom: -15px;
+}
+
 .y-axis {
+  width: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

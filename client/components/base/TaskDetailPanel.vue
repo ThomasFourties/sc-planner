@@ -161,7 +161,7 @@
           <span class="collaborators-label">Collaborateurs</span>
           <div class="collaborators-list">
             <div class="collaborator-avatar" style="background-color: #ef4444;"></div>
-            <div class="collaborator-avatar" style="background-color: #3b82f6;"></div>
+            <div class="collaborator-avatar" style="background-color: $lightBlue;"></div>
             <div class="collaborator-avatar" style="background-color: #10b981;"></div>
           </div>
         </div>
@@ -294,7 +294,7 @@ onBeforeUnmount(() => {
   transition: border-color 0.2s;
   
   &:focus {
-    border-bottom-color: #3b82f6;
+    border-bottom-color: $lightBlue;
   }
 }
 
@@ -360,7 +360,7 @@ onBeforeUnmount(() => {
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: $lightBlue;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
   
@@ -397,7 +397,7 @@ onBeforeUnmount(() => {
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: $lightBlue;
   }
 }
 
@@ -412,7 +412,7 @@ onBeforeUnmount(() => {
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: $lightBlue;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 }
@@ -491,7 +491,7 @@ onBeforeUnmount(() => {
 
 .save-btn {
   padding: 12px 24px;
-  background-color: #3b82f6;
+  background-color: $lightBlue;
   color: white;
   border: none;
   border-radius: 6px;

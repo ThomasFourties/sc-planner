@@ -74,9 +74,9 @@
           <div class="header-cell project-cell">
             <span>Projets</span>
           </div>
-          <div class="header-cell actions-cell">
+          <!-- <div class="header-cell actions-cell">
             <span>Actions</span>
-          </div>
+          </div> -->
         </div>
 
         <!-- Contenu scrollable -->
@@ -114,7 +114,6 @@
             <div class="task-cell creator-cell">
               <div class="user-info">
                 <div class="name">{{ task.created_by.first_name }} {{ task.created_by.last_name }}</div>
-                <div class="email">{{ task.created_by.email }}</div>
               </div>
             </div>
 
@@ -139,7 +138,7 @@
             </div>
 
             <!-- Actions -->
-            <div class="task-cell actions-cell">
+            <!-- <div class="task-cell actions-cell">
               <div class="actions-group">
                 <button @click="editTask(task)" class="edit-btn" title="Modifier">
                   ✏️
@@ -148,7 +147,7 @@
                   🗑️
                 </button>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -176,6 +175,21 @@ const loadingTasks = ref(true);
 const sortByField = ref('created_at');
 const sortOrder = ref('asc'); // 'asc' ou 'desc'
 
+// Ordre des statuts pour le tri
+const statusOrder = {
+  'todo': 1,
+  'in_progress': 2,
+  'waiting_for_info': 3,
+  'blocked': 4,
+  'cancelled': 5,
+  'to_validate': 6,
+  'validated': 7,
+  'to_timer': 8,
+  'processed_prod': 9,
+  'processed_preprod': 10,
+  'done': 11
+};
+
 // Tâches triées
 const sortedTasks = computed(() => {
   if (tasks.value.length === 0) return [];
@@ -190,8 +204,8 @@ const sortedTasks = computed(() => {
         bValue = b.name?.toLowerCase() || '';
         break;
       case 'status':
-        aValue = a.status || '';
-        bValue = b.status || '';
+        aValue = statusOrder[a.status] || 999;
+        bValue = statusOrder[b.status] || 999;
         break;
       case 'created_by':
         aValue = `${a.created_by?.first_name || ''} ${a.created_by?.last_name || ''}`.toLowerCase();
@@ -271,10 +285,16 @@ const onTaskDeleted = (taskId) => {
 const getStatusText = (status) => {
   const statuses = {
     'todo': 'À faire',
-    'not_started': 'Non commencé',
     'in_progress': 'En cours',
-    'done': 'Terminé',
-    'blocked': 'Bloqué'
+    'waiting_for_info': 'En attente d\'informations',
+    'blocked': 'Bloqué',
+    'cancelled': 'Annulé',
+    'to_validate': 'À valider',
+    'validated': 'Validé',
+    'to_timer': 'À timer',
+    'processed_prod': 'Traité en prod',
+    'processed_preprod': 'Traité en préprod',
+    'done': 'Terminé'
   };
   return statuses[status] || status;
 };
@@ -364,7 +384,7 @@ onMounted(() => {
 
 .tasks-header {
   display: grid;
-  grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 0.8fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   background-color: #f8f9fa;
   border-bottom: 2px solid #dee2e6;
@@ -430,7 +450,8 @@ onMounted(() => {
 
 .task-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 0.8fr;
+  // grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 0.8fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   padding: 0 12px;
   border-bottom: 1px solid #dee2e6;
@@ -528,16 +549,20 @@ onMounted(() => {
     font-size: 12px;
     margin-top: 2px;
 
+    &.priority-urgent {
+      color: #f87171;
+    }
+
     &.priority-high {
-      color: #dc3545;
+      color: #fb923c;
     }
 
     &.priority-medium {
-      color: #ffc107;
+      color: #facc15;
     }
 
     &.priority-low {
-      color: #28a745;
+      color: #86efac;
     }
   }
 
@@ -550,7 +575,8 @@ onMounted(() => {
   .description {
     font-size: 12px;
     color: #6c757d;
-    max-width: 200px;
+    // max-width: 200px;
+    max-width: 330px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -564,29 +590,59 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 500;
 
-  &.status-todo {
-    background-color: #fff3cd;
-    color: #856404;
-  }
-
-  &.status-not_started {
-    background-color: #f8d7da;
-    color: #721c24;
-  }
-
-  &.status-in_progress {
-    background-color: #cce5ff;
-    color: #004085;
-  }
-
-  &.status-done {
-    background-color: #d1ecf1;
-    color: #0c5460;
+  &.status-waiting_for_info {
+    background-color: #f87171;
+    color: white;
   }
 
   &.status-blocked {
-    background-color: #f5c6cb;
-    color: #721c24;
+    background-color: #f22121;
+    color: white;
+  }
+
+  &.status-todo {
+    background-color: #fb923c;
+    color: white;
+  }
+
+  &.status-in_progress {
+    background-color: #d97706;
+    color: white;
+  }
+
+  &.status-processed_preprod {
+    background-color: #7dd3fc;
+    color: #0c4a6e;
+  }
+
+  &.status-processed_prod {
+    background-color: #f9a8d4;
+    color: #831843;
+  }
+
+  &.status-to_validate {
+    background-color: #fde047;
+    color: #713f12;
+  }
+
+  &.status-validated {
+    background-color: #bef264;
+    color: #365314;
+  }
+
+  &.status-cancelled {
+    background-color: #a3a3a3;
+    color: white;
+  }
+
+  &.status-to_timer {
+    background-color: #e9d5ff;
+    color: #581c87;
+  }
+
+  &.status-done {
+    background-color: #a3e635;
+    color: #365314;
   }
 }
 

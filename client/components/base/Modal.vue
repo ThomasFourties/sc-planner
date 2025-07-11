@@ -63,6 +63,7 @@ const closeOnOverlay = () => {
   max-width: 1240px;
   width: 90%;
   max-height: 90vh;
+  height: fit-content;
   overflow: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
