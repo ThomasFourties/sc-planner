@@ -44,6 +44,13 @@ export class TasksService {
     return task;
   }
 
+  async findById(id: string): Promise<Task | null> {
+    return await this.tasksRepository.findOne({
+      where: { id },
+      relations: ['assigned_to', 'created_by', 'dependency'],
+    });
+  }
+
   async findByUser(userId: string): Promise<Task[]> {
     return await this.tasksRepository.find({
       where: { assigned_to_id: userId },

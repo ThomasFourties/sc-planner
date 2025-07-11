@@ -24,7 +24,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
     return;
   }
 
-  const createdBy = users[0];
+  const createdBy = [users[0], users[1], users[2], users[3], users[4]];
   const assignedTo = users[1];
 
   // Créer quelques tâches de test
@@ -35,7 +35,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       duration: 8,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-15'),
       end_date: new Date('2025-01-17'),
@@ -46,7 +46,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.TODO,
       priority: TaskPriority.MEDIUM,
       duration: 6,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-18'),
       end_date: new Date('2025-01-20'),
@@ -57,7 +57,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.TO_VALIDATE,
       priority: TaskPriority.LOW,
       duration: 4,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-22'),
       end_date: new Date('2025-01-23'),
@@ -68,7 +68,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.VALIDATED,
       priority: TaskPriority.MEDIUM,
       duration: 2,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-10'),
       end_date: new Date('2025-01-10'),
@@ -79,7 +79,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.WAITING_FOR_INFO,
       priority: TaskPriority.URGENT,
       duration: 3,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-25'),
       end_date: new Date('2025-01-25'),
@@ -90,7 +90,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.PROCESSED_PREPROD,
       priority: TaskPriority.HIGH,
       duration: 5,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-12'),
       end_date: new Date('2025-01-14'),
@@ -101,7 +101,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.PROCESSED_PROD,
       priority: TaskPriority.MEDIUM,
       duration: 4,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-28'),
       end_date: new Date('2025-01-30'),
@@ -112,7 +112,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.CANCELLED,
       priority: TaskPriority.LOW,
       duration: 6,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-05'),
       end_date: new Date('2025-01-07'),
@@ -123,7 +123,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.TO_TIMER,
       priority: TaskPriority.HIGH,
       duration: 8,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-02-01'),
       end_date: new Date('2025-02-03'),
@@ -134,7 +134,7 @@ export async function seedTasks(dataSource: DataSource): Promise<void> {
       status: TaskStatus.DONE,
       priority: TaskPriority.MEDIUM,
       duration: 3,
-      created_by_id: createdBy.id,
+      created_by_id: createdBy[Math.floor(Math.random() * createdBy.length)].id,
       assigned_to_id: assignedTo?.id,
       start_date: new Date('2025-01-08'),
       end_date: new Date('2025-01-08'),
