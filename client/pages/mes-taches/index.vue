@@ -1,24 +1,31 @@
 <template>
   <div class="tasks-page">
     <div class="header">
-      <button @click="uiStore.toggleTaskForm()" class="toggle-form-btn">
-        <Plus />
-        Ajouter une tâche
-      </button>
+      <div class="header-actions">
+        <button @click="uiStore.toggleTaskForm()" class="toggle-form-btn">
+          <Plus />
+          Ajouter une tâche
+        </button>
+        <button @click="showArchives" class="archives-btn">
+          <Archive />
+          Archives
+        </button>
+      </div>
     </div>
 
     <!-- Overlay -->
-    <Overlay :opacity="uiStore.isTaskFormVisible ? 1 : 0" @click="uiStore.closeTaskForm()" />
+    <Overlay :opacity="uiStore.isTaskFormVisible ? 1 : 0" @click="handleTaskFormClose" />
 
     <!-- Formulaire de création/modification -->
     <div v-if="uiStore.isTaskFormVisible" class="form-section">
       <CreateTaskForm 
+        ref="createTaskFormRef"
         :task-id="uiStore.isEditing ? uiStore.currentTask?.id : null"
         :initial-task="uiStore.currentTask"
         @task-created="onTaskCreated" 
         @task-updated="onTaskUpdated"
         @task-deleted="onTaskDeleted"
-        @close="uiStore.closeTaskForm()" 
+        @closeComplete="handleTaskFormComplete" 
       />
     </div>
 
@@ -156,7 +163,7 @@
 </template>
 
 <script setup>
-import { Plus, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-vue-next';
+import { Plus, ChevronUp, ChevronDown, ChevronsUpDown, Archive } from 'lucide-vue-next';
 import { ref, onMounted, computed } from 'vue';
 import { useUIStore } from '~/stores/ui';
 
@@ -170,6 +177,7 @@ const uiStore = useUIStore();
 // État
 const tasks = ref([]);
 const loadingTasks = ref(true);
+const createTaskFormRef = ref(null);
 
 // État du tri
 const sortByField = ref('created_at');
@@ -316,16 +324,30 @@ const editTask = (task) => {
 };
 
 const deleteTask = async (taskId) => {
-  if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
-    return;
-  }
-
   try {
     await $fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
     tasks.value = tasks.value.filter(task => task.id !== taskId);
   } catch (error) {
     alert('Erreur lors de la suppression de la tâche');
   }
+};
+
+const showArchives = () => {
+  // TODO: Implémenter la page des archives
+  console.log('Afficher les archives');
+};
+
+const handleTaskFormClose = async () => {
+  if (createTaskFormRef.value?.handleClose) {
+    await createTaskFormRef.value.handleClose();
+  } else {
+    uiStore.closeTaskForm();
+  }
+};
+
+const handleTaskFormComplete = () => {
+  // Cette fonction est appelée quand l'auto-sauvegarde est terminée
+  uiStore.closeTaskForm();
 };
 
 // Chargement initial
@@ -345,13 +367,38 @@ onMounted(() => {
 
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-bottom: 30px;
 
-  h1 {
-    margin: 0;
-    color: #333;
+  .header-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .archives-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #4b5563;
+      // transform: translateY(-1px);
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 

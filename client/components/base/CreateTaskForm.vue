@@ -1,7 +1,7 @@
 <template>
   <div class="create-task">
     <div class="task-header">
-      <div class="left" @click="$emit('close')">
+      <div class="left" @click="handleClose">
         <X />
       </div>
       <div class="right">
@@ -84,15 +84,24 @@
         </div>
 
         <!-- Messages d'erreur/succès -->
-        <!-- <div v-if="error" class="error-message">{{ error }}</div>
-        <div v-if="success" class="success-message">{{ success }}</div> -->
+        <div v-if="error" class="error-message">{{ error }}</div>
+        <div v-if="success" class="success-message">{{ success }}</div>
 
-        <button @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
+        <button v-if="!taskId" @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
           <span v-if="loading">
-            {{ taskId ? 'Modification...' : 'Création...' }}
+            Création...
           </span>
           <span v-else>
-            {{ taskId ? 'Modifier la tâche' : 'Créer la tâche' }}
+            Créer la tâche
+          </span>
+        </button>
+        
+        <button v-else @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
+          <span v-if="loading">
+            Modification...
+          </span>
+          <span v-else>
+            Enregistrer les modifications
           </span>
         </button>
       </div>
@@ -125,7 +134,7 @@ const props = defineProps({
 });
 
 // Émissions
-const emit = defineEmits(['taskCreated', 'taskUpdated', 'close', 'taskDeleted']);
+const emit = defineEmits(['taskCreated', 'taskUpdated', 'closeComplete', 'taskDeleted']);
 
 // Stores
 const authStore = useAuthStore();
@@ -229,9 +238,11 @@ const handleSubmit = async () => {
   try {
     const taskData = { ...form };
 
-    // Nettoyer les champs vides
-    if (!taskData.duration) taskData.duration = 0;
-    if (!taskData.assigned_to_id) delete taskData.assigned_to_id;
+    // Nettoyer les champs vides (mais garder les valeurs null explicites)
+    if (taskData.duration === null || taskData.duration === undefined || taskData.duration === '') {
+      taskData.duration = 0;
+    }
+    // Ne pas supprimer assigned_to_id car null est une valeur valide (pas d'assignation)
     if (!taskData.start_date) delete taskData.start_date;
     if (!taskData.description) delete taskData.description;
 
@@ -262,12 +273,22 @@ const handleSubmit = async () => {
 
     // Fermer la modal après création/modification
     setTimeout(() => {
-      emit('close');
+      emit('closeComplete');
     }, 1000);
 
   } catch (err) {
-    error.value = err.data?.message || err.message ||
-      `Erreur lors de la ${props.taskId ? 'modification' : 'création'} de la tâche`;
+    console.error('Erreur détaillée:', err);
+    let errorMessage = `Erreur lors de la ${props.taskId ? 'modification' : 'création'} de la tâche`;
+    
+    if (err.data?.message) {
+      errorMessage = Array.isArray(err.data.message) ? err.data.message.join(', ') : err.data.message;
+    } else if (err.statusMessage && typeof err.statusMessage === 'string') {
+      errorMessage = err.statusMessage;
+    } else if (err.message && typeof err.message === 'string') {
+      errorMessage = err.message;
+    }
+    
+    error.value = errorMessage;
   } finally {
     loading.value = false;
   }
@@ -321,8 +342,64 @@ const handleArchive = (taskId) => {
 
 const handleDelete = (taskId) => {
   emit('taskDeleted', taskId);
-  emit('close');
+  emit('closeComplete');
 };
+
+const handleClose = async () => {
+  if (!form.name.trim()) return emit('closeComplete');
+
+  if (props.taskId) {
+    await autoSave();
+  } else {
+    await handleSubmit();
+  }
+
+  emit('closeComplete');
+};
+
+const autoSave = async () => {
+  try {
+    const taskData = { ...form };
+
+    // Nettoyer les champs vides (mais garder les valeurs null explicites)
+    if (taskData.duration === null || taskData.duration === undefined || taskData.duration === '') {
+      taskData.duration = 0;
+    }
+    // Ne pas supprimer assigned_to_id car null est une valeur valide (pas d'assignation)
+    if (!taskData.start_date) delete taskData.start_date;
+    if (!taskData.description) delete taskData.description;
+
+    // 1. Mettre à jour la tâche
+    await $fetch(`/api/tasks/${props.taskId}`, {
+      method: 'PUT',
+      body: taskData,
+    });
+
+    // 2. Récupérer la tâche complète avec les relations
+    const updatedTask = await $fetch(`/api/tasks/${props.taskId}`);
+
+    emit('taskUpdated', updatedTask);
+  } catch (err) {
+    console.error('Erreur lors de la sauvegarde automatique:', err);
+    
+    // Gestion d'erreur améliorée
+    let errorMessage = 'Erreur lors de la sauvegarde automatique';
+    if (err.data?.message) {
+      errorMessage = Array.isArray(err.data.message) ? err.data.message.join(', ') : err.data.message;
+    } else if (err.statusMessage && typeof err.statusMessage === 'string') {
+      errorMessage = err.statusMessage;
+    } else if (err.message && typeof err.message === 'string') {
+      errorMessage = err.message;
+    }
+    
+    error.value = errorMessage;
+  }
+};
+
+// Exposer les méthodes pour les refs parent
+defineExpose({
+  handleClose
+});
 </script>
 
 <style scoped lang="scss">
