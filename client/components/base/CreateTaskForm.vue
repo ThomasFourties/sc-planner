@@ -83,29 +83,42 @@
           </div>
         </div>
 
+        <!-- Créé par -->
+        <div v-if="taskId && initialTask?.created_by" class="created-by-section">
+          <div class="created-by-info">
+            <div class="user-avatar"></div>
+            <div class="user-details">
+              <div class="user-name">{{ initialTask.created_by.first_name }} {{ initialTask.created_by.last_name }}</div>
+              <div class="created-label">Créé par</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Messages d'erreur/succès -->
         <div v-if="error" class="error-message">{{ error }}</div>
         <div v-if="success" class="success-message">{{ success }}</div>
 
-        <button v-if="!taskId" @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
-          <span v-if="loading">
-            Création...
-          </span>
-          <span v-else>
-            Créer la tâche
-          </span>
+        <button v-if="!taskId" @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn btn">
+          Créer la tâche
         </button>
-        
-        <button v-else @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
-          <span v-if="loading">
-            Modification...
-          </span>
-          <span v-else>
-            Enregistrer les modifications
-          </span>
-        </button>
+
+        <!-- <button v-else @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn btn">
+          Enregistrer les modifications
+        </button> -->
       </div>
     </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <ConfirmModal
+      :is-visible="showDeleteConfirm"
+      title="Supprimer la tâche"
+      message="Êtes-vous sûr de vouloir supprimer cette tâche ? Cette action est irréversible."
+      confirm-text="Supprimer"
+      cancel-text="Annuler"
+      :is-danger="true"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
@@ -120,6 +133,7 @@ import DateSelector from '~/components/form/DateSelector.vue';
 import TimeSelector from '~/components/form/TimeSelector.vue';
 import TaskActionsMenu from '~/components/form/TaskActionsMenu.vue';
 import MarkCompletedButton from '~/components/form/MarkCompletedButton.vue';
+import ConfirmModal from '~/components/base/ConfirmModal.vue';
 
 // Props
 const props = defineProps({
@@ -159,6 +173,10 @@ const users = ref([]);
 const activeTab = ref('description');
 const createdBy = ref(null);
 
+// État de la modal de confirmation
+const showDeleteConfirm = ref(false);
+const taskToDelete = ref(null);
+
 // Configuration des onglets
 const tabs = [
   { id: 'description', label: 'Description' },
@@ -166,21 +184,21 @@ const tabs = [
   { id: 'history', label: 'Historique' }
 ];
 
-// Mock files (à remplacer par la vraie logique d'upload)
-const mockFiles = ref([
-  {
-    id: 1,
-    name: 'Guidelines.pdf',
-    type: 'PDF',
-    thumbnail: 'https://picsum.photos/40/40?random=1'
-  },
-  {
-    id: 2,
-    name: 'Screenshot.png',
-    type: 'PNG',
-    thumbnail: 'https://picsum.photos/40/40?random=2'
-  }
-]);
+// // Mock files (à remplacer par la vraie logique d'upload)
+// const mockFiles = ref([
+//   {
+//     id: 1,
+//     name: 'Guidelines.pdf',
+//     type: 'PDF',
+//     thumbnail: 'https://picsum.photos/40/40?random=1'
+//   },
+//   {
+//     id: 2,
+//     name: 'Screenshot.png',
+//     type: 'PNG',
+//     thumbnail: 'https://picsum.photos/40/40?random=2'
+//   }
+// ]);
 
 const loadTaskData = (task) => {
   Object.assign(form, {
@@ -258,7 +276,6 @@ const handleSubmit = async () => {
         body: taskData,
       });
 
-      success.value = 'Tâche modifiée avec succès !';
       emit('taskUpdated', result);
     } else {
       // Création d'une nouvelle tâche
@@ -267,22 +284,19 @@ const handleSubmit = async () => {
         body: taskData,
       });
 
-      success.value = 'Tâche créée avec succès !';
       emit('taskCreated', result);
 
       // Réinitialiser le formulaire pour une nouvelle création
       resetForm();
     }
 
-    // Fermer la modal après création/modification
-    setTimeout(() => {
-      emit('closeComplete');
-    }, 1000);
+    // Fermer la modal immédiatement après création/modification
+    emit('closeComplete');
 
   } catch (err) {
     console.error('Erreur détaillée:', err);
     let errorMessage = `Erreur lors de la ${props.taskId ? 'modification' : 'création'} de la tâche`;
-    
+
     if (err.data?.message) {
       errorMessage = Array.isArray(err.data.message) ? err.data.message.join(', ') : err.data.message;
     } else if (err.statusMessage && typeof err.statusMessage === 'string') {
@@ -290,7 +304,7 @@ const handleSubmit = async () => {
     } else if (err.message && typeof err.message === 'string') {
       errorMessage = err.message;
     }
-    
+
     error.value = errorMessage;
   } finally {
     loading.value = false;
@@ -344,8 +358,34 @@ const handleArchive = (taskId) => {
 };
 
 const handleDelete = (taskId) => {
-  emit('taskDeleted', taskId);
-  emit('closeComplete');
+  taskToDelete.value = taskId;
+  showDeleteConfirm.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!taskToDelete.value) return;
+
+  try {
+    loading.value = true;
+    await $fetch(`/api/tasks/${taskToDelete.value}`, { 
+      method: 'DELETE' 
+    });
+    
+    emit('taskDeleted', taskToDelete.value);
+    emit('closeComplete');
+  } catch (err) {
+    console.error('Erreur lors de la suppression:', err);
+    error.value = 'Erreur lors de la suppression de la tâche';
+  } finally {
+    loading.value = false;
+    showDeleteConfirm.value = false;
+    taskToDelete.value = null;
+  }
+};
+
+const cancelDelete = () => {
+  showDeleteConfirm.value = false;
+  taskToDelete.value = null;
 };
 
 const handleClose = async () => {
@@ -387,7 +427,7 @@ const autoSave = async () => {
     emit('taskUpdated', updatedTask);
   } catch (err) {
     console.error('Erreur lors de la sauvegarde automatique:', err);
-    
+
     // Gestion d'erreur améliorée
     let errorMessage = 'Erreur lors de la sauvegarde automatique';
     if (err.data?.message) {
@@ -397,7 +437,7 @@ const autoSave = async () => {
     } else if (err.message && typeof err.message === 'string') {
       errorMessage = err.message;
     }
-    
+
     error.value = errorMessage;
   }
 };
@@ -677,6 +717,43 @@ defineExpose({
         }
       }
 
+      .created-by-section {
+        margin-top: 16px;
+
+        .created-by-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px;
+          background: #f8f9fa;
+          border-radius: 6px;
+          border: 1px solid #e9ecef;
+
+          .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            flex-shrink: 0;
+          }
+
+          .user-details {
+            .user-name {
+              font-size: 14px;
+              font-weight: 500;
+              color: #212529;
+              margin-bottom: 2px;
+            }
+
+            .created-label {
+              font-size: 12px;
+              color: #6c757d;
+              font-style: italic;
+            }
+          }
+        }
+      }
+
       .error-message {
         color: #dc2626;
         font-size: 14px;
@@ -697,20 +774,15 @@ defineExpose({
 
       .submit-btn {
         align-self: flex-end;
-        padding: 12px 24px;
-        background-color: $black;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        &:hover:not(:disabled) {
-          background-color: #374151;
-          transform: translateY(-1px);
-        }
+        // padding: 12px 24px;
+        // background-color: $black;
+        // color: white;
+        // border: none;
+        // border-radius: 6px;
+        // font-size: 14px;
+        // font-weight: 600;
+        // cursor: pointer;
+        // transition: all 0.2s;
 
         &:disabled {
           background-color: #9ca3af;

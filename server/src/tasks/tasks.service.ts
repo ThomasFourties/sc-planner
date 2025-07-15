@@ -53,7 +53,7 @@ export class TasksService {
 
   async findByUser(userId: string): Promise<Task[]> {
     return await this.tasksRepository.find({
-      where: { assigned_to_id: userId },
+      where: [{ assigned_to_id: userId }, { created_by_id: userId }],
       relations: ['assigned_to', 'created_by'],
       order: { created_at: 'DESC' },
     });

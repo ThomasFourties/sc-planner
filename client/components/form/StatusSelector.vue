@@ -133,9 +133,24 @@ onUnmounted(() => {
       border: 1px solid #e5e7eb;
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      // min-width: 140px;
       width: 185px;
       margin-top: 4px;
+      max-height: 250px;
+      overflow-y: auto;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #c0c3c6;
+        border-radius: 10px;
+      }
 
       .dropdown-item {
         display: flex;

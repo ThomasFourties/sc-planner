@@ -5,30 +5,30 @@
     </button>
 
     <div v-if="isOpen" class="dropdown-menu">
-      <div class="menu-item" @click="handleShare">
-        <Share2 :size="16" />
+      <div class="menu-item disabled" @click="handleShare">
+        <Share2 />
         <span>Partager</span>
       </div>
 
-      <div class="menu-item" @click="handleDuplicate">
-        <Copy :size="16" />
+      <div class="menu-item disabled" @click="handleDuplicate">
+        <Copy />
         <span>Dupliquer</span>
       </div>
 
-      <div class="menu-item" @click="handleExport">
-        <Download :size="16" />
+      <div class="menu-item disabled" @click="handleExport">
+        <Download />
         <span>Exporter</span>
       </div>
 
       <div class="menu-separator"></div>
 
-      <div class="menu-item" @click="handleArchive">
-        <Archive :size="16" />
+      <div class="menu-item disabled" @click="handleArchive">
+        <Archive />
         <span>Archiver</span>
       </div>
 
       <div class="menu-item danger" @click="handleDelete">
-        <Trash2 :size="16" />
+        <Trash2 />
         <span>Supprimer</span>
       </div>
     </div>
@@ -104,9 +104,7 @@ const handleArchive = () => {
 };
 
 const handleDelete = () => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
-    emit('delete', props.taskId);
-  }
+  emit('delete', props.taskId);
   closeMenu();
 };
 
@@ -199,8 +197,13 @@ onUnmounted(() => {
       font-size: 14px;
       font-weight: 500;
       color: #374151;
-      cursor: pointer;
+      // cursor: pointer;
       transition: all 0.2s;
+
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
       svg {
         width: 20px;

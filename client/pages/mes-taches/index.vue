@@ -6,10 +6,10 @@
           <Plus />
           Ajouter une tâche
         </button>
-        <button @click="showArchives" class="archives-btn">
+        <!-- <button @click="showArchives" class="archives-btn">
           <Archive />
           Archives
-        </button>
+        </button> -->
       </div>
     </div>
 
@@ -78,6 +78,14 @@
               <ChevronsUpDown v-else :size="14" />
             </div>
           </div>
+          <div class="header-cell priority-cell" @click="sortBy('priority')">
+            <span>Priorité</span>
+            <div class="sort-indicator" :class="getSortClass('priority')">
+              <ChevronUp v-if="sortByField === 'priority' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'priority' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
           <div class="header-cell project-cell">
             <span>Projets</span>
           </div>
@@ -98,10 +106,10 @@
           </div>
 
           <!-- Lignes des tâches -->
-          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row">
+          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row" @click="editTask(task)">
             <!-- Nom de la tâche -->
             <div class="task-cell name-cell">
-              <div class="task-info" @click="editTask(task)">
+              <div class="task-info">
                 <span class="task-icon" :class="`priority-${task.priority}`">●</span>
                 <div>
                   <div class="name">{{ task.name }}</div>
@@ -111,16 +119,31 @@
             </div>
 
             <!-- Statut -->
-            <div class="task-cell status-cell">
-              <span class="status-badge" :class="`status-${task.status}`">
-                {{ getStatusText(task.status) }}
-              </span>
+            <div class="task-cell status-cell" @click.stop>
+              <div class="status-dropdown" @click="toggleStatusDropdown(task.id, $event)" :ref="`status-dropdown-${task.id}`">
+                <span class="status-badge" :class="`status-${task.status}`">
+                  {{ getStatusText(task.status) }}
+                </span>
+                <div v-if="openStatusDropdown === task.id" class="status-dropdown-menu" :style="dropdownPosition">
+                  <div 
+                    v-for="status in availableStatuses" 
+                    :key="status.value"
+                    @click="updateTaskStatus(task, status.value)"
+                    class="status-dropdown-item"
+                    :class="`status-${status.value}`"
+                  >
+                    <div class="status-indicator" :class="`status-${status.value}`"></div>
+                    {{ status.label }}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Créé par -->
             <div class="task-cell creator-cell">
               <div class="user-info">
                 <div class="name">{{ task.created_by.first_name }} {{ task.created_by.last_name }}</div>
+                <div v-if="task.created_by.id === authStore.currentUser?.id" class="created-by-me">Créé par moi</div>
               </div>
             </div>
 
@@ -136,6 +159,27 @@
               </div>
               <div v-else class="no-date">
                 Non planifié
+              </div>
+            </div>
+
+            <!-- Priorité -->
+            <div class="task-cell priority-cell" @click.stop>
+              <div class="priority-dropdown" @click="togglePriorityDropdown(task.id, $event)" :ref="`priority-dropdown-${task.id}`">
+                <span class="priority-badge" :class="`priority-${task.priority}`">
+                  {{ getPriorityText(task.priority) }}
+                </span>
+                <div v-if="openPriorityDropdown === task.id" class="priority-dropdown-menu" :style="priorityDropdownPosition">
+                  <div 
+                    v-for="priority in availablePriorities" 
+                    :key="priority.value"
+                    @click="updateTaskPriority(task, priority.value)"
+                    class="priority-dropdown-item"
+                    :class="`priority-${priority.value}`"
+                  >
+                    <div class="priority-indicator" :class="`priority-${priority.value}`">●</div>
+                    {{ priority.label }}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -166,6 +210,7 @@
 import { Plus, ChevronUp, ChevronDown, ChevronsUpDown, Archive } from 'lucide-vue-next';
 import { ref, onMounted, computed } from 'vue';
 import { useUIStore } from '~/stores/ui';
+import { useAuthStore } from '~/stores/auth';
 
 definePageMeta({
   middleware: 'auth'
@@ -173,6 +218,7 @@ definePageMeta({
 
 // Store
 const uiStore = useUIStore();
+const authStore = useAuthStore();
 
 // État
 const tasks = ref([]);
@@ -182,6 +228,14 @@ const createTaskFormRef = ref(null);
 // État du tri
 const sortByField = ref('created_at');
 const sortOrder = ref('asc'); // 'asc' ou 'desc'
+
+// État du dropdown de statut
+const openStatusDropdown = ref(null);
+const dropdownPosition = ref({});
+
+// État du dropdown de priorité
+const openPriorityDropdown = ref(null);
+const priorityDropdownPosition = ref({});
 
 // Ordre des statuts pour le tri
 const statusOrder = {
@@ -197,6 +251,37 @@ const statusOrder = {
   'processed_preprod': 10,
   'done': 11
 };
+
+// Ordre des priorités pour le tri
+const priorityOrder = {
+  'low': 1,
+  'medium': 2,
+  'high': 3,
+  'urgent': 4
+};
+
+// Statuts disponibles
+const availableStatuses = [
+  { value: 'todo', label: 'À faire' },
+  { value: 'in_progress', label: 'En cours' },
+  { value: 'waiting_for_info', label: 'En attente d\'informations' },
+  { value: 'blocked', label: 'Bloqué' },
+  { value: 'cancelled', label: 'Annulé' },
+  { value: 'to_validate', label: 'À valider' },
+  { value: 'validated', label: 'Validé' },
+  { value: 'to_timer', label: 'À timer' },
+  { value: 'processed_prod', label: 'Traité en prod' },
+  { value: 'processed_preprod', label: 'Traité en préprod' },
+  { value: 'done', label: 'Terminé' }
+];
+
+// Priorités disponibles
+const availablePriorities = [
+  { value: 'low', label: 'Faible' },
+  { value: 'medium', label: 'Moyenne' },
+  { value: 'high', label: 'Élevée' },
+  { value: 'urgent', label: 'Urgente' }
+];
 
 // Tâches triées
 const sortedTasks = computed(() => {
@@ -214,6 +299,10 @@ const sortedTasks = computed(() => {
       case 'status':
         aValue = statusOrder[a.status] || 999;
         bValue = statusOrder[b.status] || 999;
+        break;
+      case 'priority':
+        aValue = priorityOrder[a.priority] || 999;
+        bValue = priorityOrder[b.priority] || 999;
         break;
       case 'created_by':
         aValue = `${a.created_by?.first_name || ''} ${a.created_by?.last_name || ''}`.toLowerCase();
@@ -307,14 +396,22 @@ const getStatusText = (status) => {
   return statuses[status] || status;
 };
 
+const getPriorityText = (priority) => {
+  const priorities = {
+    'low': 'Faible',
+    'medium': 'Moyenne',
+    'high': 'Élevée',
+    'urgent': 'Urgente'
+  };
+  return priorities[priority] || priority;
+};
+
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('fr-FR', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
   });
 };
 
@@ -328,13 +425,97 @@ const deleteTask = async (taskId) => {
     await $fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
     tasks.value = tasks.value.filter(task => task.id !== taskId);
   } catch (error) {
-    alert('Erreur lors de la suppression de la tâche');
+    console.error('Erreur lors de la suppression de la tâche:', error);
   }
 };
 
 const showArchives = () => {
   // TODO: Implémenter la page des archives
   console.log('Afficher les archives');
+};
+
+// Fonctions pour le dropdown de statut
+const toggleStatusDropdown = (taskId, event) => {
+  if (openStatusDropdown.value === taskId) {
+    openStatusDropdown.value = null;
+    return;
+  }
+
+  const target = event.currentTarget;
+  const rect = target.getBoundingClientRect();
+  
+  dropdownPosition.value = {
+    top: `${rect.bottom + 4}px`,
+    left: `${rect.left}px`
+  };
+  
+  openStatusDropdown.value = taskId;
+};
+
+const updateTaskStatus = async (task, newStatus) => {
+  if (task.status === newStatus) {
+    openStatusDropdown.value = null;
+    return;
+  }
+
+  try {
+    const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      body: { status: newStatus }
+    });
+    
+    // Mettre à jour la tâche dans la liste
+    const index = tasks.value.findIndex(t => t.id === task.id);
+    if (index !== -1) {
+      tasks.value[index] = { ...tasks.value[index], ...updatedTask };
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du statut:', error);
+  } finally {
+    openStatusDropdown.value = null;
+  }
+};
+
+// Fonctions pour le dropdown de priorité
+const togglePriorityDropdown = (taskId, event) => {
+  if (openPriorityDropdown.value === taskId) {
+    openPriorityDropdown.value = null;
+    return;
+  }
+
+  const target = event.currentTarget;
+  const rect = target.getBoundingClientRect();
+  
+  priorityDropdownPosition.value = {
+    top: `${rect.bottom + 4}px`,
+    left: `${rect.left}px`
+  };
+  
+  openPriorityDropdown.value = taskId;
+};
+
+const updateTaskPriority = async (task, newPriority) => {
+  if (task.priority === newPriority) {
+    openPriorityDropdown.value = null;
+    return;
+  }
+
+  try {
+    const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      body: { priority: newPriority }
+    });
+    
+    // Mettre à jour la tâche dans la liste
+    const index = tasks.value.findIndex(t => t.id === task.id);
+    if (index !== -1) {
+      tasks.value[index] = { ...tasks.value[index], ...updatedTask };
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la priorité:', error);
+  } finally {
+    openPriorityDropdown.value = null;
+  }
 };
 
 const handleTaskFormClose = async () => {
@@ -350,9 +531,24 @@ const handleTaskFormComplete = () => {
   uiStore.closeTaskForm();
 };
 
+// Fermer les dropdowns quand on clique à l'extérieur
+const handleClickOutside = (event) => {
+  if (!event.target.closest('.status-dropdown')) {
+    openStatusDropdown.value = null;
+  }
+  if (!event.target.closest('.priority-dropdown')) {
+    openPriorityDropdown.value = null;
+  }
+};
+
 // Chargement initial
 onMounted(() => {
   loadTasks();
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -380,20 +576,20 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 16px;
+    // padding: 10px 16px;
     background-color: #6b7280;
     color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
+    // border: none;
+    // border-radius: 6px;
+    // font-size: 14px;
+    // font-weight: 500;
+    // cursor: pointer;
+    // transition: all 0.2s;
 
-    &:hover {
-      background-color: #4b5563;
-      // transform: translateY(-1px);
-    }
+    // &:hover {
+    //   background-color: #4b5563;
+    //   // transform: translateY(-1px);
+    // }
 
     svg {
       width: 16px;
@@ -431,7 +627,7 @@ onMounted(() => {
 
 .tasks-header {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   background-color: #f8f9fa;
   border-bottom: 2px solid #dee2e6;
@@ -497,17 +693,18 @@ onMounted(() => {
 
 .task-row {
   display: grid;
-  // grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 0.8fr;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   padding: 0 12px;
   border-bottom: 1px solid #dee2e6;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   min-height: 60px;
   align-items: center;
+  cursor: pointer;
 
   &:hover {
     background-color: #f8f9fa;
+    // transform: translateY(-2px);
   }
 
   &:last-child {
@@ -526,6 +723,119 @@ onMounted(() => {
 
 .status-cell {
   min-width: 120px;
+  position: relative;
+
+  .status-dropdown {
+    position: relative;
+    cursor: pointer;
+
+    .status-badge {
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .status-dropdown-menu {
+      position: fixed;
+      z-index: 9999;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 180px;
+      max-height: 250px;
+      overflow-y: auto;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #c0c3c6;
+        border-radius: 10px;
+      }
+
+      .status-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:first-child {
+          border-radius: 6px 6px 0 0;
+        }
+
+        &:last-child {
+          border-radius: 0 0 6px 6px;
+        }
+
+        &:hover {
+          background-color: #f3f4f6;
+        }
+
+        .status-indicator {
+          width: 8px;
+          height: 8px;
+          border-radius: 2px;
+
+          &.status-waiting_for_info {
+            background-color: #f87171;
+          }
+
+          &.status-blocked {
+            background-color: #f22121;
+          }
+
+          &.status-todo {
+            background-color: #fb923c;
+          }
+
+          &.status-in_progress {
+            background-color: #d97706;
+          }
+
+          &.status-processed_preprod {
+            background-color: #7dd3fc;
+          }
+
+          &.status-processed_prod {
+            background-color: #f9a8d4;
+          }
+
+          &.status-to_validate {
+            background-color: #fde047;
+          }
+
+          &.status-validated {
+            background-color: #bef264;
+          }
+
+          &.status-cancelled {
+            background-color: #a3a3a3;
+          }
+
+          &.status-to_timer {
+            background-color: #e9d5ff;
+          }
+
+          &.status-done {
+            background-color: #a3e635;
+          }
+        }
+      }
+    }
+  }
 }
 
 .creator-cell {
@@ -537,6 +847,93 @@ onMounted(() => {
   font-size: 14px;
   color: #495057;
   white-space: nowrap;
+}
+
+.priority-cell {
+  min-width: 100px;
+  position: relative;
+
+  .priority-dropdown {
+    position: relative;
+    cursor: pointer;
+
+    .priority-badge {
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .priority-dropdown-menu {
+      position: fixed;
+      z-index: 9999;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 140px;
+      max-height: 250px;
+      overflow-y: auto;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #c0c3c6;
+        border-radius: 10px;
+      }
+
+      .priority-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:first-child {
+          border-radius: 6px 6px 0 0;
+        }
+
+        &:last-child {
+          border-radius: 0 0 6px 6px;
+        }
+
+        &:hover {
+          background-color: #f3f4f6;
+        }
+
+        .priority-indicator {
+          font-size: 12px;
+
+          &.priority-low {
+            color: #86efac;
+          }
+
+          &.priority-medium {
+            color: #facc15;
+          }
+
+          &.priority-high {
+            color: #fb923c;
+          }
+
+          &.priority-urgent {
+            color: #f87171;
+          }
+        }
+      }
+    }
+  }
 }
 
 .project-cell {
@@ -585,12 +982,6 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 0.8;
-  }
 
   .task-icon {
     font-size: 12px;
@@ -623,7 +1014,8 @@ onMounted(() => {
     font-size: 12px;
     color: #6c757d;
     // max-width: 200px;
-    max-width: 330px;
+    // max-width: 330px;
+    max-width: 270px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -693,6 +1085,34 @@ onMounted(() => {
   }
 }
 
+.priority-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.priority-low {
+    background-color: #86efac;
+    color: #15803d;
+  }
+
+  &.priority-medium {
+    background-color: #fde047;
+    color: #a16207;
+  }
+
+  &.priority-high {
+    background-color: #fb923c;
+    color: white;
+  }
+
+  &.priority-urgent {
+    background-color: #f87171;
+    color: white;
+  }
+}
+
 .user-info {
   .name {
     font-weight: 500;
@@ -703,6 +1123,13 @@ onMounted(() => {
   .email {
     font-size: 12px;
     color: #6c757d;
+  }
+
+  .created-by-me {
+    font-size: 10px;
+    color: #9ca3af;
+    font-style: italic;
+    margin-top: 2px;
   }
 }
 
@@ -773,7 +1200,7 @@ onMounted(() => {
   }
 
   .tasks-header {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 0.6fr;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 0.8fr 0.6fr;
     gap: 8px;
     padding: 0 8px;
     min-height: 44px;
@@ -785,7 +1212,7 @@ onMounted(() => {
   }
 
   .task-row {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 0.6fr;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 0.8fr 0.6fr;
     gap: 8px;
     padding: 0 8px;
     min-height: 56px;
@@ -810,6 +1237,10 @@ onMounted(() => {
   .date-cell {
     min-width: 80px;
     font-size: 12px;
+  }
+
+  .priority-cell {
+    min-width: 70px;
   }
 
   .project-cell {

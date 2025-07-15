@@ -4,8 +4,15 @@ Composant Overlay
 Mes tâches
 - [x] Au clic sur le bouton "Ajouter une tâche", le composant CreateTaskForm doit apparaitre
 - [x] Possiblité de cliquer une tâche pour faire apparaitre le composant TaskDetailPanel (idem que le composant CreateTaskForm sauf champs modifiables)
-- [ ] Afficher la photo de profil de l'utilisateur créateur de la tâche
-- [x] Elenler la colonne action
+- [0] Afficher la photo de profil de l'utilisateur créateur de la tâche (plus tard)
+- [x] Enlever la colonne action
+- [x] Pouvoir changer le statut d'une tâche directement depuis la liste des tâches, pas besoin de cliquer sur la tâche
+- [x] Pouvoir cliquer sur toutes la tache pour ouvrir pas seulement sur le titre de la tache
+- [x] Mettre en place le vrai delete sans l'alert
+- [x] Mettre un petit label en dessous des fichiers crée par en gris
+- [x] Enlever le message tache créer en appuyant sur le bouton ajouter une tâche, de plus il faut fermer la modal
+- [x] Rajouter dans le tableau des tâches, la colonne "priorité"
+- [x] Rajouter le même style de la scrollbar wekbit du tableau taches aux listes des priorité, status, etc.
 
 Profil 
 - [ ] Afficher les informations du profil
