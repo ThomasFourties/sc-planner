@@ -241,6 +241,9 @@ const handleSubmit = async () => {
     // Nettoyer les champs vides (mais garder les valeurs null explicites)
     if (taskData.duration === null || taskData.duration === undefined || taskData.duration === '') {
       taskData.duration = 0;
+    } else {
+      // S'assurer que duration est un nombre
+      taskData.duration = Number(taskData.duration);
     }
     // Ne pas supprimer assigned_to_id car null est une valeur valide (pas d'assignation)
     if (!taskData.start_date) delete taskData.start_date;
@@ -364,6 +367,9 @@ const autoSave = async () => {
     // Nettoyer les champs vides (mais garder les valeurs null explicites)
     if (taskData.duration === null || taskData.duration === undefined || taskData.duration === '') {
       taskData.duration = 0;
+    } else {
+      // S'assurer que duration est un nombre
+      taskData.duration = Number(taskData.duration);
     }
     // Ne pas supprimer assigned_to_id car null est une valeur valide (pas d'assignation)
     if (!taskData.start_date) delete taskData.start_date;

@@ -1,7 +1,7 @@
 import {
   IsString,
   IsOptional,
-  IsInt,
+  IsNumber,
   IsEnum,
   IsUUID,
   IsDateString,
@@ -18,7 +18,7 @@ export class UpdateTaskDto {
   description?: string;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber()
   duration?: number;
 
   @IsOptional()

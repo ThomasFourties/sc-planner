@@ -41,7 +41,7 @@ export class Task {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
   duration: number;
 
   @Column({ name: 'assigned_to_id', nullable: true })
