@@ -4,8 +4,11 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { UserRole } from '../enums/user-role.enum';
+import { Client } from '../../clients/entities/client.entity';
 
 @Entity('users')
 export class User {
@@ -34,9 +37,17 @@ export class User {
   @Column({ default: false })
   is_admin: boolean;
 
+  @Column({ name: 'client_id', nullable: true })
+  client_id?: string;
+
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  // Relations
+  @ManyToOne(() => Client, (client) => client.users, { nullable: true })
+  @JoinColumn({ name: 'client_id' })
+  client?: Client;
 }
