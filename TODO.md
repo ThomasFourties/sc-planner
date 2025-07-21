@@ -29,11 +29,11 @@ Planning
 
 Navbar 
 - [ ] Au clic sur le bouton "Projets", afficher la page Projets (à venir)
-- [ ] Au clic sur le bouton "Clients", afficher la page Clients (à venir)
+- [X] Au clic sur le bouton "Clients", afficher la page Clients (à venir)
 - [ ] Faire remonter la photo de profil de l'utilisateur dans la navbar
 
 Client 
-- [ ] Faire la table Clients (BDD + API) -> Un client est lié à unutilisateur, il a un nom, description, logo.. Il a aussi un ou plusieurs projets
+- [X] Faire la table Clients (BDD + API) -> Un client est lié à unutilisateur, il a un nom, description, logo.. Il a aussi un ou plusieurs projets
 
 Projets
 - [ ] Faire la table Projets (BDD + API) -> Un projet est lié à un client, il a un nom, description, statut, date de début, date de fin, temps vendus, tâches (table tasks), etc.
