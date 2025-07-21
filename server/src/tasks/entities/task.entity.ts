@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Project } from '../../projects/entities/project.entity';
 
 export enum TaskStatus {
   BLOCKED = 'blocked',
@@ -50,6 +51,9 @@ export class Task {
   @Column({ name: 'created_by_id' })
   created_by_id: string;
 
+  @Column({ name: 'project_id', nullable: true })
+  project_id?: string;
+
   @Column({ name: 'start_date', type: 'timestamp', nullable: true })
   start_date?: Date;
 
@@ -87,6 +91,10 @@ export class Task {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'created_by_id' })
   created_by: User;
+
+  @ManyToOne(() => Project, (project) => project.tasks, { nullable: true })
+  @JoinColumn({ name: 'project_id' })
+  project?: Project;
 
   @ManyToOne(() => Task, { nullable: true })
   @JoinColumn({ name: 'dependency_id' })
