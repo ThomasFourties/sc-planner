@@ -269,7 +269,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-@use '../assets/scss/base/variables' as *;
+@use '../../assets/scss/base/variables' as *;
 
 .task-detail-panel {
   width: 100%;

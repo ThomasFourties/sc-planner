@@ -14,12 +14,12 @@
       <chevronBottom />Favoris
     </p> -->
     <i class="separator"></i>
-    <p class="nav-link">
+    <NuxtLink to="/clients" class="clients nav-link">
       <Users />Clients
-    </p>
-    <p class="nav-link">
+    </NuxtLink>
+    <NuxtLink to="/projets" class="projets nav-link">
       <FolderOpenDot />Projets
-    </p>
+    </NuxtLink>
     <i class="separator"></i>
   </nav>
 </template>
