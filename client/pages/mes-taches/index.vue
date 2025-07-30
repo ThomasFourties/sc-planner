@@ -39,7 +39,7 @@
         <!-- Header fixe -->
         <div class="tasks-header">
           <div class="header-cell name-cell" @click="sortBy('name')">
-            <span>Nom de la tâche</span>
+            <span :class="{ 'active': sortByField === 'name' }">Nom de la tâche</span>
             <div class="sort-indicator" :class="getSortClass('name')">
               <ChevronUp v-if="sortByField === 'name' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'name' && sortOrder === 'desc'" :size="14" />
@@ -47,7 +47,7 @@
             </div>
           </div>
           <div class="header-cell status-cell" @click="sortBy('status')">
-            <span>Statut</span>
+            <span :class="{ 'active': sortByField === 'status' }">Statut</span>
             <div class="sort-indicator" :class="getSortClass('status')">
               <ChevronUp v-if="sortByField === 'status' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'status' && sortOrder === 'desc'" :size="14" />
@@ -55,7 +55,7 @@
             </div>
           </div>
           <div class="header-cell creator-cell" @click="sortBy('created_by')">
-            <span>Créé par</span>
+            <span :class="{ 'active': sortByField === 'created_by' }">Créé par</span>
             <div class="sort-indicator" :class="getSortClass('created_by')">
               <ChevronUp v-if="sortByField === 'created_by' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'created_by' && sortOrder === 'desc'" :size="14" />
@@ -63,7 +63,7 @@
             </div>
           </div>
           <div class="header-cell date-cell" @click="sortBy('created_at')">
-            <span>Créé le</span>
+            <span :class="{ 'active': sortByField === 'created_at' }">Créé le</span>
             <div class="sort-indicator" :class="getSortClass('created_at')">
               <ChevronUp v-if="sortByField === 'created_at' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'created_at' && sortOrder === 'desc'" :size="14" />
@@ -71,7 +71,7 @@
             </div>
           </div>
           <div class="header-cell date-cell" @click="sortBy('start_date')">
-            <span>À faire le</span>
+            <span :class="{ 'active': sortByField === 'start_date' }">À faire le</span>
             <div class="sort-indicator" :class="getSortClass('start_date')">
               <ChevronUp v-if="sortByField === 'start_date' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'start_date' && sortOrder === 'desc'" :size="14" />
@@ -79,7 +79,7 @@
             </div>
           </div>
           <div class="header-cell priority-cell" @click="sortBy('priority')">
-            <span>Priorité</span>
+            <span :class="{ 'active': sortByField === 'priority' }">Priorité</span>
             <div class="sort-indicator" :class="getSortClass('priority')">
               <ChevronUp v-if="sortByField === 'priority' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'priority' && sortOrder === 'desc'" :size="14" />
@@ -87,7 +87,7 @@
             </div>
           </div>
           <div class="header-cell project-cell">
-            <span>Projets</span>
+            <span :class="{ 'active': sortByField === 'project' }">Projets</span>
           </div>
           <!-- <div class="header-cell actions-cell">
             <span>Actions</span>
@@ -226,7 +226,7 @@ const loadingTasks = ref(true);
 const createTaskFormRef = ref(null);
 
 // État du tri
-const sortByField = ref('created_at');
+const sortByField = ref('status');
 const sortOrder = ref('asc'); // 'asc' ou 'desc'
 
 // État du dropdown de statut
@@ -580,7 +580,7 @@ onUnmounted(() => {
     background-color: #6b7280;
     color: white;
     // border: none;
-    // border-radius: 6px;
+    // border-radius: 4px;
     // font-size: 14px;
     // font-weight: 500;
     // cursor: pointer;
@@ -617,10 +617,11 @@ onUnmounted(() => {
 
 .tasks-container {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow:0 0 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  height: calc(100vh - 314px);
+  height: auto;
+  max-height: calc(100vh - 314px);
   display: flex;
   flex-direction: column;
 }
@@ -648,6 +649,10 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   user-select: none;
+
+  span.active {
+    color: #007bff;
+  }
 
   &:hover {
     color: #007bff;
@@ -687,7 +692,7 @@ onUnmounted(() => {
 
   &::-webkit-scrollbar-thumb {
     background: #c0c3c6;
-    border-radius: 10px;
+    border-radius: 4px;
   }
 }
 
@@ -742,8 +747,8 @@ onUnmounted(() => {
       z-index: 9999;
       background: white;
       border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
       min-width: 180px;
       max-height: 250px;
       overflow-y: auto;
@@ -759,7 +764,7 @@ onUnmounted(() => {
 
       &::-webkit-scrollbar-thumb {
         background: #c0c3c6;
-        border-radius: 10px;
+        border-radius: 4px;
       }
 
       .status-dropdown-item {
@@ -773,11 +778,11 @@ onUnmounted(() => {
         transition: background-color 0.2s;
 
         &:first-child {
-          border-radius: 6px 6px 0 0;
+          border-radius: 4px 4px 0 0;
         }
 
         &:last-child {
-          border-radius: 0 0 6px 6px;
+          border-radius: 0 0 4px 4px;
         }
 
         &:hover {
@@ -870,8 +875,8 @@ onUnmounted(() => {
       z-index: 9999;
       background: white;
       border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
       min-width: 140px;
       max-height: 250px;
       overflow-y: auto;
@@ -887,7 +892,7 @@ onUnmounted(() => {
 
       &::-webkit-scrollbar-thumb {
         background: #c0c3c6;
-        border-radius: 10px;
+        border-radius: 4px;
       }
 
       .priority-dropdown-item {
@@ -901,11 +906,11 @@ onUnmounted(() => {
         transition: background-color 0.2s;
 
         &:first-child {
-          border-radius: 6px 6px 0 0;
+          border-radius: 4px 4px 0 0;
         }
 
         &:last-child {
-          border-radius: 0 0 6px 6px;
+          border-radius: 0 0 4px 4px;
         }
 
         &:hover {

@@ -13,25 +13,17 @@
 
     <!-- Formulaire de création de client -->
     <div v-if="showClientForm" class="form-section">
-      <CreateClientForm 
-        @client-created="onClientCreated" 
-        @close="closeClientForm"
-      />
+      <CreateClientForm @client-created="onClientCreated" @close="closeClientForm" />
     </div>
 
     <section class="clients-section">
-      
+
       <div v-if="loadingClients" class="loading">
         Chargement des clients...
       </div>
-      
+
       <div v-else class="clients-grid">
-        <div 
-          v-for="client in clients" 
-          :key="client.id" 
-          class="client-card"
-          @click="navigateToClient(client.id)"
-        >
+        <div v-for="client in clients" :key="client.id" class="client-card" @click="navigateToClient(client.id)">
           <div class="client-logo">
             <div v-if="client.logo" class="logo-img">
               <img :src="client.logo" :alt="client.name" />
@@ -40,11 +32,11 @@
               {{ getInitials(client.name) }}
             </div>
           </div>
-          
+
           <div class="client-info">
             <h3 class="client-name">{{ client.name || 'Client sans nom' }}</h3>
             <p class="client-description">{{ client.description || 'Aucune description' }}</p>
-            
+
             <div class="contact-info" v-if="client.contact_email || client.website">
               <p v-if="client.contact_email" class="contact-email">{{ client.contact_email }}</p>
               <p v-if="client.website" class="contact-website">{{ client.website }}</p>
@@ -75,7 +67,7 @@ const showClientForm = ref(false);
 
 // Couleurs prédéfinies pour les avatars
 const avatarColors = [
-  '#4F46E5', '#06B6D4', '#8B5CF6', '#EF4444', '#10B981', 
+  '#4F46E5', '#06B6D4', '#8B5CF6', '#EF4444', '#10B981',
   '#F59E0B', '#3B82F6', '#EC4899', '#6366F1', '#14B8A6'
 ];
 
@@ -120,7 +112,12 @@ const closeClientForm = () => {
 };
 
 const onClientCreated = (newClient) => {
-  clients.value.unshift(newClient);
+  const normalizedClient = {
+    ...newClient,
+    website: newClient.website_prod || newClient.website_preprod || '',
+    contact_email: newClient.contact_email || '', // si dispo
+  };
+  clients.value.unshift(normalizedClient);
   showClientForm.value = false;
 };
 
@@ -223,15 +220,15 @@ onMounted(() => {
 
 .client-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 24px;
   border: 1px solid #E5E7EB;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   cursor: pointer;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    //   transform: translateY(-2px);
+    //   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     border-color: $blue;
   }
 
@@ -280,6 +277,7 @@ onMounted(() => {
     }
 
     .contact-info {
+
       .contact-email,
       .contact-website {
         font-size: 12px;

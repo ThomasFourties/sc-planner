@@ -132,7 +132,6 @@ const handleLogout = async () => {
 
     .user-info {
       .user-role {
-        // background-color: $lightGray;
         color: $black;
         padding: 6px 12px;
         border-radius: 20px;
@@ -194,7 +193,7 @@ const handleLogout = async () => {
       height: auto;
       border: none;
       border-radius: 4px;
-      border: 1px solid $lightGray;
+      border: 1px solid #d8d8d8;
 
       @include down(lg) {
         height: 400px;
@@ -224,8 +223,8 @@ const handleLogout = async () => {
   .tasks-card {
     background: $white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     height: 100%;
     overflow-y: auto;
 
@@ -250,7 +249,7 @@ const handleLogout = async () => {
       .task-item {
         background: #f9fafb;
         border: 1px solid #e5e7eb;
-        border-radius: 6px;
+        border-radius: 4px;
         padding: 15px;
         margin-bottom: 15px;
 
@@ -272,7 +271,7 @@ const handleLogout = async () => {
 
           .task-priority {
             padding: 4px 8px;
-            border-radius: 12px;
+            border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
             text-transform: uppercase;
@@ -314,7 +313,7 @@ const handleLogout = async () => {
 
           .task-status {
             padding: 4px 8px;
-            border-radius: 12px;
+            border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
 
@@ -379,7 +378,7 @@ const handleLogout = async () => {
             color: $gray;
             background: #e5e7eb;
             padding: 2px 6px;
-            border-radius: 8px;
+            border-radius: 4px;
           }
         }
 

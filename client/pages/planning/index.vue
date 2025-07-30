@@ -296,7 +296,7 @@ onUnmounted(() => {
   height: 36px;
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
   
@@ -315,8 +315,8 @@ onUnmounted(() => {
 
 .planning-content {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -381,12 +381,12 @@ onUnmounted(() => {
   
   &::-webkit-scrollbar-track {
     background: #f1f5f9;
-    border-radius: 3px;
+    border-radius: 4px;
   }
   
   &::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-    border-radius: 3px;
+    border-radius: 4px;
     
     &:hover {
       background: #94a3b8;
@@ -398,14 +398,14 @@ onUnmounted(() => {
   min-width: 200px;
   max-width: 280px;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
   }
 }
 

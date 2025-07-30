@@ -123,7 +123,7 @@
     position: absolute;
     display: block;
     right: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     font-size: 12px;
     line-height: 1.4;

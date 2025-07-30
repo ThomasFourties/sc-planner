@@ -435,10 +435,10 @@ onMounted(() => {
 
 .project-header {
   background: white;
-  border-radius: 16px;
+  border-radius: 4px;
   padding: 32px;
   margin-bottom: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 
   .breadcrumb {
     margin-bottom: 16px;
@@ -475,7 +475,7 @@ onMounted(() => {
     .project-status {
       display: inline-block;
       padding: 4px 12px;
-      border-radius: 16px;
+      border-radius: 4px;
       font-size: 12px;
       font-weight: 500;
       text-transform: uppercase;
@@ -574,7 +574,7 @@ onMounted(() => {
       color: white;
       border: none;
       padding: 12px 24px;
-      border-radius: 8px;
+      border-radius: 4px;
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
@@ -599,8 +599,8 @@ onMounted(() => {
 
 .tasks-section {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 

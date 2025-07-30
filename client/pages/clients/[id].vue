@@ -5,33 +5,44 @@
     </div>
 
     <div v-else-if="client" class="dashboard-content">
-      <!-- Header avec informations client -->
       <div class="client-header">
+
         <div class="client-info">
+
           <div class="client-logo">
             <div v-if="client.logo" class="logo-img">
               <img :src="client.logo" :alt="client.name" />
+
             </div>
-            <div v-else class="logo-placeholder" :style="{ backgroundColor: getRandomColor(client.id) }">
-              {{ getInitials(client.name) }}
+            <div v-else class="logo-placeholder" :style="{ backgroundColor: getRandomColor(client?.id || 'default') }">
+              {{ getInitials(client?.name) }}
             </div>
           </div>
           <div class="client-details">
             <div class="client-header-row">
-              <h1 class="client-name">{{ client.name }}</h1>
-              <button @click="openEditForm" class="edit-client-btn">
-                <Edit :size="16" />
-                <!-- Modifier -->
-              </button>
+              <div class="left">
+                <h1 class="client-name">{{ client?.name || 'Client' }}</h1>
+                <div v-if="client.website_prod || client.website_preprod" class="client-website">
+                  <a v-if="client.website_preprod" :href="client.website_preprod" target="_blank">preprod</a>
+                  <a v-if="client.website_prod" :href="client.website_prod" target="_blank">prod</a>
+                </div>
+              </div>
+              <div class="client-actions">
+                <button @click="openEditForm" class="edit-client-btn">
+                  <Edit :size="16" />
+                </button>
+                <button @click="openDeleteConfirmation" class="delete-client-btn">
+                  <Trash2 :size="16" />
+                </button>
+              </div>
             </div>
             <div class="client-meta">
               <div class="creation-date">
                 <strong>Date de création</strong><br>
-                {{ formatDate(client.created_at) }}
+                {{ client?.created_at ? formatDate(client.created_at) : 'Non disponible' }}
               </div>
               <div class="contact-info">
                 <strong>Personnes assignées</strong><br>
-                <!-- {{ client.contact_email || 'Aucun email' }} -->
                 <div v-if="!loadingUsers && users.length > 0" class="assigned-users">
                   <div v-for="user in users" :key="user.id" class="user-item">
                     {{ user.first_name }} {{ user.last_name }} — {{ user.email }}
@@ -43,7 +54,7 @@
               </div>
               <div class="description">
                 <strong>Description</strong><br>
-                {{ client.description || 'Aucune description disponible' }}
+                {{ client?.description || 'Aucune description disponible' }}
               </div>
               <div class="hours-stats">
                 <strong>Heures vendues</strong><br>
@@ -67,7 +78,6 @@
         </div>
       </div>
 
-      <!-- Section Projets -->
       <div class="projects-section">
         <div class="projects-header">
           <h2>Projets <span class="project-count">({{ projects.length }})</span></h2>
@@ -77,22 +87,25 @@
           </button>
         </div>
 
-        <!-- Overlay pour le formulaire de projet -->
         <Overlay :opacity="showProjectForm ? 1 : 0" @click="closeProjectForm" />
 
-        <!-- Formulaire de création de projet -->
         <div v-if="showProjectForm" class="form-section">
           <CreateProjectForm :client-id="clientId" @project-created="onProjectCreated" @close="closeProjectForm" />
         </div>
 
-        <!-- Overlay pour le formulaire d'édition client -->
         <Overlay :opacity="showEditForm ? 1 : 0" @click="closeEditForm" />
 
-        <!-- Formulaire d'édition du client -->
         <div v-if="showEditForm" class="form-section">
           <EditClientForm ref="editClientFormRef" :client="client" @client-updated="onClientUpdated"
-            @closeComplete="closeEditForm" />
+            @closeComplete="handleEditFormClose" />
         </div>
+
+        <Overlay :opacity="showDeleteConfirmation ? 1 : 0" @click="closeDeleteConfirmation" />
+
+        <ConfirmModal :is-visible="showDeleteConfirmation" title="Supprimer le client"
+          :message="`Êtes-vous sûr de vouloir supprimer le client '${client?.name}' ? Cette action est irréversible.`"
+          confirm-text="Supprimer" cancel-text="Annuler" :is-danger="true" @confirm="deleteClient"
+          @cancel="closeDeleteConfirmation" />
 
         <div v-if="loadingProjects" class="loading">
           Chargement des projets...
@@ -148,9 +161,10 @@
 </template>
 
 <script setup>
-import { Plus, Edit } from 'lucide-vue-next';
+import { Plus, Edit, Trash2 } from 'lucide-vue-next';
 import CreateProjectForm from '~/components/base/CreateProjectForm.vue';
 import EditClientForm from '~/components/base/EditClientForm.vue';
+import ConfirmModal from '~/components/base/ConfirmModal.vue';
 
 definePageMeta({
   middleware: 'auth'
@@ -159,7 +173,6 @@ definePageMeta({
 const route = useRoute();
 const clientId = route.params.id;
 
-// État
 const client = ref(null);
 const projects = ref([]);
 const users = ref([]);
@@ -168,15 +181,15 @@ const loadingProjects = ref(true);
 const loadingUsers = ref(true);
 const showProjectForm = ref(false);
 const showEditForm = ref(false);
+const showDeleteConfirmation = ref(false);
+const deletingClient = ref(false);
 const editClientFormRef = ref(null);
 
-// Couleurs avatars (même que la page principale)
 const avatarColors = [
   '#4F46E5', '#06B6D4', '#8B5CF6', '#EF4444', '#10B981',
   '#F59E0B', '#3B82F6', '#EC4899', '#6366F1', '#14B8A6'
 ];
 
-// Calculs dynamiques basés sur les projets
 const totalSoldHours = computed(() => {
   const total = projects.value.reduce((total, project) => {
     const soldHours = parseFloat(project.sold_hours) || 0;
@@ -193,8 +206,7 @@ const totalSpentHours = computed(() => {
   return isNaN(total) ? 0 : total;
 });
 
-// Calculs pour la progress bar circulaire
-const circumference = 2 * Math.PI * 50; // radius = 50
+const circumference = 2 * Math.PI * 50;
 const progressPercentage = computed(() => {
   const sold = totalSoldHours.value;
   const spent = totalSpentHours.value;
@@ -209,15 +221,12 @@ const progressOffset = computed(() => {
   return circumference - (progressPercentage.value / 100) * circumference;
 });
 
-// Fonctions utilitaires
 const formatHours = (hours) => {
   const numHours = parseFloat(hours);
   if (!numHours || numHours === 0 || isNaN(numHours)) return '0';
 
-  // Si c'est un nombre entier, on l'affiche sans décimales
   if (numHours % 1 === 0) return numHours.toString();
 
-  // Sinon, on affiche avec 2 décimales maximum
   return parseFloat(numHours.toFixed(2)).toString();
 };
 
@@ -231,6 +240,10 @@ const getInitials = (name) => {
 };
 
 const getRandomColor = (id) => {
+  if (!id || typeof id !== 'string') {
+    return avatarColors[0];
+  }
+
   const hash = id.split('').reduce((a, b) => {
     a = ((a << 5) - a) + b.charCodeAt(0);
     return a & a;
@@ -260,19 +273,18 @@ const getStatusText = (status) => {
 
 const getHoursProgressColor = (spent, sold) => {
   const spentNum = parseFloat(spent) || 0;
-  const soldNum = parseFloat(sold) || 1; // Éviter la division par zéro
+  const soldNum = parseFloat(sold) || 1;
 
-  if (soldNum === 0) return '#3B82F6'; // Bleu par défaut
+  if (soldNum === 0) return '#3B82F6';
 
   const percentage = (spentNum / soldNum) * 100;
-  if (isNaN(percentage)) return '#3B82F6'; // Bleu par défaut
+  if (isNaN(percentage)) return '#3B82F6';
 
-  if (percentage >= 90) return '#EF4444'; // Rouge
-  if (percentage >= 70) return '#F59E0B'; // Orange
-  return '#3B82F6'; // Bleu
+  if (percentage >= 90) return '#EF4444';
+  if (percentage >= 70) return '#F59E0B';
+  return '#3B82F6';
 };
 
-// Charger les données
 const loadClient = async () => {
   try {
     loadingClient.value = true;
@@ -308,7 +320,6 @@ const loadUsers = async () => {
   }
 };
 
-// Gestion du formulaire de projet
 const openProjectForm = () => {
   showProjectForm.value = true;
 };
@@ -322,32 +333,61 @@ const onProjectCreated = (newProject) => {
   showProjectForm.value = false;
 };
 
-// Gestion du formulaire d'édition client
 const openEditForm = () => {
   showEditForm.value = true;
 };
 
 const closeEditForm = async () => {
-  if (editClientFormRef.value && showEditForm.value) {
+  if (editClientFormRef.value) {
     await editClientFormRef.value.handleClose();
   } else {
     showEditForm.value = false;
   }
 };
 
-const onClientUpdated = async () => {
-  // Re-fetch seulement les données utilisateurs pour éviter la boucle
-  console.log('Mise à jour des données après modification client...');
-  await loadUsers();
-  // Pas besoin de fermer le formulaire automatiquement
+const handleEditFormClose = () => {
+  showEditForm.value = false;
 };
 
-// Navigation vers le détail du projet
+const onClientUpdated = async (updatedClient) => {
+  if (updatedClient && updatedClient.id) {
+    client.value = updatedClient;
+  } else {
+    await loadClient();
+  }
+
+  await Promise.all([loadUsers(), loadProjects()]);
+};
+
+const openDeleteConfirmation = () => {
+  showDeleteConfirmation.value = true;
+};
+
+const closeDeleteConfirmation = () => {
+  showDeleteConfirmation.value = false;
+};
+
+const deleteClient = async () => {
+  try {
+    deletingClient.value = true;
+
+    await $fetch(`/api/clients/${clientId}`, {
+      method: 'DELETE'
+    });
+
+    await navigateTo('/clients');
+  } catch (error) {
+    console.error('Erreur lors de la suppression du client:', error);
+  } finally {
+    deletingClient.value = false;
+    showDeleteConfirmation.value = false;
+  }
+};
+
 const navigateToProject = (projectId) => {
   navigateTo(`/projects/${projectId}`);
 };
 
-// Chargement initial
 onMounted(() => {
   loadClient();
   loadProjects();
@@ -384,10 +424,10 @@ onMounted(() => {
 
 .client-header {
   background: white;
-  border-radius: 16px;
+  border-radius: 4px;
   padding: 32px;
   margin-bottom: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 
   .client-info {
     display: flex;
@@ -433,19 +473,65 @@ onMounted(() => {
         align-items: center;
         margin-bottom: 24px;
 
-        .edit-client-btn {
-          background: none;
-          border: none;
-          cursor: pointer;
+        .left {
           display: flex;
           align-items: center;
-          gap: 8px;
-          // padding: 8px 16px;
-          padding: 0;
-          font-size: 14px;
-          color: $black;
-          width: 30px;
-          height: 30px;
+          justify-content: center;
+          gap: 20px;
+
+          .client-website {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: $black;
+            text-transform: uppercase;
+            font-weight: 600;
+          }
+        }
+
+        .client-actions {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+
+          .edit-client-btn,
+          .delete-client-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 36px;
+            height: 36px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background-color: #f3f4f6;
+            }
+          }
+
+          .edit-client-btn {
+            color: $black;
+
+            &:hover {
+              color: $blue;
+              background-color: rgba(59, 130, 246, 0.1);
+            }
+          }
+
+          .delete-client-btn {
+            color: #6B7280;
+
+            &:hover {
+              color: #DC2626;
+              background-color: rgba(220, 38, 38, 0.1);
+            }
+          }
         }
       }
 
@@ -576,15 +662,20 @@ onMounted(() => {
 
     .project-card {
       background: white;
-      border-radius: 12px;
+      border-radius: 4px;
       padding: 20px;
       border: 1px solid #E5E7EB;
       transition: all 0.2s;
+      cursor: pointer;
 
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: $blue;
       }
+
+      // &:hover {
+      //   transform: translateY(-2px);
+      //   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+      // }
 
       .project-header {
         display: flex;
@@ -602,7 +693,7 @@ onMounted(() => {
 
         .project-status {
           padding: 4px 8px;
-          border-radius: 12px;
+          border-radius: 4px;
           font-size: 11px;
           font-weight: 500;
           text-transform: uppercase;
@@ -670,13 +761,13 @@ onMounted(() => {
             width: 100%;
             height: 6px;
             background: #F3F4F6;
-            border-radius: 3px;
+            border-radius: 4px;
             margin-top: 6px;
             overflow: hidden;
 
             .hours-progress-fill {
               height: 100%;
-              border-radius: 3px;
+              border-radius: 4px;
               transition: all 0.3s ease;
             }
           }
