@@ -63,23 +63,4 @@ export class AuthController {
       message: 'Votre mot de passe a été réinitialisé avec succès.',
     };
   }
-
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  async getProfile(@Request() req: any) {
-    const user = await this.usersService.findByEmail(req.user.email);
-
-    if (!user) {
-      throw new UnauthorizedException('Utilisateur introuvable');
-    }
-
-    return {
-      id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      role: user.role,
-      is_admin: user.is_admin,
-    };
-  }
 }
