@@ -1,360 +1,247 @@
-// import { Injectable, Logger } from '@nestjs/common';
-// import { InjectRepository } from '@nestjs/typeorm';
-// import { Repository, DataSource } from 'typeorm';
-// import { User } from '../users/entities/user.entity';
-// // import { Task, TaskStatus, TaskPriority } from '../tasks/entities/task.entity';
-// import { UserRole } from '../users/enums/user-role.enum';
-// // import { EmailService } from '../email/email.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { User } from '../users/entities/user.entity';
+import { EmailService } from '../email/email.service';
+import {
+  HealthCheckResponseDto,
+  DatabaseHealthDto,
+  SystemHealthDto,
+  ServicesHealthDto,
+} from './dto/health-check.dto';
 
-// export interface MetricsResponse {
-//   status: 'healthy' | 'unhealthy';
-//   timestamp: string;
-//   uptime: number;
-//   version: string;
-//   environment: string;
-//   database: {
-//     status: 'connected' | 'disconnected';
-//     latency: number;
-//     connections: number;
-//   };
-//   users: {
-//     total: number;
-//     byRole: Record<UserRole, number>;
-//     recentRegistrations: number;
-//   };
-//   tasks: {
-//     total: number;
-//     byStatus: Record<string, number>;
-//     byPriority: Record<string, number>;
-//     completionRate: number;
-//   };
-//   system: {
-//     memory: {
-//       used: number;
-//       total: number;
-//       percentage: number;
-//     };
-//     cpu: {
-//       usage: number;
-//     };
-//   };
-//   services: {
-//     email: {
-//       status: 'healthy' | 'unhealthy';
-//       configured: boolean;
-//     };
-//     auth: {
-//       status: 'healthy' | 'unhealthy';
-//     };
-//   };
-// }
+@Injectable()
+export class HealthService {
+  private readonly logger = new Logger(HealthService.name);
+  private readonly startTime = Date.now();
 
-// @Injectable()
-// export class HealthService {
-//   private readonly logger = new Logger(HealthService.name);
-//   private readonly startTime = Date.now();
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    private jwtService: JwtService,
+    private emailService: EmailService,
+  ) {}
 
-//   constructor(
-//     @InjectRepository(User)
-//     private usersRepository: Repository<User>,
-//     // @InjectRepository(Task)
-//     // private tasksRepository: Repository<Task>,
-//     private dataSource: DataSource,
-//     // private emailService: EmailService,
-//   ) {}
+  async getHealthCheck(): Promise<HealthCheckResponseDto> {
+    this.logger.log('Executing health check...');
 
-//   async getMetrics(): Promise<MetricsResponse> {
-//     try {
-//       const [
-//         databaseMetrics,
-//         userMetrics,
-//         // taskMetrics,
-//         systemMetrics,
-//         serviceMetrics,
-//       ] = await Promise.all([
-//         this.getDatabaseMetrics(),
-//         this.getUserMetrics(),
-//         // this.getTaskMetrics(),
-//         this.getSystemMetrics(),
-//         this.getServiceMetrics(),
-//       ]);
+    const [database, system, services, endpoints] = await Promise.all([
+      this.checkDatabase(),
+      this.checkSystem(),
+      this.checkServices(),
+      this.checkEndpoints(),
+    ]);
 
-//       const overallStatus = this.determineOverallStatus(
-//         databaseMetrics,
-//         serviceMetrics,
-//       );
+    const overallStatus = this.determineOverallStatus(
+      database,
+      services,
+      endpoints,
+    );
 
-//       return {
-//         status: overallStatus,
-//         timestamp: new Date().toISOString(),
-//         uptime: Math.floor((Date.now() - this.startTime) / 1000),
-//         version: process.env.npm_package_version || '0.4.0',
-//         environment: process.env.NODE_ENV || 'development',
-//         database: databaseMetrics,
-//         users: userMetrics,
-//         // tasks: taskMetrics,
-//         system: systemMetrics,
-//         services: serviceMetrics,
-//       };
-//     } catch (error) {
-//       this.logger.error('Error collecting metrics:', error);
-//       return this.getErrorMetrics();
-//     }
-//   }
+    return {
+      status: overallStatus,
+      timestamp: new Date().toISOString(),
+      version: process.env.npm_package_version || '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      uptime: Math.floor((Date.now() - this.startTime) / 1000),
+      database,
+      system,
+      services,
+      endpoints,
+    };
+  }
 
-//   private async getDatabaseMetrics() {
-//     try {
-//       const startTime = Date.now();
+  private async checkDatabase(): Promise<DatabaseHealthDto> {
+    try {
+      const startTime = Date.now();
 
-//       await this.dataSource.query('SELECT 1');
-//       const latency = Date.now() - startTime;
+      // Test simple query
+      await this.userRepository.query('SELECT 1');
 
-//       const connectionQuery = await this.dataSource.query(`
-//         SELECT count(*) as connections
-//         FROM pg_stat_activity
-//         WHERE state = 'active'
-//       `);
+      const responseTime = Date.now() - startTime;
 
-//       return {
-//         status: 'connected' as const,
-//         latency,
-//         connections: parseInt(
-//           (connectionQuery[0] as { connections: string })?.connections || '0',
-//         ),
-//       };
-//     } catch (error) {
-//       this.logger.error('Database health check failed:', error);
-//       return {
-//         status: 'disconnected' as const,
-//         latency: -1,
-//         connections: 0,
-//       };
-//     }
-//   }
+      // Test avec une vraie requête
+      const userCount = await this.userRepository.count();
 
-//   private async getUserMetrics() {
-//     try {
-//       const total = await this.usersRepository.count();
+      return {
+        status: 'healthy',
+        connection: true,
+        responseTime,
+        message: `Database connected. ${userCount} users in system.`,
+      };
+    } catch (error) {
+      this.logger.error('Database health check failed:', error);
+      return {
+        status: 'unhealthy',
+        connection: false,
+        responseTime: -1,
+        message: `Database connection failed: ${error.message}`,
+      };
+    }
+  }
 
-//       const roleQuery = await this.usersRepository
-//         .createQueryBuilder('user')
-//         .select('user.role, COUNT(*) as count')
-//         .groupBy('user.role')
-//         .getRawMany();
+  private checkSystem(): SystemHealthDto {
+    const memoryUsage = process.memoryUsage();
+    const totalMemory = memoryUsage.heapTotal;
+    const usedMemory = memoryUsage.heapUsed;
+    const memoryPercentage = Math.round((usedMemory / totalMemory) * 100);
 
-//       const byRole = {} as Record<UserRole, number>;
-//       Object.values(UserRole).forEach((role) => {
-//         byRole[role] = 0;
-//       });
+    return {
+      uptime: Math.floor(process.uptime()),
+      memory: {
+        used: Math.round(usedMemory / 1024 / 1024), // MB
+        total: Math.round(totalMemory / 1024 / 1024), // MB
+        percentage: memoryPercentage,
+      },
+      cpu: {
+        usage: Math.round(process.cpuUsage().user / 1000000), // Approximation
+      },
+    };
+  }
 
-//       roleQuery.forEach((row) => {
-//         byRole[row.user_role as UserRole] = parseInt(row.count as string);
-//       });
+  private async checkServices(): Promise<ServicesHealthDto> {
+    const emailHealth = await this.checkEmailService();
+    const jwtHealth = this.checkJwtService();
 
-//       const yesterday = new Date();
-//       yesterday.setDate(yesterday.getDate() - 1);
+    return {
+      email: emailHealth,
+      jwt: jwtHealth,
+    };
+  }
 
-//       const recentRegistrations = await this.usersRepository
-//         .createQueryBuilder('user')
-//         .where('user.created_at >= :yesterday', { yesterday })
-//         .getCount();
+  private async checkEmailService(): Promise<{
+    status: 'healthy' | 'unhealthy';
+    configured: boolean;
+    message?: string;
+  }> {
+    try {
+      const isConfigured = !!(
+        process.env.EMAIL_HOST &&
+        process.env.EMAIL_PORT &&
+        process.env.EMAIL_USER &&
+        process.env.EMAIL_PASS
+      );
 
-//       return {
-//         total,
-//         byRole,
-//         recentRegistrations,
-//       };
-//     } catch (error) {
-//       this.logger.error('Error getting user metrics:', error);
-//       return {
-//         total: 0,
-//         byRole: {} as Record<UserRole, number>,
-//         recentRegistrations: 0,
-//       };
-//     }
-//   }
+      if (!isConfigured) {
+        return {
+          status: 'unhealthy',
+          configured: false,
+          message: 'Email service not configured',
+        };
+      }
 
-//   private async getTaskMetrics() {
-//     try {
-//       const total = await this.tasksRepository.count();
+      return {
+        status: 'healthy',
+        configured: true,
+        message: 'Email service configured and ready',
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        configured: true,
+        message: `Email service error: ${error.message}`,
+      };
+    }
+  }
 
-//       const statusQuery = await this.tasksRepository
-//         .createQueryBuilder('task')
-//         .select('task.status, COUNT(*) as count')
-//         .groupBy('task.status')
-//         .getRawMany();
+  private checkJwtService(): {
+    status: 'healthy' | 'unhealthy';
+    configured: boolean;
+    message?: string;
+  } {
+    try {
+      const isConfigured = !!process.env.JWT_SECRET;
 
-//       const byStatus = {} as Record<string, number>;
-//       Object.values(TaskStatus).forEach((status) => {
-//         byStatus[status] = 0;
-//       });
+      if (!isConfigured) {
+        return {
+          status: 'unhealthy',
+          configured: false,
+          message: 'JWT secret not configured',
+        };
+      }
 
-//       statusQuery.forEach((row) => {
-//         byStatus[row.task_status as TaskStatus] = parseInt(row.count as string);
-//       });
+      // Test JWT generation
+      const testPayload = { test: true };
+      const token = this.jwtService.sign(testPayload, { expiresIn: '1s' });
+      const decoded = this.jwtService.verify(token);
 
-//       const priorityQuery = await this.tasksRepository
-//         .createQueryBuilder('task')
-//         .select('task.priority, COUNT(*) as count')
-//         .groupBy('task.priority')
-//         .getRawMany();
+      if (decoded.test) {
+        return {
+          status: 'healthy',
+          configured: true,
+          message: 'JWT service working correctly',
+        };
+      }
 
-//       const byPriority = {} as Record<string, number>;
-//       Object.values(TaskPriority).forEach((priority) => {
-//         byPriority[priority] = 0;
-//       });
+      return {
+        status: 'unhealthy',
+        configured: true,
+        message: 'JWT verification failed',
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        configured: true,
+        message: `JWT service error: ${error.message}`,
+      };
+    }
+  }
 
-//       priorityQuery.forEach((row) => {
-//         byPriority[row.task_priority as string] = parseInt(
-//           row.count as string,
-//         );
-//       });
+  private async checkEndpoints(): Promise<{
+    auth: boolean;
+    users: boolean;
+    clients: boolean;
+    projects: boolean;
+    tasks: boolean;
+  }> {
+    // Simulation de vérification des endpoints
+    // En production, vous pourriez faire des requêtes internes
+    return {
+      auth: true,
+      users: true,
+      clients: true,
+      projects: true,
+      tasks: true,
+    };
+  }
 
-//       const completedTasks = byStatus[TaskStatus.COMPLETED] || 0;
-//       const completionRate = total > 0 ? (completedTasks / total) * 100 : 0;
+  private determineOverallStatus(
+    database: DatabaseHealthDto,
+    services: ServicesHealthDto,
+    endpoints: any,
+  ): 'healthy' | 'unhealthy' | 'degraded' {
+    const critical = [database.status];
+    const important = [services.jwt.status];
+    const optional = [services.email.status];
 
-//       return {
-//         total,
-//         byStatus,
-//         byPriority,
-//         completionRate: Math.round(completionRate * 100) / 100,
-//       };
-//     } catch (error) {
-//       this.logger.error('Error getting task metrics:', error);
-//       return {
-//         total: 0,
-//         byStatus: {} as Record<TaskStatus, number>,
-//         byPriority: {} as Record<TaskPriority, number>,
-//         completionRate: 0,
-//       };
-//     }
-//   }
+    // Si un service critique est down
+    if (critical.some((status) => status === 'unhealthy')) {
+      return 'unhealthy';
+    }
 
-//   private getSystemMetrics() {
-//     try {
-//       const memoryUsage = process.memoryUsage();
-//       const totalMemory = memoryUsage.heapTotal;
-//       const usedMemory = memoryUsage.heapUsed;
-//       const memoryPercentage = (usedMemory / totalMemory) * 100;
+    // Si un service important est down
+    if (important.some((status) => status === 'unhealthy')) {
+      return 'degraded';
+    }
 
-//       const cpuUsage = process.cpuUsage();
-//       const cpuPercentage =
-//         ((cpuUsage.user + cpuUsage.system) / 1000000 / process.uptime()) * 100;
+    // Si seulement les services optionnels sont down
+    if (optional.some((status) => status === 'unhealthy')) {
+      return 'degraded';
+    }
 
-//       return {
-//         memory: {
-//           used: Math.round((usedMemory / 1024 / 1024) * 100) / 100,
-//           total: Math.round((totalMemory / 1024 / 1024) * 100) / 100,
-//           percentage: Math.round(memoryPercentage * 100) / 100,
-//         },
-//         cpu: {
-//           usage: Math.round(Math.min(cpuPercentage, 100) * 100) / 100,
-//         },
-//       };
-//     } catch (error) {
-//       this.logger.error('Error getting system metrics:', error);
-//       return {
-//         memory: { used: 0, total: 0, percentage: 0 },
-//         cpu: { usage: 0 },
-//       };
-//     }
-//   }
+    return 'healthy';
+  }
 
-//   private async getServiceMetrics() {
-//     try {
-//       const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
-
-//       let authStatus: 'healthy' | 'unhealthy' = 'healthy';
-//       try {
-//         if (!process.env.JWT_SECRET) {
-//           authStatus = 'unhealthy';
-//         }
-//       } catch {
-//         authStatus = 'unhealthy';
-//       }
-
-//       const emailStatus: 'healthy' | 'unhealthy' = emailConfigured
-//         ? 'healthy'
-//         : 'unhealthy';
-
-//       return {
-//         email: {
-//           status: emailStatus,
-//           configured: !!emailConfigured,
-//         },
-//         auth: {
-//           status: authStatus,
-//         },
-//       };
-//     } catch (error) {
-//       this.logger.error('Error getting service metrics:', error);
-//       return {
-//         email: { status: 'unhealthy' as const, configured: false },
-//         auth: { status: 'unhealthy' as const },
-//       };
-//     }
-//   }
-
-//   private determineOverallStatus(
-//     databaseMetrics: any,
-//     serviceMetrics: any,
-//   ): 'healthy' | 'unhealthy' {
-//     if (databaseMetrics.status === 'disconnected') {
-//       return 'unhealthy';
-//     }
-
-//     if (serviceMetrics.auth.status === 'unhealthy') {
-//       return 'unhealthy';
-//     }
-
-//     return 'healthy';
-//   }
-
-//   private getErrorMetrics(): MetricsResponse {
-//     return {
-//       status: 'unhealthy',
-//       timestamp: new Date().toISOString(),
-//       uptime: Math.floor((Date.now() - this.startTime) / 1000),
-//       version: process.env.npm_package_version || '0.4.0',
-//       environment: process.env.NODE_ENV || 'development',
-//       database: { status: 'disconnected', latency: -1, connections: 0 },
-//       users: {
-//         total: 0,
-//         byRole: {} as Record<UserRole, number>,
-//         recentRegistrations: 0,
-//       },
-//       tasks: {
-//         total: 0,
-//         byStatus: {} as Record<TaskStatus, number>,
-//         byPriority: {} as Record<TaskPriority, number>,
-//         completionRate: 0,
-//       },
-//       system: {
-//         memory: { used: 0, total: 0, percentage: 0 },
-//         cpu: { usage: 0 },
-//       },
-//       services: {
-//         email: { status: 'unhealthy', configured: false },
-//         auth: { status: 'unhealthy' },
-//       },
-//     };
-//   }
-
-//   async basicHealthCheck() {
-//     try {
-//       await this.dataSource.query('SELECT 1');
-//       return {
-//         status: 'ok',
-//         timestamp: new Date().toISOString(),
-//         database: 'connected',
-//       };
-//     } catch (error) {
-//       return {
-//         status: 'error',
-//         timestamp: new Date().toISOString(),
-//         database: 'disconnected',
-//         error: error.message,
-//       };
-//     }
-//   }
-// }
+  async getSimpleHealth(): Promise<{ status: string; timestamp: string }> {
+    try {
+      await this.userRepository.query('SELECT 1');
+      return {
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      throw new Error('Health check failed');
+    }
+  }
+}
