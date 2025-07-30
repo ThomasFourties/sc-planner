@@ -15,9 +15,9 @@ definePageMeta({
 });
 
 onMounted(() => {
-  setTimeout(() => {
-    navigateTo('/');
-  }, 5000);
+  // setTimeout(() => {
+  navigateTo('/');
+  // }, 5000);
 });
 </script>
 
@@ -30,8 +30,8 @@ onMounted(() => {
   text-align: center;
   padding: 2rem;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 0px 4px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 100%;
 
