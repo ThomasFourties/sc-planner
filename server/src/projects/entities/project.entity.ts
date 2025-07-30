@@ -12,11 +12,8 @@ import { Client } from '../../clients/entities/client.entity';
 import { Task } from '../../tasks/entities/task.entity';
 
 export enum ProjectStatus {
-  PLANNING = 'planning',
   IN_PROGRESS = 'in_progress',
-  ON_HOLD = 'on_hold',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
 }
 
 @Entity('projects')
@@ -33,7 +30,7 @@ export class Project {
   @Column({
     type: 'enum',
     enum: ProjectStatus,
-    default: ProjectStatus.PLANNING,
+    default: ProjectStatus.IN_PROGRESS,
   })
   status: ProjectStatus;
 

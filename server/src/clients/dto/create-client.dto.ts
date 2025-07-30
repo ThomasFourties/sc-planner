@@ -1,4 +1,10 @@
-import { IsString, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  MaxLength,
+  IsArray,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateClientDto {
   @IsString()
@@ -23,4 +29,9 @@ export class CreateClientDto {
   @IsString()
   @MaxLength(255)
   website_preprod?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  user_ids?: string[];
 }

@@ -39,7 +39,8 @@ export class ClientsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clientsService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.clientsService.remove(id);
+    return { message: 'Client supprimé avec succès' };
   }
 }

@@ -8,17 +8,53 @@ import { Repository } from 'typeorm';
 import { Client } from './entities/client.entity';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { User } from '../users/entities/user.entity';
+import { Project } from '../projects/entities/project.entity';
+import { Task } from '../tasks/entities/task.entity';
 
 @Injectable()
 export class ClientsService {
   constructor(
     @InjectRepository(Client)
     private clientRepository: Repository<Client>,
+
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+
+    @InjectRepository(Project)
+    private projectRepository: Repository<Project>,
+
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
   ) {}
 
   async create(createClientDto: CreateClientDto): Promise<Client> {
-    const client = this.clientRepository.create(createClientDto);
-    return this.clientRepository.save(client);
+    const { user_ids, ...clientData } = createClientDto;
+
+    const client = this.clientRepository.create(clientData);
+    const savedClient = await this.clientRepository.save(client);
+
+    if (user_ids?.length) {
+      await this.userRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({ client: savedClient })
+        .where('id IN (:...user_ids)', { user_ids })
+        .execute();
+    }
+
+    const result = await this.clientRepository.findOne({
+      where: { id: savedClient.id },
+      relations: ['users', 'projects'],
+    });
+
+    if (!result) {
+      throw new InternalServerErrorException(
+        'Erreur lors de la création du client',
+      );
+    }
+
+    return result;
   }
 
   async findAll(): Promise<any[]> {
@@ -73,7 +109,8 @@ export class ClientsService {
   }
 
   async update(id: string, updateClientDto: UpdateClientDto): Promise<any> {
-    // Vérifier que le client existe
+    const { user_ids, ...updateData } = updateClientDto;
+
     const existingClient = await this.clientRepository.findOne({
       where: { id },
     });
@@ -82,33 +119,76 @@ export class ClientsService {
       throw new NotFoundException('Client non trouvé');
     }
 
-    const result = await this.clientRepository.update(id, updateClientDto);
+    await this.clientRepository.update(id, updateData);
 
-    if (result.affected === 0) {
-      throw new InternalServerErrorException(
-        'Erreur lors de la mise à jour du client',
-      );
+    if (user_ids !== undefined) {
+      try {
+        await this.userRepository.manager.query(
+          'UPDATE users SET client_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE client_id = $1',
+          [id],
+        );
+
+        if (user_ids.length > 0) {
+          await this.userRepository
+            .createQueryBuilder()
+            .update(User)
+            .set({ client_id: id })
+            .where('id IN (:...user_ids)', { user_ids })
+            .execute();
+        }
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour des utilisateurs:', error);
+        throw error;
+      }
     }
 
-    // Retourner le client mis à jour avec les mêmes données que findOne
-    return this.findOne(id);
+    const updatedClient = await this.findOne(id);
+    return updatedClient;
   }
 
-  async remove(id: string): Promise<{ message: string }> {
-    const client = await this.clientRepository.findOne({ where: { id } });
+  async remove(id: string): Promise<void> {
+    return await this.clientRepository.manager.transaction(async (manager) => {
+      const clientRepo = manager.getRepository(Client);
+      const userRepo = manager.getRepository(User);
+      const projectRepo = manager.getRepository(Project);
+      const taskRepo = manager.getRepository(Task);
 
-    if (!client) {
-      throw new NotFoundException('Client non trouvé');
-    }
+      const client = await clientRepo.findOne({
+        where: { id },
+        relations: ['projects', 'users'],
+      });
 
-    const result = await this.clientRepository.delete(id);
+      if (!client) throw new NotFoundException('Client non trouvé');
 
-    if (result.affected === 0) {
-      throw new InternalServerErrorException(
-        'Erreur lors de la suppression du client',
-      );
-    }
+      try {
+        await userRepo
+          .createQueryBuilder()
+          .update(User)
+          .set({ client_id: () => 'NULL' })
+          .where('client_id = :id', { id })
+          .execute();
 
-    return { message: 'Client supprimé avec succès' };
+        if (client.projects?.length) {
+          for (const project of client.projects) {
+            await taskRepo.delete({
+              project_id: project.id,
+            });
+          }
+
+          await projectRepo.delete({
+            client_id: id,
+          });
+        }
+
+        await clientRepo.delete({ id });
+      } catch (error: any) {
+        console.error('Erreur lors de la suppression du client:', error);
+        const errorMessage =
+          error instanceof Error ? error.message : 'Erreur inconnue';
+        throw new InternalServerErrorException(
+          `Impossible de supprimer le client: ${errorMessage}`,
+        );
+      }
+    });
   }
 }
