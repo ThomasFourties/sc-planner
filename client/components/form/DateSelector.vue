@@ -74,7 +74,7 @@ const internalValue = computed({
       gap: 8px;
       padding: 8px 12px;
       background-color: #f2f2f2;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 12px;
       font-weight: 500;
       color: $black;
@@ -109,8 +109,8 @@ const internalValue = computed({
 // Override VCalendar styles
 :deep(.vc-container) {
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
 :deep(.vc-header) {

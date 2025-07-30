@@ -17,9 +17,9 @@
     <NuxtLink to="/clients" class="clients nav-link">
       <Users />Clients
     </NuxtLink>
-    <NuxtLink to="/projets" class="projets nav-link">
+    <!-- <NuxtLink to="/projets" class="projets nav-link">
       <FolderOpenDot />Projets
-    </NuxtLink>
+    </NuxtLink> -->
     <i class="separator"></i>
   </nav>
 </template>
@@ -57,7 +57,7 @@ import { LayoutDashboard, ListTodo, ChartGantt, ChevronDown, Users, FolderOpenDo
     font-size: 16px;
     text-decoration: none;
     font-weight: 500;
-    border-radius: 2px;
+    border-radius: 4px;
     margin-left: -14px;
     width: fit-content;
     display: flex;

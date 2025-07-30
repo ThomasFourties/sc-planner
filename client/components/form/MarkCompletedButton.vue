@@ -58,7 +58,7 @@ const toggleCompleted = () => {
   align-items: center;
   padding: 8px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;

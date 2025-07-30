@@ -114,7 +114,7 @@ const handleLogout = () => {
       font-size: 16px;
       text-decoration: none;
       font-weight: 500;
-      border-radius: 2px;
+      border-radius: 4px;
       margin-left: -14px;
       width: fit-content;
       transition: background-color 0.2s ease;

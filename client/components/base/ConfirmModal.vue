@@ -97,8 +97,8 @@ const handleOverlayClick = () => {
 
 .confirm-modal {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  // box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 400px;
   width: 90%;
   margin: 20px;
@@ -150,21 +150,21 @@ const handleOverlayClick = () => {
   gap: 12px;
   padding: 16px 24px 24px;
 
-  button {
-    // padding: 8px 16px;
-    // border-radius: 6px;
-    // font-size: 14px;
-    // font-weight: 500;
-    // cursor: pointer;
-    // transition: all 0.2s;
-    // border: 1px solid transparent;
-    // min-width: 80px;
+  // button {
+  // padding: 8px 16px;
+  // border-radius: 4px;
+  // font-size: 14px;
+  // font-weight: 500;
+  // cursor: pointer;
+  // transition: all 0.2s;
+  // border: 1px solid transparent;
+  // min-width: 80px;
 
-    // &:focus {
-    //   outline: none;
-    //   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    // }
-  }
+  // &:focus {
+  //   outline: none;
+  //   box-shadow: 0 0 4px rgba(59, 130, 246, 0.1);
+  // }
+  // }
 
   .btn-cancel {
     background: #f9fafb;

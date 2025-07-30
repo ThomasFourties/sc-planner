@@ -80,6 +80,7 @@ onUnmounted(() => {
   font-size: 14px;
   font-weight: 500;
   color: #6b6b6b;
+  margin-top: 10px;
 
   .label {
     min-width: fit-content;
@@ -94,7 +95,7 @@ onUnmounted(() => {
       align-items: center;
       gap: 8px;
       padding: 8px 12px;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 12px;
       font-weight: 500;
       transition: all 0.2s;
@@ -137,8 +138,8 @@ onUnmounted(() => {
       z-index: 10;
       background: white;
       border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
       width: 120px;
       margin-top: 4px;
       max-height: 200px;
@@ -155,7 +156,7 @@ onUnmounted(() => {
 
       &::-webkit-scrollbar-thumb {
         background: #c0c3c6;
-        border-radius: 10px;
+        border-radius: 4px;
       }
 
       .dropdown-item {
@@ -175,11 +176,11 @@ onUnmounted(() => {
         }
 
         &:first-child {
-          border-radius: 6px 6px 0 0;
+          border-radius: 4px 4px 0 0;
         }
 
         &:last-child {
-          border-radius: 0 0 6px 6px;
+          border-radius: 0 0 4px 4px;
         }
 
         &.priority-low {

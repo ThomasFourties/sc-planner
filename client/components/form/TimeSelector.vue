@@ -123,7 +123,7 @@ watch(() => props.modelValue, (newValue) => {
       align-items: center;
       gap: 2px;
       background-color: #f2f2f2;
-      border-radius: 6px;
+      border-radius: 4px;
       padding: 2px;
 
       .control-btn {

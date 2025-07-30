@@ -305,7 +305,7 @@ onBeforeUnmount(() => {
   padding: 8px 16px;
   border: 1px solid #e2e8f0;
   background: white;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 14px;
@@ -355,13 +355,13 @@ onBeforeUnmount(() => {
 .detail-select, .detail-input {
   padding: 8px 12px;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   
   &:focus {
     outline: none;
     border-color: $lightBlue;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 4px rgba(59, 130, 246, 0.1);
   }
   
   &:disabled {
@@ -406,14 +406,14 @@ onBeforeUnmount(() => {
   margin-top: 12px;
   padding: 12px;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 8px;
   resize: vertical;
   font-family: inherit;
   
   &:focus {
     outline: none;
     border-color: $lightBlue;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 4px rgba(59, 130, 246, 0.1);
   }
 }
 
@@ -478,7 +478,7 @@ onBeforeUnmount(() => {
   height: 32px;
   border-radius: 50%;
   border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .task-actions {
@@ -494,7 +494,7 @@ onBeforeUnmount(() => {
   background-color: $lightBlue;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;

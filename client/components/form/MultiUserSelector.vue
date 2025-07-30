@@ -195,7 +195,7 @@ onUnmounted(() => {
       justify-content: space-between;
       padding: 12px;
       border: 1px solid #d1d5db;
-      border-radius: 8px;
+      border-radius: 4px;
       background: white;
       cursor: pointer;
       transition: all 0.2s;
@@ -241,8 +241,8 @@ onUnmounted(() => {
       right: 0;
       background: white;
       border: 1px solid #d1d5db;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
       z-index: 50;
       max-height: 200px;
       overflow-y: auto;

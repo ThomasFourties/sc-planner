@@ -25,8 +25,7 @@ import { Search } from 'lucide-vue-next';
 
   .search-bar {
     background: $white;
-    // background: $white;
-    border: 1px solid $gray;
+    border: 1px solid #d8d8d8;
     font-size: 14px;
     border-radius: 4px;
     margin: 0 auto;

@@ -35,7 +35,7 @@
     height: 100%;
     padding: 30px;
     background-color: #f9f9f9;
-    border-radius: 30px;
+    border-radius: 40px;
 
     &::-webkit-scrollbar {
       width: 5px;
@@ -48,7 +48,7 @@
 
     &::-webkit-scrollbar-thumb {
       background: #c0c3c6;
-      border-radius: 10px;
+      border-radius: 4px;
     }
 
     @include down(md) {

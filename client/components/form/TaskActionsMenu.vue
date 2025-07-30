@@ -138,7 +138,7 @@ onUnmounted(() => {
     height: 32px;
     border: none;
     background: transparent;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
     color: #6b7280;
@@ -170,8 +170,8 @@ onUnmounted(() => {
     z-index: 50;
     background: white;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     min-width: 160px;
     margin-top: 4px;
     padding: 6px 0;
@@ -217,6 +217,10 @@ onUnmounted(() => {
 
       &.danger {
         color: #dc2626;
+
+        svg {
+          stroke: #dc2626;
+        }
 
         &:hover {
           background-color: #fef2f2;

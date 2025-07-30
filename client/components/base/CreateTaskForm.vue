@@ -1,6 +1,6 @@
 <template>
-  <div class="create-task">
-    <div class="task-header">
+  <div class="form-container">
+    <div class="form-header">
       <div class="left" @click="handleClose">
         <X />
       </div>
@@ -12,9 +12,9 @@
       </div>
     </div>
 
-    <div class="task-body" :class="{ 'completed': form.status === 'done' }">
-      <div class="task-top">
-        <input v-model="form.name" class="task-title-input"
+    <div class="form-body" :class="{ 'completed': form.status === 'done' }">
+      <div class="form-top">
+        <input v-model="form.name" class="title-input"
           :placeholder="taskId ? 'Nom de la tâche' : 'Créer une nouvelle tâche'" required />
 
         <PrioritySelector v-model="form.priority" />
@@ -32,7 +32,7 @@
 
       <!-- <UserSelector v-model="createdBy" :users="[currentUser]" label="Créé par" :disabled="true" /> -->
 
-      <div class="task-nav">
+      <div class="form-nav">
         <div v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
           :class="['tab', { active: activeTab === tab.id }]">
           {{ tab.label }}
@@ -59,53 +59,51 @@
 
       <div class="separator"></div>
 
-      <div class="task-footer">
-        <div class="files">
-          <p>Fichiers</p>
-          <div class="files-list">
-            <!-- Files placeholder - à implémenter avec S3 -->
-            <div class="file" v-for="file in mockFiles" :key="file.id">
-              <div class="left">
-                <img :src="file.thumbnail" :alt="file.name" />
-              </div>
-              <div class="right">
-                <p class="file-name">{{ file.name }}</p>
-                <div class="footer">
-                  <p class="file-type">{{ file.type }} —</p>
-                  <a href="#" class="download">Télécharger</a>
-                </div>
+      <div class="files">
+        <p>Fichiers</p>
+        <div class="files-list">
+          <!-- Files placeholder - à implémenter avec S3 -->
+          <div class="file" v-for="file in mockFiles" :key="file.id">
+            <div class="left">
+              <img :src="file.thumbnail" :alt="file.name" />
+            </div>
+            <div class="right">
+              <p class="file-name">{{ file.name }}</p>
+              <div class="footer">
+                <p class="file-type">{{ file.type }} —</p>
+                <a href="#" class="download">Télécharger</a>
               </div>
             </div>
+          </div>
 
-            <div class="add-file" @click="handleFileUpload">
-              <Plus />
-            </div>
+          <div class="add-file" @click="handleFileUpload">
+            <Plus />
           </div>
         </div>
-
-        <!-- Créé par -->
-        <div v-if="taskId && initialTask?.created_by" class="created-by-section">
-          <div class="created-by-info">
-            <div class="user-avatar"></div>
-            <div class="user-details">
-              <div class="user-name">{{ initialTask.created_by.first_name }} {{ initialTask.created_by.last_name }}</div>
-              <div class="created-label">Créé par</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Messages d'erreur/succès -->
-        <div v-if="error" class="error-message">{{ error }}</div>
-        <div v-if="success" class="success-message">{{ success }}</div>
-
-        <button v-if="!taskId" @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn btn">
-          Créer la tâche
-        </button>
-
-        <!-- <button v-else @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn btn">
-          Enregistrer les modifications
-        </button> -->
       </div>
+
+      <!-- Créé par -->
+      <div v-if="taskId && initialTask?.created_by" class="created-by-section">
+        <div class="created-by-info">
+          <div class="user-avatar"></div>
+          <div class="user-details">
+            <div class="user-name">{{ initialTask.created_by.first_name }} {{ initialTask.created_by.last_name }}</div>
+            <div class="created-label">Créé par</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages d'erreur/succès -->
+      <!-- <div v-if="error" class="error-message">{{ error }}</div> -->
+      <!-- <div v-if="success" class="success-message">{{ success }}</div> -->
+
+      <button v-if="!taskId" @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
+        Créer la tâche
+      </button>
+
+      <!-- <button v-else @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn btn">
+        Enregistrer les modifications
+      </button> -->
     </div>
 
     <!-- Modal de confirmation de suppression -->
@@ -184,7 +182,6 @@ const tabs = [
   { id: 'history', label: 'Historique' }
 ];
 
-// // Mock files (à remplacer par la vraie logique d'upload)
 // const mockFiles = ref([
 //   {
 //     id: 1,
@@ -448,349 +445,6 @@ defineExpose({
 });
 </script>
 
-<style scoped lang="scss">
-@use '../../assets/scss/base/variables' as *;
-
-.create-task {
-  position: fixed;
-  color: $black;
-  z-index: 100;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: $white;
-  padding: 20px;
-  width: 40vw;
-  min-width: 700px;
-  max-height: 90vh;
-  border-radius: 8px;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
-  .task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-
-    .left,
-    .right {
-      cursor: pointer;
-      padding: 8px;
-      width: 32px;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        background-color: #f3f4f6;
-      }
-
-      svg {
-        width: 20px;
-        height: 20px;
-        stroke-width: 1.5;
-      }
-    }
-
-    .left {
-
-      svg {
-        stroke-width: 2;
-      }
-    }
-  }
-
-  .task-body {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    transition: opacity 0.3s ease;
-
-
-    .task-top {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .task-title-input {
-      font-size: 24px;
-      font-weight: 700;
-      border: none;
-      outline: none;
-      border-radius: 0;
-      padding: 8px 0;
-      background: transparent;
-      color: $black;
-      border-bottom: 2px solid transparent;
-      transition: border-color 0.2s;
-
-      &:focus {
-        border-bottom-color: $lightBlue;
-      }
-
-      &::placeholder {
-        color: #9ca3af;
-        font-weight: 600;
-      }
-    }
-
-    .separator {
-      width: 100%;
-      height: 1px;
-      background-color: #e0e0e0;
-    }
-
-    .selected-user {
-      svg {
-        stroke-width: 1.5;
-        width: 10px;
-      }
-    }
-
-    .task-nav {
-      display: flex;
-      gap: 20px;
-      width: 100%;
-      border-bottom: 1px solid #e0e0e0;
-
-      .tab {
-        cursor: pointer;
-        padding: 10px 0;
-        font-size: 14px;
-        font-weight: 500;
-        color: #6b7280;
-        border-bottom: 2px solid transparent;
-        transition: all 0.2s;
-
-        &.active {
-          font-weight: 600;
-          color: $black;
-          border-bottom-color: $black;
-        }
-
-        &:hover:not(.active) {
-          color: #374151;
-        }
-      }
-    }
-
-    .tab-content {
-      .description-textarea {
-        width: 100%;
-        height: 100px;
-        border-radius: 5px;
-        border: 1px solid #e5e7eb;
-        padding: 15px;
-        resize: vertical;
-        background-color: #f9fafb;
-        font-size: 14px;
-        line-height: 1.5;
-
-        &:focus {
-          outline: none;
-          border-color: $lightBlue;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-      }
-
-      .placeholder-content {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100px;
-        background-color: #f9fafb;
-        border-radius: 5px;
-        border: 1px dashed #d1d5db;
-
-        p {
-          color: #6b7280;
-          font-style: italic;
-          margin: 0;
-        }
-      }
-    }
-
-    .task-footer {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-
-      .files {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-
-        >p {
-          font-size: 14px;
-          font-weight: 600;
-          color: $black;
-          margin: 0;
-        }
-
-        .files-list {
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-
-          .file {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 16px 8px 8px;
-            border: 1px solid #cecece;
-            border-radius: 4px;
-            background: white;
-
-            .left {
-              width: 40px;
-              height: 40px;
-              border-radius: 4px;
-              overflow: hidden;
-
-              img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-              }
-            }
-
-            .right {
-              .file-name {
-                font-size: 12px;
-                font-weight: 600;
-                margin: 0 0 4px 0;
-                color: $black;
-              }
-
-              .footer {
-                display: flex;
-                gap: 4px;
-                align-items: center;
-
-                .file-type,
-                .download {
-                  font-size: 10px;
-                  color: #6b7280;
-                  margin: 0;
-                }
-
-                .download {
-                  text-decoration: none;
-                  cursor: pointer;
-
-                  &:hover {
-                    color: $lightBlue;
-                  }
-                }
-              }
-            }
-          }
-
-          .add-file {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            border: 1px dashed #cecece;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-width: 72px;
-
-            &:hover {
-              border-color: $lightBlue;
-              background-color: #f8fafc;
-            }
-
-            svg {
-              width: 20px;
-              height: 20px;
-              stroke-width: 1.5;
-              color: #6b7280;
-            }
-          }
-        }
-      }
-
-      .created-by-section {
-        margin-top: 16px;
-
-        .created-by-info {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 12px;
-          background: #f8f9fa;
-          border-radius: 6px;
-          border: 1px solid #e9ecef;
-
-          .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            flex-shrink: 0;
-          }
-
-          .user-details {
-            .user-name {
-              font-size: 14px;
-              font-weight: 500;
-              color: #212529;
-              margin-bottom: 2px;
-            }
-
-            .created-label {
-              font-size: 12px;
-              color: #6c757d;
-              font-style: italic;
-            }
-          }
-        }
-      }
-
-      .error-message {
-        color: #dc2626;
-        font-size: 14px;
-        padding: 8px 12px;
-        background: #fee2e2;
-        border-radius: 6px;
-        border: 1px solid #fca5a5;
-      }
-
-      .success-message {
-        color: #059669;
-        font-size: 14px;
-        padding: 8px 12px;
-        background: #d1fae5;
-        border-radius: 6px;
-        border: 1px solid #6ee7b7;
-      }
-
-      .submit-btn {
-        align-self: flex-end;
-        // padding: 12px 24px;
-        // background-color: $black;
-        // color: white;
-        // border: none;
-        // border-radius: 6px;
-        // font-size: 14px;
-        // font-weight: 600;
-        // cursor: pointer;
-        // transition: all 0.2s;
-
-        &:disabled {
-          background-color: #9ca3af;
-          cursor: not-allowed;
-          transform: none;
-        }
-      }
-    }
-  }
-}
+<style lang="scss">
+@use '../../assets/scss/base/modal' as *;
 </style>

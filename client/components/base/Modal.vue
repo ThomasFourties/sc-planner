@@ -58,14 +58,14 @@ const closeOnOverlay = () => {
 
 .modal-container {
   background: white;
-  border-radius: 12px;
+  border-radius: 4px;
   // max-width: 800px;
   max-width: 1240px;
   width: 90%;
   max-height: 90vh;
   height: fit-content;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  // box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .modal-header {
@@ -82,7 +82,7 @@ const closeOnOverlay = () => {
   color: #64748b;
   cursor: pointer;
   padding: 4px;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: all 0.2s;
   
   &:hover {

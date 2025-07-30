@@ -12,8 +12,8 @@
   width: 100%;
   height: 100%;
   background-color: $white;
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 30px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 }
 </style>

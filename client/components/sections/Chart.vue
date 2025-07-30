@@ -270,7 +270,7 @@ defineExpose({
   height: 100%;
   padding: 24px;
   background-color: white;
-  border-radius: 12px;
+  border-radius: 4px;
 }
 
 .chart-header {
@@ -301,7 +301,7 @@ defineExpose({
   width: 32px;
   height: 32px;
   border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  border-radius: 4px;
   background: white;
   cursor: pointer;
   transition: all 0.2s ease;
