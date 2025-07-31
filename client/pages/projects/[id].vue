@@ -241,18 +241,18 @@ const loadProject = async () => {
   }
 };
 
-// Charger les tâches du projet
-const loadTasks = async () => {
-  try {
-    loadingTasks.value = true;
-    tasks.value = await $fetch(`/api/tasks/project/${projectId}`);
-  } catch (error) {
-    console.error('Erreur lors du chargement des tâches:', error);
-    tasks.value = [];
-  } finally {
-    loadingTasks.value = false;
-  }
-};
+// // Charger les tâches du projet
+// const loadTasks = async () => {
+//   try {
+//     loadingTasks.value = true;
+//     tasks.value = await $fetch(`/api/tasks/project/${projectId}`);
+//   } catch (error) {
+//     console.error('Erreur lors du chargement des tâches:', error);
+//     tasks.value = [];
+//   } finally {
+//     loadingTasks.value = false;
+//   }
+// };
 
 // Navigation retour
 const navigateBack = () => {
