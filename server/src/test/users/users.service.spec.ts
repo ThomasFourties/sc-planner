@@ -61,27 +61,7 @@ describe('UsersService', () => {
     jest.clearAllMocks();
   });
 
-  // describe('create', () => {
-  //   it('should create a new user successfully', async () => {
-  //     const userData = {
-  //       first_name: 'John',
-  //       last_name: 'Doe',
-  //       email: 'john@example.com',
-  //       password: 'hashed_password',
-  //       role: UserRole.CLIENT,
-  //       is_admin: false,
-  //     };
 
-  //     mockRepository.create.mockReturnValue(userData as User);
-  //     mockRepository.save.mockResolvedValue(mockUser);
-
-  //     const result = await service.create(userData);
-
-  //     expect(mockRepository.create).toHaveBeenCalledWith(userData);
-  //     expect(mockRepository.save).toHaveBeenCalledWith(userData);
-  //     expect(result).toEqual(mockUser);
-  //   });
-  // });
 
   describe('findAll', () => {
     it('should return an array of all users', async () => {
@@ -149,74 +129,7 @@ describe('UsersService', () => {
     });
   });
 
-  // describe('assignClient', () => {
-  //   it('should assign a client to a user successfully', async () => {
-  //     const assignClientDto = { client_id: mockClient.id };
-  //     const updatedUser = { ...mockUser, client_id: mockClient.id };
 
-  //     mockRepository.findOne
-  //       .mockResolvedValueOnce(mockUser)
-  //       .mockResolvedValueOnce(updatedUser);
-
-  //     mockRepository.update.mockResolvedValue({ affected: 1 });
-
-  //     const result = await service.assignClient(mockUser.id, assignClientDto);
-
-  //     expect(mockRepository.findOne).toHaveBeenCalledWith({
-  //       where: { id: mockUser.id },
-  //       relations: ['client'],
-  //     });
-  //     expect(mockRepository.update).toHaveBeenCalledWith(mockUser.id, {
-  //       client_id: assignClientDto.client_id,
-  //     });
-  //     expect(result).toEqual(updatedUser);
-  //   });
-
-  //   it('should throw NotFoundException when user does not exist', async () => {
-  //     mockRepository.findOne.mockResolvedValue(null);
-
-  //     await expect(
-  //       service.assignClient('nonexistent-id', { client_id: mockClient.id }),
-  //     ).rejects.toThrow(NotFoundException);
-  //     await expect(
-  //       service.assignClient('nonexistent-id', { client_id: mockClient.id }),
-  //     ).rejects.toThrow('Utilisateur non trouvé');
-
-  //     expect(mockRepository.update).not.toHaveBeenCalled();
-  //   });
-
-  //   it('should throw InternalServerErrorException when assignment fails', async () => {
-  //     mockRepository.findOne.mockResolvedValue(mockUser);
-  //     mockRepository.update.mockResolvedValue({ affected: 0 });
-
-  //     await expect(
-  //       service.assignClient(mockUser.id, { client_id: mockClient.id }),
-  //     ).rejects.toThrow(InternalServerErrorException);
-  //     await expect(
-  //       service.assignClient(mockUser.id, { client_id: mockClient.id }),
-  //     ).rejects.toThrow("Erreur lors de l'assignation du client");
-  //   });
-
-  //   it('should reassign user from one client to another', async () => {
-  //     const newClientId = 'new-client-id';
-  //     const userWithOldClient = { ...mockUser, client_id: 'old-client-id' };
-  //     const userWithNewClient = { ...mockUser, client_id: newClientId };
-
-  //     mockRepository.findOne
-  //       .mockResolvedValueOnce(userWithOldClient)
-  //       .mockResolvedValueOnce(userWithNewClient);
-  //     mockRepository.update.mockResolvedValue({ affected: 1 });
-
-  //     const result = await service.assignClient(mockUser.id, {
-  //       client_id: newClientId,
-  //     });
-
-  //     expect(result.client_id).toBe(newClientId);
-  //     expect(mockRepository.update).toHaveBeenCalledWith(mockUser.id, {
-  //       client_id: newClientId,
-  //     });
-  //   });
-  // });
 
   // describe('unassignClient', () => {
   //   it('should unassign a client from a user successfully', async () => {

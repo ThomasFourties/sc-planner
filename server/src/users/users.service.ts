@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UserRole } from './enums/user-role.enum';
-// import { AssignClientDto } from './dto/assign-client.dto';
+
 
 @Injectable()
 export class UsersService {
@@ -42,55 +42,7 @@ export class UsersService {
     });
   }
 
-  // async findByClientId(clientId: string): Promise<User[]> {
-  //   return this.userRepository.find({
-  //     where: { client_id: clientId },
-  //     relations: ['client'],
-  //   });
-  // }
 
-  // async assignClient(
-  //   userId: string,
-  //   assignClientDto: AssignClientDto,
-  // ): Promise<User> {
-  //   const user = await this.findById(userId);
-
-  //   if (!user) {
-  //     throw new NotFoundException('Utilisateur non trouvé');
-  //   }
-
-  //   const result = await this.userRepository.update(userId, {
-  //     client_id: assignClientDto.client_id,
-  //   });
-
-  //   if (result.affected === 0) {
-  //     throw new InternalServerErrorException(
-  //       "Erreur lors de l'assignation du client",
-  //     );
-  //   }
-
-  //   return this.findById(userId) as Promise<User>;
-  // }
-
-  // async unassignClient(userId: string): Promise<User> {
-  //   const user = await this.findById(userId);
-
-  //   if (!user) {
-  //     throw new NotFoundException('Utilisateur non trouvé');
-  //   }
-
-  //   const result = await this.userRepository.update(userId, {
-  //     client_id: undefined,
-  //   });
-
-  //   if (result.affected === 0) {
-  //     throw new InternalServerErrorException(
-  //       'Erreur lors de la désassignation du client',
-  //     );
-  //   }
-
-  //   return this.findById(userId) as Promise<User>;
-  // }
 
   async update(id: string, userData: Partial<User>): Promise<User> {
     const existingUser = await this.findById(id);

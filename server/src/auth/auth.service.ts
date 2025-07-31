@@ -124,4 +124,26 @@ export class AuthService {
       message: 'Mot de passe réinitialisé avec succès',
     };
   }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      // On ne révèle pas si l'email existe ou non pour des raisons de sécurité
+      return {
+        message:
+          'Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.',
+      };
+    }
+
+    const token = this.jwtService.sign({ email }, { expiresIn: '1h' });
+
+    // Ici vous pourriez appeler un service d'email
+    // await this.emailService.sendPasswordResetEmail(email, token);
+
+    return {
+      message:
+        'Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.',
+    };
+  }
 }

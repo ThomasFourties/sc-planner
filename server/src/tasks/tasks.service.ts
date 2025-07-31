@@ -67,14 +67,6 @@ export class TasksService {
     });
   }
 
-  // async findByProject(projectId: string): Promise<Task[]> {
-  //   return await this.tasksRepository.find({
-  //     where: { project_id: projectId },
-  //     relations: ['assigned_to', 'created_by', 'project'],
-  //     order: { created_at: 'DESC' },
-  //   });
-  // }
-
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
     if (!updateTaskDto.name) {
       throw new BadRequestException('Le nom de la tâche est requis');

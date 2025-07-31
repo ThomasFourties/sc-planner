@@ -54,9 +54,7 @@ export class ClientsService {
     });
 
     if (!result) {
-      throw new InternalServerErrorException(
-        'Erreur lors de la création du client',
-      );
+      throw new NotFoundException('Client non trouvé');
     }
 
     return result;

@@ -298,6 +298,14 @@ describe('TasksService', () => {
     });
   });
 
+  describe('findById', () => {
+    it('should return task when found', async () => {
+      mockTasksRepository.findOne.mockResolvedValue(mockTask);
+      const result = await service.findById(mockTask.id);
+      expect(result).toEqual(mockTask);
+    });
+  });
+
   describe('findOne', () => {
     it('should return task when found', async () => {
       mockTasksRepository.findOne.mockResolvedValue(mockTask);

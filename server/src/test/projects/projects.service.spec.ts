@@ -213,6 +213,80 @@ describe('ProjectsService', () => {
 
       expect(mockProjectsRepository.save).not.toHaveBeenCalled();
     });
+
+    it('should throw NotFoundException when client does not exist in update', async () => {
+      const updateProjectDto = {
+        name: 'Updated Project',
+        client_id: 'nonexistent-client',
+      };
+
+      mockProjectsRepository.findOne.mockResolvedValue(mockProject);
+      mockClientsRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.update(mockProject.id, updateProjectDto),
+      ).rejects.toThrow(new NotFoundException('Client non trouvé'));
+
+      expect(mockClientsRepository.findOne).toHaveBeenCalledWith({
+        where: { id: updateProjectDto.client_id },
+      });
+      expect(mockProjectsRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should update project with all properties including rest operator', async () => {
+      const updateProjectDto = {
+        name: 'Updated Project',
+        description: 'Updated description',
+        status: ProjectStatus.COMPLETED,
+        start_date: '2023-02-01',
+        end_date: '2023-08-01',
+        sold_hours: 200,
+        spent_hours: 150,
+        client_id: 'client-1',
+      };
+
+      const updatedProject = { ...mockProject, ...updateProjectDto };
+      mockProjectsRepository.findOne.mockResolvedValue(mockProject);
+      mockClientsRepository.findOne.mockResolvedValue(mockClient);
+      mockProjectsRepository.save.mockResolvedValue(updatedProject);
+
+      const result = await service.update(mockProject.id, updateProjectDto);
+
+      expect(mockProjectsRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockProject.id },
+        relations: ['client', 'tasks'],
+      });
+      expect(mockClientsRepository.findOne).toHaveBeenCalledWith({
+        where: { id: updateProjectDto.client_id },
+      });
+      expect(mockProjectsRepository.save).toHaveBeenCalledWith(updatedProject);
+      expect(result).toEqual(updatedProject);
+    });
+
+    it('should update project without client_id (rest operator only)', async () => {
+      const updateProjectDto = {
+        name: 'Updated Project',
+        description: 'Updated description',
+        status: ProjectStatus.COMPLETED,
+        sold_hours: 200,
+        spent_hours: 150,
+        // client_id not provided to test rest operator
+      };
+
+      const updatedProject = { ...mockProject, ...updateProjectDto };
+      mockProjectsRepository.findOne.mockResolvedValue(mockProject);
+      mockProjectsRepository.save.mockResolvedValue(updatedProject);
+
+      const result = await service.update(mockProject.id, updateProjectDto);
+
+      expect(mockProjectsRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockProject.id },
+        relations: ['client', 'tasks'],
+      });
+      expect(mockClientsRepository.findOne).not.toHaveBeenCalled();
+      expect(mockProjectsRepository.save).toHaveBeenCalledWith(updatedProject);
+      expect(result).toEqual(updatedProject);
+    });
   });
 
   describe('remove', () => {

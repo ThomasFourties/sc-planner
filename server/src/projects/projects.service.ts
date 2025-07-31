@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from './entities/project.entity';
@@ -64,29 +60,20 @@ export class ProjectsService {
     return project;
   }
 
-  async update(
-    id: string,
-    updateProjectDto: UpdateProjectDto,
-  ): Promise<Project> {
+  async update(id: string, { name, client_id, ...rest }: UpdateProjectDto): Promise<Project> {
     const project = await this.findOne(id);
 
-    if (!updateProjectDto.name || updateProjectDto.name.trim() === '') {
+    if (!name?.trim()) {
       throw new BadRequestException('Le nom du projet est requis');
     }
 
-    // Vérifier que le client existe si client_id est fourni
-    if (updateProjectDto.client_id) {
-      const client = await this.clientsRepository.findOne({
-        where: { id: updateProjectDto.client_id },
-      });
-
-      if (!client) {
-        throw new NotFoundException('Client non trouvé');
-      }
+    if (client_id) {
+      const client = await this.clientsRepository.findOne({ where: { id: client_id } });
+      if (!client) throw new NotFoundException('Client non trouvé');
     }
 
-    Object.assign(project, updateProjectDto);
-    return await this.projectsRepository.save(project);
+    Object.assign(project, { name, client_id, ...rest });
+    return this.projectsRepository.save(project);
   }
 
   async remove(id: string): Promise<void> {
@@ -94,4 +81,3 @@ export class ProjectsService {
     await this.projectsRepository.remove(project);
   }
 }
-

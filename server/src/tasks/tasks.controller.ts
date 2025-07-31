@@ -35,11 +35,6 @@ export class TasksController {
     return this.tasksService.findByUser(req.user.sub);
   }
 
-  @Get('project/:projectId')
-  findByProject(@Param('projectId') projectId: string) {
-    return this.tasksService.findByProject(projectId);
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.tasksService.findOne(id);
