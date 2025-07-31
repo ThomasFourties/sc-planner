@@ -5,11 +5,13 @@ import {
   IsEnum,
   IsUUID,
   IsDateString,
+  IsNotEmpty,
 } from 'class-validator';
 import { TaskStatus, TaskPriority } from '../entities/task.entity';
 
 export class CreateTaskDto {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsOptional()

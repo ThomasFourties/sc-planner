@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -29,6 +30,10 @@ export class ClientsService {
   ) {}
 
   async create(createClientDto: CreateClientDto): Promise<Client> {
+    if (!createClientDto.name) {
+      throw new BadRequestException('Le nom du client est requis');
+    }
+
     const { user_ids, ...clientData } = createClientDto;
 
     const client = this.clientRepository.create(clientData);
@@ -111,6 +116,10 @@ export class ClientsService {
   async update(id: string, updateClientDto: UpdateClientDto): Promise<any> {
     const { user_ids, ...updateData } = updateClientDto;
 
+    if (!updateClientDto.name) {
+      throw new BadRequestException('Le nom du client est requis');
+    }
+
     const existingClient = await this.clientRepository.findOne({
       where: { id },
     });
@@ -161,6 +170,7 @@ export class ClientsService {
       if (!client) throw new NotFoundException('Client non trouvé');
 
       try {
+        // ✅ CORRECTION ICI
         await userRepo
           .createQueryBuilder()
           .update(User)

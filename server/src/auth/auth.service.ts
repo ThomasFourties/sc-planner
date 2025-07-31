@@ -31,6 +31,10 @@ export class AuthService {
 
     const existingUser = await this.usersService.findByEmail(email);
 
+    if (!email) {
+      throw new BadRequestException('Email requis');
+    }
+
     if (existingUser) {
       throw new ConflictException("L'email est deja associe à un compte");
     }

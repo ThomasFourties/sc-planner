@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
@@ -16,6 +20,10 @@ export class TasksService {
     createTaskDto: CreateTaskDto,
     created_by_id: string,
   ): Promise<Task> {
+    if (!createTaskDto.name) {
+      throw new BadRequestException('Le nom de la tâche est requis');
+    }
+
     const task = this.tasksRepository.create({
       ...createTaskDto,
       created_by_id,
@@ -59,15 +67,19 @@ export class TasksService {
     });
   }
 
-  async findByProject(projectId: string): Promise<Task[]> {
-    return await this.tasksRepository.find({
-      where: { project_id: projectId },
-      relations: ['assigned_to', 'created_by', 'project'],
-      order: { created_at: 'DESC' },
-    });
-  }
+  // async findByProject(projectId: string): Promise<Task[]> {
+  //   return await this.tasksRepository.find({
+  //     where: { project_id: projectId },
+  //     relations: ['assigned_to', 'created_by', 'project'],
+  //     order: { created_at: 'DESC' },
+  //   });
+  // }
 
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    if (!updateTaskDto.name) {
+      throw new BadRequestException('Le nom de la tâche est requis');
+    }
+
     await this.tasksRepository.update(id, updateTaskDto);
     return await this.findOne(id);
   }

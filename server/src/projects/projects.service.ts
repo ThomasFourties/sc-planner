@@ -1,18 +1,38 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from './entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { Client } from '../clients/entities/client.entity';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
+    @InjectRepository(Client)
+    private clientsRepository: Repository<Client>,
   ) {}
 
   async create(createProjectDto: CreateProjectDto): Promise<Project> {
+    if (!createProjectDto.name || createProjectDto.name.trim() === '') {
+      throw new BadRequestException('Le nom du projet est requis');
+    }
+
+    // Vérifier que le client existe
+    const client = await this.clientsRepository.findOne({
+      where: { id: createProjectDto.client_id },
+    });
+
+    if (!client) {
+      throw new NotFoundException('Client non trouvé');
+    }
+
     const project = this.projectsRepository.create(createProjectDto);
     return await this.projectsRepository.save(project);
   }
@@ -44,9 +64,27 @@ export class ProjectsService {
     return project;
   }
 
-  async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
+  async update(
+    id: string,
+    updateProjectDto: UpdateProjectDto,
+  ): Promise<Project> {
     const project = await this.findOne(id);
-    
+
+    if (!updateProjectDto.name || updateProjectDto.name.trim() === '') {
+      throw new BadRequestException('Le nom du projet est requis');
+    }
+
+    // Vérifier que le client existe si client_id est fourni
+    if (updateProjectDto.client_id) {
+      const client = await this.clientsRepository.findOne({
+        where: { id: updateProjectDto.client_id },
+      });
+
+      if (!client) {
+        throw new NotFoundException('Client non trouvé');
+      }
+    }
+
     Object.assign(project, updateProjectDto);
     return await this.projectsRepository.save(project);
   }
@@ -55,4 +93,5 @@ export class ProjectsService {
     const project = await this.findOne(id);
     await this.projectsRepository.remove(project);
   }
-} 
+}
+

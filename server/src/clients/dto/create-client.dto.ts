@@ -4,11 +4,13 @@ import {
   MaxLength,
   IsArray,
   IsUUID,
+  IsNotEmpty,
 } from 'class-validator';
 
 export class CreateClientDto {
   @IsString()
   @MaxLength(255)
+  @IsNotEmpty()
   name: string;
 
   @IsOptional()
