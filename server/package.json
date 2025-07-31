@@ -91,12 +91,12 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "auth/*.service.ts",
-      "clients/*.service.ts",
-      "health/*.service.ts",
-      "projects/*.service.ts",
-      "tasks/*.service.ts",
-      "users/*.service.ts"
+      "auth/**/*.(t|j)s",
+      "clients/**/*.(t|j)s",
+      "health/**/*.(t|j)s",
+      "projects/**/*.(t|j)s",
+      "tasks/**/*.(t|j)s",
+      "users/**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

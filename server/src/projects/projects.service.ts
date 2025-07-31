@@ -60,20 +60,39 @@ export class ProjectsService {
     return project;
   }
 
-  async update(id: string, { name, client_id, ...rest }: UpdateProjectDto): Promise<Project> {
-    const project = await this.findOne(id);
+  async update(id: string, updateProjectDto: any): Promise<Project> {
+    const project = await this.projectsRepository.findOne({
+      where: { id },
+      relations: ['client', 'tasks'],
+    });
 
-    if (!name?.trim()) {
+    if (!project) {
+      throw new NotFoundException('Projet non trouvé');
+    }
+
+    if (updateProjectDto.name !== undefined && updateProjectDto.name.trim() === '') {
       throw new BadRequestException('Le nom du projet est requis');
     }
 
-    if (client_id) {
-      const client = await this.clientsRepository.findOne({ where: { id: client_id } });
-      if (!client) throw new NotFoundException('Client non trouvé');
+    let client: Client | null = null;
+    if (updateProjectDto.client_id) {
+      client = await this.clientsRepository.findOne({
+        where: { id: updateProjectDto.client_id },
+      });
+
+      if (!client) {
+        throw new NotFoundException('Client non trouvé');
+      }
     }
 
-    Object.assign(project, { name, client_id, ...rest });
-    return this.projectsRepository.save(project);
+    const updatedProject = {
+      ...project,
+      ...updateProjectDto,
+      client: client ?? project.client,
+      client_id: updateProjectDto.client_id ?? project.client_id,
+    };
+
+    return await this.projectsRepository.save(updatedProject);
   }
 
   async remove(id: string): Promise<void> {
