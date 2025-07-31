@@ -209,7 +209,7 @@
 <script setup>
 import { Plus, ChevronUp, ChevronDown, ChevronsUpDown, Archive } from 'lucide-vue-next';
 import { ref, onMounted, computed } from 'vue';
-import { useUIStore } from '~/stores/ui';
+// import { useUIStore } from '~/stores/ui';
 import { useAuthStore } from '~/stores/auth';
 
 definePageMeta({

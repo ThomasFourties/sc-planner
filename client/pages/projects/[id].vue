@@ -201,7 +201,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { Plus, ArrowLeft, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-vue-next';
-import { useUiStore } from '~/stores/ui';
+// import { useUiStore } from '~/stores/ui';
 import { useAuthStore } from '~/stores/auth';
 
 // Composants
