@@ -10,3 +10,5 @@ tests
 dist
 .nuxt
 .output
+coverage
+coverage-e2e

@@ -1,5 +1,7 @@
 import { DataSource } from 'typeorm';
+import { seedClients } from './clients.seed';
 import { seedUsers } from './users.seed';
+import { seedProjects } from './projects.seed';
 import { seedTasks } from './tasks.seed';
 import { config } from 'dotenv';
 
@@ -21,9 +23,20 @@ async function runSeed() {
     await dataSource.initialize();
     console.log('Running seeds...');
 
+    // Exécuter les seeds dans l'ordre pour respecter les relations
+    console.log('Seeding clients...');
+    await seedClients(dataSource);
+
+    console.log('Seeding users...');
     await seedUsers(dataSource);
+
+    console.log('Seeding projects...');
+    await seedProjects(dataSource);
+
+    console.log('Seeding tasks...');
     await seedTasks(dataSource);
-    console.log('Seeds completed successfully');
+
+    console.log('All seeds completed successfully');
     process.exit(0);
   } catch (error) {
     console.error('Error running seeds:', error);
