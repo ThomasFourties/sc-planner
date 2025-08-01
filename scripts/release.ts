@@ -1,6 +1,6 @@
-const { execSync } = require('child_process');
-const fs = require('fs');
-const { Octokit } = require('@octokit/rest');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import { Octokit } from '@octokit/rest';
 
 // Get version from CLI
 const version = process.argv[2];
@@ -15,11 +15,13 @@ try {
   execSync(`git rev-parse v${version}`, { stdio: 'ignore' });
   console.error(`❌ Tag v${version} already exists`);
   process.exit(1);
-} catch { }
+} catch {}
 
 // Run standard-version
 try {
-  execSync(`npx standard-version --release-as ${version} --no-verify`, { stdio: 'inherit' });
+  execSync(`npx standard-version --release-as ${version} --no-verify`, {
+    stdio: 'inherit',
+  });
   console.log(`\n✅ Successfully released version ${version}`);
 } catch (err) {
   console.error('❌ Release failed during standard-version:', err.message);
@@ -29,7 +31,9 @@ try {
 // Extract release notes from CHANGELOG.md
 const getReleaseNotes = () => {
   const changelog = fs.readFileSync('./CHANGELOG.md', 'utf8');
-  const match = changelog.match(new RegExp(`##+ \\[?${version}\\]?([\\s\\S]*?)(?=\\n##+ |\\n*$)`));
+  const match = changelog.match(
+    new RegExp(`##+ \\[?${version}\\]?([\\s\\S]*?)(?=\\n##+ |\\n*$)`)
+  );
   return match ? match[1].trim() : '⚠️ No changelog entry found.';
 };
 
@@ -51,7 +55,7 @@ const createGitHubRelease = async () => {
       name: `v${version}`,
       body: getReleaseNotes(),
       draft: false,
-      prerelease: false
+      prerelease: false,
     });
 
     console.log(`✅ GitHub release v${version} created`);
