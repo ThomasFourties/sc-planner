@@ -15,8 +15,8 @@ services:
     depends_on:
       - server
 
-  server: 
-    build: 
+  server:
+    build:
       context: ./server
       dockerfile: Dockerfile.dev
     image: sc-planner/server
@@ -48,6 +48,17 @@ services:
     volumes:
       - _database:/var/lib/postgresql/data
 
+  database-test:
+    image: postgres:13
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: sc-planner-db-test
+    volumes:
+      - _database-test:/var/lib/postgresql/data
 
 volumes:
   _database:
+  _database-test:
