@@ -19,6 +19,12 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
+# Copier les fichiers nécessaires pour les tâches de base de données
+COPY --from=builder /app/src/database/seeds ./src/database/seeds
+COPY --from=builder /app/src/database/migrations ./src/database/migrations
+COPY --from=builder /app/typeorm.config.ts ./typeorm.config.ts
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+
 ENV NODE_ENV=production
 
 CMD ["node", "dist/main.js"]
