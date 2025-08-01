@@ -10,9 +10,10 @@ import {
 import { TaskStatus, TaskPriority } from '../entities/task.entity';
 
 export class UpdateTaskDto {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name?: string;
 
   @IsOptional()
   @IsString()

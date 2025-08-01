@@ -20,7 +20,7 @@ export class Client {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   logo?: string;
 
   @Column({ nullable: true })

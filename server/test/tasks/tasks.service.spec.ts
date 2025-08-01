@@ -1,12 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { TasksService } from '../../src/tasks/tasks.service';
-import {
-  Task,
-  TaskStatus,
-  TaskPriority,
-} from '../../src/tasks/entities/task.entity';
+import { Task, TaskStatus, TaskPriority } from '../../src/tasks/entities/task.entity';
 import { User } from '../../src/users/entities/user.entity';
 import { Project, ProjectStatus } from '../../src/projects/entities/project.entity';
 import { UserRole } from '../../src/users/enums/user-role.enum';
@@ -141,12 +136,8 @@ describe('TasksService', () => {
         description: 'Task without name',
       };
 
-      await expect(service.create(createTaskDto, 'creator-1')).rejects.toThrow(
-        BadRequestException,
-      );
-      await expect(service.create(createTaskDto, 'creator-1')).rejects.toThrow(
-        'Le nom de la tâche est requis',
-      );
+      await expect(service.create(createTaskDto, 'creator-1')).rejects.toThrow(BadRequestException);
+      await expect(service.create(createTaskDto, 'creator-1')).rejects.toThrow('Le nom de la tâche est requis');
 
       expect(mockTasksRepository.create).not.toHaveBeenCalled();
       expect(mockTasksRepository.save).not.toHaveBeenCalled();
@@ -167,10 +158,7 @@ describe('TasksService', () => {
 
       const result = await service.update(mockTask.id, updateTaskDto);
 
-      expect(mockTasksRepository.update).toHaveBeenCalledWith(
-        mockTask.id,
-        updateTaskDto,
-      );
+      expect(mockTasksRepository.update).toHaveBeenCalledWith(mockTask.id, updateTaskDto);
       expect(service.findOne).toHaveBeenCalledWith(mockTask.id);
       expect(result).toEqual(updatedTask);
     });
@@ -181,12 +169,11 @@ describe('TasksService', () => {
         description: 'Updated but no name',
       };
 
-      await expect(service.update(mockTask.id, updateTaskDto)).rejects.toThrow(
-        BadRequestException,
-      );
-      await expect(service.update(mockTask.id, updateTaskDto)).rejects.toThrow(
-        'Le nom de la tâche est requis',
-      );
+      // Mock findOne to return an existing task first
+      jest.spyOn(service, 'findOne').mockResolvedValue(mockTask);
+
+      await expect(service.update(mockTask.id, updateTaskDto)).rejects.toThrow(BadRequestException);
+      await expect(service.update(mockTask.id, updateTaskDto)).rejects.toThrow('Le nom de la tâche ne peut pas être vide');
 
       expect(mockTasksRepository.update).not.toHaveBeenCalled();
     });
@@ -239,12 +226,8 @@ describe('TasksService', () => {
     it('should throw NotFoundException when task does not exist', async () => {
       mockTasksRepository.delete.mockResolvedValue({ affected: 0 });
 
-      await expect(service.remove('nonexistent-id')).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.remove('nonexistent-id')).rejects.toThrow(
-        `Tâche avec l'ID nonexistent-id non trouvée`,
-      );
+      await expect(service.remove('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('nonexistent-id')).rejects.toThrow(`Tâche avec l'ID nonexistent-id non trouvée`);
     });
   });
 
@@ -274,10 +257,7 @@ describe('TasksService', () => {
 
   describe('findAll', () => {
     it('should return all tasks', async () => {
-      const allTasks = [
-        mockTask,
-        { ...mockTask, id: 'task-2', name: 'Task 2' },
-      ];
+      const allTasks = [mockTask, { ...mockTask, id: 'task-2', name: 'Task 2' }];
       mockTasksRepository.find.mockResolvedValue(allTasks);
 
       const result = await service.findAll();
@@ -322,12 +302,8 @@ describe('TasksService', () => {
     it('should throw NotFoundException when task not found', async () => {
       mockTasksRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent-id')).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.findOne('nonexistent-id')).rejects.toThrow(
-        `Tâche avec l'ID nonexistent-id non trouvée`,
-      );
+      await expect(service.findOne('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent-id')).rejects.toThrow(`Tâche avec l'ID nonexistent-id non trouvée`);
     });
   });
 });

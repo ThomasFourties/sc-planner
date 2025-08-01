@@ -42,6 +42,13 @@ export class UsersService {
     });
   }
 
+  async findByClientId(clientId: string): Promise<User[]> {
+    return this.userRepository.find({
+      where: { client: { id: clientId } },
+      relations: ['client'],
+    });
+  }
+
 
 
   async update(id: string, userData: Partial<User>): Promise<User> {

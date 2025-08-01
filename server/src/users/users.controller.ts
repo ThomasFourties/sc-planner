@@ -30,11 +30,11 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Get('client/:clientId')
-  // async findByClientId(@Param('clientId') clientId: string) {
-  //   return this.usersService.findByClientId(clientId);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Get('client/:clientId')
+  async findByClientId(@Param('clientId') clientId: string) {
+    return this.usersService.findByClientId(clientId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')

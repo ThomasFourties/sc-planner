@@ -68,8 +68,12 @@ export class TasksService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
-    if (!updateTaskDto.name) {
-      throw new BadRequestException('Le nom de la tâche est requis');
+    // Vérifier que la tâche existe avant la mise à jour
+    const existingTask = await this.findOne(id);
+    
+    // Si un nom est fourni, il ne doit pas être vide
+    if (updateTaskDto.name !== undefined && !updateTaskDto.name.trim()) {
+      throw new BadRequestException('Le nom de la tâche ne peut pas être vide');
     }
 
     await this.tasksRepository.update(id, updateTaskDto);
