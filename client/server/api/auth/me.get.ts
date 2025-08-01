@@ -24,6 +24,14 @@ export default defineEventHandler(async (event) => {
 
     return response;
   } catch (error: any) {
+    // Si le token est invalide, on retourne une erreur 401
+    if (error.status === 401 || error.statusCode === 401) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Token invalide ou expiré',
+      });
+    }
+
     throw createError({
       statusCode: error.status || error.statusCode || 500,
       statusMessage: error.data?.message || error.message || 'Erreur lors de la récupération du profil',

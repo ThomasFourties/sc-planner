@@ -87,7 +87,7 @@
         <div class="created-by-info">
           <div class="user-avatar"></div>
           <div class="user-details">
-            <div class="user-name">{{ initialTask.created_by.first_name }} {{ initialTask.created_by.last_name }}</div>
+            <div class="user-name">{{ initialTask.created_by?.first_name || '' }} {{ initialTask.created_by?.last_name || '' }}</div>
             <div class="created-label">Créé par</div>
           </div>
         </div>
@@ -98,7 +98,7 @@
       <!-- <div v-if="success" class="success-message">{{ success }}</div> -->
 
       <button v-if="!taskId" @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
-        Créer la tâche
+        {{ loading ? 'Création...' : 'Créer la tâche' }}
       </button>
 
       <!-- <button v-else @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn btn">
@@ -390,11 +390,12 @@ const handleClose = async () => {
 
   if (props.taskId) {
     await autoSave();
+    emit('closeComplete');
   } else {
-    await handleSubmit();
+    // Pour la création, on ne fait rien ici car handleSubmit() gère déjà la fermeture
+    // On ferme seulement si le formulaire est vide
+    emit('closeComplete');
   }
-
-  emit('closeComplete');
 };
 
 const autoSave = async () => {

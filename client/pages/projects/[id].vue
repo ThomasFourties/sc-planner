@@ -161,10 +161,10 @@
             <div class="cell assigned-cell">
               <div v-if="task.assigned_to" class="assignee-info">
                 <div class="assignee-avatar">
-                  {{ getInitials(task.assigned_to.first_name, task.assigned_to.last_name) }}
+                  {{ getInitials(task.assigned_to?.first_name || '', task.assigned_to?.last_name || '') }}
                 </div>
                 <span class="assignee-name">
-                  {{ task.assigned_to.first_name }} {{ task.assigned_to.last_name }}
+                  {{ task.assigned_to?.first_name || '' }} {{ task.assigned_to?.last_name || '' }}
                 </span>
               </div>
               <span v-else class="no-assignee">Non assigné</span>
@@ -210,9 +210,7 @@ import TaskDetailPanel from '~/components/base/TaskDetailPanel.vue';
 import StatusSelector from '~/components/form/StatusSelector.vue';
 import PrioritySelector from '~/components/form/PrioritySelector.vue';
 
-definePageMeta({
-  middleware: 'auth'
-});
+// Le middleware global gère l'authentification
 
 const route = useRoute();
 const projectId = route.params.id;

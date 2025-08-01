@@ -1,4 +1,5 @@
 import { defineEventHandler, createError, getCookie, readBody, getRouterParam } from 'h3';
+import { handleApiError } from '~/server/utils/error-handler';
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
@@ -33,9 +34,6 @@ export default defineEventHandler(async (event) => {
 
     return response;
   } catch (error: any) {
-    throw createError({
-      statusCode: error.status || error.statusCode || 500,
-      statusMessage: error.data?.message || error.message || 'Erreur lors de la modification de la tâche',
-    });
+    handleApiError(error, 'Erreur lors de la modification de la tâche');
   }
 }); 

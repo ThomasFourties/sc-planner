@@ -1,26 +1,17 @@
 <template>
-  <div class="date-selector">
+  <div class="field-group">
     <label class="label">{{ label }} :</label>
-    <div class="date-input-wrapper">
-      <VDatePicker v-model="internalValue" :masks="{ input: 'DD/MM/YYYY' }" mode="date" :popover="{
-        placement: 'bottom-start',
-        visibility: 'click'
-      }" ref="datePicker">
-        <template #default="{ inputValue, togglePopover }">
-          <div class="date-display" @click="togglePopover">
-            <Calendar :size="16" />
-            <span v-if="inputValue">{{ inputValue }}</span>
-            <span v-else class="placeholder">{{ placeholder }}</span>
-          </div>
-        </template>
-      </VDatePicker>
-    </div>
+    <input 
+      v-model="dateValue" 
+      type="date" 
+      class="date-input" 
+      :placeholder="placeholder"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { Calendar } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 const props = defineProps({
   modelValue: {
@@ -39,15 +30,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-const datePicker = ref(null);
-
-const internalValue = computed({
+const dateValue = computed({
   get() {
-    if (!props.modelValue) return null;
-    return typeof props.modelValue === 'string' ? new Date(props.modelValue) : props.modelValue;
+    if (!props.modelValue) return '';
+    // Si c'est une Date, la convertir en string YYYY-MM-DD
+    if (props.modelValue instanceof Date) {
+      return props.modelValue.toISOString().split('T')[0];
+    }
+    // Si c'est déjà une string, la retourner
+    return props.modelValue;
   },
   set(value) {
-    emit('update:modelValue', value ? value.toISOString().split('T')[0] : null);
+    emit('update:modelValue', value || null);
   }
 });
 </script>
@@ -55,160 +49,36 @@ const internalValue = computed({
 <style scoped lang="scss">
 @use '../../assets/scss/base/variables' as *;
 
-.date-selector {
+.field-group {
   display: flex;
+  // flex-direction: column;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #6b6b6b;
+  gap: 8px;
+  margin-bottom: 10px;
 
   .label {
-    min-width: fit-content;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 0 !important;
+    color: #6b6b6b;
   }
 
-  .date-input-wrapper {
-    .date-display {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background-color: #f2f2f2;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 500;
-      color: $black;
-      cursor: pointer;
-      transition: all 0.2s;
-      min-width: 120px;
-
-      button {
-        background-color: transparent !important;
-        border: none;
-        cursor: pointer;
-      }
-
-      &:hover {
-        opacity: 0.8;
-      }
-
-      .placeholder {
-        color: #9ca3af;
-        font-style: italic;
-      }
-
-      svg {
-        width: 20px;
-        height: 20px;
-        stroke-width: 1.5;
-      }
-    }
-  }
-}
-
-// Override VCalendar styles
-:deep(.vc-container) {
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-}
-
-:deep(.vc-header) {
-  padding: 12px;
-  height: auto;
-  margin-top: 0;
-
-  button {
-    background-color: transparent !important;
-  }
-
-  .vc-title {
+  .date-input {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    font-size: 14px;
     color: $black;
-    font-weight: 600;
-  }
+    background-color: white;
+    transition: border-color 0.2s;
 
-  .vc-arrow {
-    color: $black;
-
-    &:hover {
-      background-color: #f3f4f6;
-      color: $black;
-    }
-  }
-}
-
-:deep(button.vc-nav-item) {
-  color: $black !important;
-  background-color: transparent !important;
-}
-
-:deep(button.vc-nav-item.is-active) {
-  color: $white !important;
-  background-color: $blue !important;
-}
-
-:deep(.vc-day-content.vc-focusable.vc-focus.vc-attr.vc-attr.vc-highlight-content-solid.vc-blue) {
-  color: $white !important;
-  background-color: $blue !important;
-}
-
-:deep(.vc-nav-header) {
-  button {
-    background-color: transparent !important;
-  }
-}
-
-:deep(.vc-weekday) {
-  color: #6b7280;
-  font-weight: 500;
-}
-
-:deep(.vc-day) {
-  color: $black;
-
-  &:hover {
-    background-color: #f3f4f6;
-  }
-
-  &.is-selected {
-    background-color: $black;
-    color: white;
-  }
-
-  &.is-today {
-    background-color: #f3f4f6;
-    color: $black;
-    font-weight: 600;
-  }
-}
-
-:deep(.vc-nav) {
-  .vc-nav-title {
-    color: $black;
-
-    &:hover {
-      background-color: #f3f4f6;
-    }
-  }
-
-  .vc-nav-arrow {
-    color: $black;
-
-    &:hover {
-      background-color: #f3f4f6;
-    }
-  }
-
-  .vc-nav-item {
-    color: $black;
-
-    &:hover {
-      background-color: #f3f4f6;
+    &:focus {
+      outline: none;
+      border-color: $blue;
     }
 
-    &.is-active {
-      background-color: $black;
-      color: white;
+    &::placeholder {
+      color: #9ca3af;
     }
   }
 }

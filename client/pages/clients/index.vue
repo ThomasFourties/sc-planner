@@ -56,9 +56,7 @@
 import { Plus } from 'lucide-vue-next';
 import CreateClientForm from '~/components/base/CreateClientForm.vue';
 
-definePageMeta({
-  middleware: 'auth'
-});
+// Le middleware global gère l'authentification
 
 // État
 const clients = ref([]);

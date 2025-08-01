@@ -157,7 +157,6 @@ import { useAuthStore } from '~/stores/auth';
 
 
 definePageMeta({
-  middleware: 'guest',
   layout: false,
 });
 

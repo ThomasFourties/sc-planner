@@ -142,8 +142,8 @@
             <!-- Créé par -->
             <div class="task-cell creator-cell">
               <div class="user-info">
-                <div class="name">{{ task.created_by.first_name }} {{ task.created_by.last_name }}</div>
-                <div v-if="task.created_by.id === authStore.currentUser?.id" class="created-by-me">Créé par moi</div>
+                <div class="name">{{ task.created_by?.first_name || '' }} {{ task.created_by?.last_name || '' }}</div>
+                <!-- <div v-if="task.created_by.id === authStore.currentUser?.id" class="created-by-me">Créé par moi</div> -->
               </div>
             </div>
 
@@ -212,9 +212,7 @@ import { ref, onMounted, computed } from 'vue';
 // import { useUIStore } from '~/stores/ui';
 import { useAuthStore } from '~/stores/auth';
 
-definePageMeta({
-  middleware: 'auth'
-});
+// Le middleware global gère l'authentification
 
 // Store
 const uiStore = useUIStore();
@@ -471,6 +469,15 @@ const updateTaskStatus = async (task, newStatus) => {
     }
   } catch (error) {
     console.error('Erreur lors de la mise à jour du statut:', error);
+    
+    // Afficher une notification d'erreur à l'utilisateur
+    if (error.statusMessage) {
+      alert(`Erreur: ${error.statusMessage}`);
+    } else if (error.message) {
+      alert(`Erreur: ${error.message}`);
+    } else {
+      alert('Erreur lors de la mise à jour du statut');
+    }
   } finally {
     openStatusDropdown.value = null;
   }

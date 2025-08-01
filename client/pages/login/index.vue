@@ -71,7 +71,6 @@
 import { ref } from 'vue';
 
 definePageMeta({
-  middleware: 'guest',
   layout: false,
 });
 

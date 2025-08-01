@@ -76,9 +76,7 @@ import { useAuthStore } from '~/stores/auth'
 import Modal from '~/components/base/Modal.vue'
 import TaskDetailPanel from '~/components/TaskDetailPanel.vue'
 
-definePageMeta({
-  middleware: 'auth'
-})
+// Le middleware global gère l'authentification
 
 const { getAllTasks } = useTasks()
 const authStore = useAuthStore()

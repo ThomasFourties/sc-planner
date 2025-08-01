@@ -23,9 +23,7 @@
 </template>
 
 <script setup>
-definePageMeta({
-  middleware: 'auth'
-});
+// Le middleware global gère l'authentification
 
 const tasks = ref([]);
 const loadingTasks = ref(true);
@@ -43,7 +41,7 @@ const loadTasks = async () => {
 };
 
 const getMyTodayTasks = (task, currentUser) => {
-  if (!currentUser) {
+  if (!currentUser || !task.assigned_to) {
     return false;
   }
 

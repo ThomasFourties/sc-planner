@@ -13,6 +13,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
+  initialized: boolean;
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -20,10 +21,11 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     isAuthenticated: false,
     loading: false,
+    initialized: false,
   }),
 
   getters: {
-    isLoggedIn: (state) => state.isAuthenticated,
+    isLoggedIn: (state) => state.isAuthenticated && state.user !== null,
     currentUser: (state) => state.user,
     userRole: (state) => state.user?.role,
     isAdmin: (state) => state.user?.is_admin === true,
@@ -36,7 +38,7 @@ export const useAuthStore = defineStore('auth', {
     async login(credentials: { email: string; password: string }) {
       this.loading = true;
       try {
-        const response = await $fetch<{ user: User; token: string; message: string }>('/api/auth/login', {
+        const response = await $fetch<{ user: User; message: string }>('/api/auth/login', {
           method: 'POST',
           body: credentials,
         });
@@ -95,7 +97,7 @@ export const useAuthStore = defineStore('auth', {
           errorMessage = error.statusMessage;
         }
 
-        console.error("Erreur d'inscription:", error); // utile pour debug
+        console.error("Erreur d'inscription:", error);
         throw new Error(errorMessage);
       } finally {
         this.loading = false;
@@ -155,8 +157,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         await $fetch('/api/auth/logout', { method: 'POST' });
       } catch (error: any) {
-        const errorMessage = error.statusMessage || error.data?.message || error.message || 'Erreur lors de la déconnexion';
-        throw new Error(errorMessage);
+        console.error('Erreur lors de la déconnexion:', error);
       } finally {
         this.clearAuth();
         this.loading = false;
@@ -167,39 +168,24 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async checkToken() {
-      const response = await $fetch('/api/auth/check-token');
+    async initializeAuth() {
+      if (this.initialized) return;
 
-      if (response.status === 404) {
-        this.clearAuth();
-        return false;
-      } else {
-        this.isAuthenticated = true;
-        return true;
-      }
-    },
-
-    async fetchProfile() {
-      this.loading = true;
       try {
         const user = await $fetch<User>('/api/auth/me');
         this.user = user;
         this.isAuthenticated = true;
-        return true;
       } catch (error) {
         this.clearAuth();
-        return false;
       } finally {
-        this.loading = false;
+        this.initialized = true;
       }
     },
 
     clearAuth() {
       this.user = null;
       this.isAuthenticated = false;
+      this.initialized = false;
     },
   },
 });
-
-// TODO : ne pas faire le fetchProfile à chaque fois que l'on change de page
-// En preprod le cookie ne marche pas

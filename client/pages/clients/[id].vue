@@ -166,9 +166,7 @@ import CreateProjectForm from '~/components/base/CreateProjectForm.vue';
 import EditClientForm from '~/components/base/EditClientForm.vue';
 import ConfirmModal from '~/components/base/ConfirmModal.vue';
 
-definePageMeta({
-  middleware: 'auth'
-});
+// Le middleware global gère l'authentification
 
 const route = useRoute();
 const clientId = route.params.id;

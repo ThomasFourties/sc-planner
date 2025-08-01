@@ -65,7 +65,19 @@ export default defineNuxtConfig({
   modules: ['@pinia/nuxt', '@nuxt/image', '@nuxt/fonts', 'nuxt-svgo', '@nuxtjs/sitemap', // 'nuxt-gtag',
   // 'nuxt-module-hotjar',
   // 'nuxt-swiper',
-  '@vueuse/nuxt', 'nuxt-lucide-icons', '@samk-dev/nuxt-vcalendar'],
+  '@vueuse/nuxt',
+  'nuxt-lucide-icons',
+  // '@nuxtjs/tailwindcss',
+  '@samk-dev/nuxt-vcalendar',
+],
+
+  vcalendar: {
+    defaultCss: true,
+    autoImports: {
+      DatePicker: true,
+      Calendar: true
+    }
+  },
 
   site: { url: process.env.FRONTEND_URL || 'http://localhost:3000' },
 

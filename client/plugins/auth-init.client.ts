@@ -1,9 +1,6 @@
 export default defineNuxtPlugin(async () => {
   const authStore = useAuthStore();
-
-  const hasToken = await authStore.checkToken();
-
-  if (hasToken) {
-    await authStore.fetchProfile();
-  }
+  
+  // Initialiser l'authentification au démarrage de l'app
+  await authStore.initializeAuth();
 });
