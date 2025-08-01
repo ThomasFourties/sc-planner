@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Query,
-  Get,
-  UseGuards,
-  Request,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Controller, Post, Body, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -16,7 +7,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UsersService } from 'src/users/users.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
