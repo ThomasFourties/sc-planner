@@ -13,6 +13,6 @@ export default new DataSource({
   database: process.env.DATABASE_NAME || 'sc-planner-db',
   entities: [User, Task, Client, Project],
   migrations: ['src/database/migrations/**/*.ts'],
-  synchronize: false,
+  synchronize: true,
   logging: process.env.NODE_ENV !== 'production',
 });
