@@ -47,26 +47,26 @@ jobs:
             thoomaas123/sc-planner-server:latest
           no-cache: true
 
-      - name: 🔐 SSH & Deploy
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USERNAME }}
-          password: ${{ secrets.PROD_PASSWORD }}
-          port: 22
-          script: |
-            cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
-            eval $(ssh-agent) && ssh-add ~/.ssh/thomas
-            git checkout .
-            git pull origin master
+      # - name: 🔐 SSH & Deploy
+      #   uses: appleboy/ssh-action@v1
+      #   with:
+      #     host: ${{ secrets.PROD_HOST }}
+      #     username: ${{ secrets.PROD_USERNAME }}
+      #     password: ${{ secrets.PROD_PASSWORD }}
+      #     port: 22
+      #     script: |
+      #       cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
+      #       eval $(ssh-agent) && ssh-add ~/.ssh/thomas
+      #       git checkout .
+      #       git pull origin master
 
-            export TAG=${{ env.VERSION_TAG }}
+      #       export TAG=${{ env.VERSION_TAG }}
 
-            sed -i "s|image: thoomaas123/sc-planner-client:.*|image: thoomaas123/sc-planner-client:$TAG|" docker-compose.prod.yml
-            sed -i "s|image: thoomaas123/sc-planner-server:.*|image: thoomaas123/sc-planner-server:$TAG|" docker-compose.prod.yml
+      #       sed -i "s|image: thoomaas123/sc-planner-client:.*|image: thoomaas123/sc-planner-client:$TAG|" docker-compose.prod.yml
+      #       sed -i "s|image: thoomaas123/sc-planner-server:.*|image: thoomaas123/sc-planner-server:$TAG|" docker-compose.prod.yml
 
-            docker-compose -f docker-compose.prod.yml pull
-            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+      #       docker-compose -f docker-compose.prod.yml pull
+      #       docker-compose -f docker-compose.prod.yml up -d --remove-orphans
 
-            docker image prune -a -f
-            docker volume prune -f
+      #       docker image prune -a -f
+      #       docker volume prune -f
