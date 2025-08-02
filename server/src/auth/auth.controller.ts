@@ -26,19 +26,23 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    this.logger.log(`Tentative de connexion pour: ${loginDto.email}`);
-
+  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto);
 
-    this.logger.log(`Connexion réussie pour: ${result.user.email} (ID: ${result.user.id})`);
+    this.logger.log(`Connexion réussie pour: ${loginDto.email} (ID: ${result.user.id})`);
 
-    // Retourner le token pour que Nuxt puisse le gérer
-    return {
-      message: 'Connexion réussie',
-      user: result.user,
-      token: result.token, // Retourner le token pour Nuxt
-    };
+    // Configuration cookie pour HTTPS avec variables d'environnement
+    res.cookie('auth-token', result.access_token, {
+      httpOnly: process.env.COOKIE_HTTPONLY === 'true' || true,
+      secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
+      sameSite: (process.env.COOKIE_SAMESITE as any) || 'lax',
+      domain: process.env.COOKIE_DOMAIN || undefined, // Si undefined, utilisera le domaine actuel
+      maxAge: 24 * 60 * 60 * 1000, // 24h
+    });
+
+    this.logger.log(`Cookie défini avec domaine: ${process.env.COOKIE_DOMAIN}, secure: ${process.env.COOKIE_SECURE}`);
+
+    return res.json(result);
   }
 
   @Post('logout')
