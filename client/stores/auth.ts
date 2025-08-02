@@ -41,6 +41,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ user: User; message: string }>('/api/auth/login', {
           method: 'POST',
           body: credentials,
+          credentials: 'include', // AJOUT IMPORTANT
         });
 
         this.user = response.user;
@@ -82,6 +83,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ message: string }>('/api/auth/register', {
           method: 'POST',
           body: serverData,
+          credentials: 'include', // AJOUT IMPORTANT
         });
         return { success: true, message: response.message };
       } catch (error: any) {
@@ -113,6 +115,7 @@ export const useAuthStore = defineStore('auth', {
             new_password,
             confirm_password,
           },
+          credentials: 'include', // AJOUT IMPORTANT
         });
 
         return { success: true, message: response.message };
@@ -136,6 +139,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ message: string }>('/api/auth/forgot-password', {
           method: 'POST',
           body: { email },
+          credentials: 'include', // AJOUT IMPORTANT
         });
 
         return { success: true, message: response.message };
@@ -155,7 +159,11 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       this.loading = true;
       try {
-        await $fetch('/api/auth/logout', { method: 'POST' });
+        // Appeler l'endpoint Nuxt qui gère les cookies
+        await $fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
       } catch (error: any) {
         console.error('Erreur lors de la déconnexion:', error);
       } finally {
@@ -172,7 +180,11 @@ export const useAuthStore = defineStore('auth', {
       if (this.initialized) return;
 
       try {
-        const user = await $fetch<User>('/api/auth/me');
+        // Appel direct à l'API NestJS (pas l'endpoint Nuxt)
+        const config = useRuntimeConfig();
+        const user = await $fetch<User>(`${config.public.API_URL}/users/me`, {
+          credentials: 'include', // IMPORTANT pour envoyer les cookies
+        });
         this.user = user;
         this.isAuthenticated = true;
       } catch (error) {
