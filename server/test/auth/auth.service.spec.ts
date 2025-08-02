@@ -164,6 +164,10 @@ describe('AuthService', () => {
         email: mockUser.email,
         role: mockUser.role,
         is_admin: mockUser.is_admin,
+      }, {
+        expiresIn: '24h',
+        issuer: 'sc-planner',
+        audience: 'sc-planner-client',
       });
       expect(result).toEqual({
         user: {

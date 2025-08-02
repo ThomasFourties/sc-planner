@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query, Res, Request, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Query, Res, Logger } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -31,16 +31,16 @@ export class AuthController {
 
     this.logger.log(`Connexion réussie pour: ${loginDto.email} (ID: ${result.user.id})`);
 
-    // Configuration cookie pour HTTPS avec variables d'environnement
-    res.cookie('auth-token', result.access_token, {
-      httpOnly: process.env.COOKIE_HTTPONLY === 'true' || true,
-      secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
-      sameSite: (process.env.COOKIE_SAMESITE as any) || 'lax',
-      domain: process.env.COOKIE_DOMAIN || undefined, // Si undefined, utilisera le domaine actuel
+    // Configuration cookie pour HTTPS - CORRECTION: utiliser result.token
+    res.cookie('auth-token', result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      // domain: undefined, // Laisse le navigateur décider du domaine
       maxAge: 24 * 60 * 60 * 1000, // 24h
     });
 
-    this.logger.log(`Cookie défini avec domaine: ${process.env.COOKIE_DOMAIN}, secure: ${process.env.COOKIE_SECURE}`);
+    this.logger.log(`Cookie auth-token défini pour le domaine courant`);
 
     return res.json(result);
   }
