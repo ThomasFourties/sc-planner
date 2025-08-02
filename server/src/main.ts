@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { MetricsInterceptor } from './monitoring/metrics.interceptor';
 import { MonitoringService } from './monitoring/monitoring.service';
@@ -9,9 +10,15 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // Ajouter le middleware cookie-parser
+  app.use(cookieParser());
+
   app.enableCors({
     origin: ['http://localhost:3000', 'https://sc-planner.thomasfourties.fr', 'https://staging.sc-planner.thomasfourties.fr'],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie'],
   });
 
   app.useGlobalPipes(new ValidationPipe());

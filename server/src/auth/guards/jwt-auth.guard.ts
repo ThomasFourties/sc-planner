@@ -8,7 +8,9 @@ export class JwtAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromHeader(request);
+
+    // Essayer d'extraire le token depuis les cookies d'abord, puis depuis l'header
+    const token = this.extractTokenFromCookie(request) || this.extractTokenFromHeader(request);
 
     if (!token) {
       throw new UnauthorizedException("Token d'authentification manquant");
@@ -29,5 +31,9 @@ export class JwtAuthGuard implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private extractTokenFromCookie(request: Request): string | undefined {
+    return request.cookies?.['auth-token'];
   }
 }

@@ -1,14 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UserRole } from './enums/user-role.enum';
-
 
 @Injectable()
 export class UsersService {
@@ -42,14 +36,26 @@ export class UsersService {
     });
   }
 
+  // Nouvelle méthode pour garantir qu'on trouve l'utilisateur
+  async findOne(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['client'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    return user;
+  }
+
   async findByClientId(clientId: string): Promise<User[]> {
     return this.userRepository.find({
       where: { client: { id: clientId } },
       relations: ['client'],
     });
   }
-
-
 
   async update(id: string, userData: Partial<User>): Promise<User> {
     const existingUser = await this.findById(id);
@@ -64,7 +70,7 @@ export class UsersService {
       throw new InternalServerErrorException('Erreur lors de la mise à jour');
     }
 
-    return this.findById(id) as Promise<User>;
+    return this.findOne(id); // Utilise findOne qui garantit le retour
   }
 
   async delete(id: string): Promise<{ message: string }> {
@@ -74,9 +80,7 @@ export class UsersService {
     }
 
     if (user.role === UserRole.CHEF_DE_PROJET) {
-      throw new BadRequestException(
-        'Impossible de supprimer un chef de projet',
-      );
+      throw new BadRequestException('Impossible de supprimer un chef de projet');
     }
 
     const result = await this.userRepository.delete(id);
@@ -89,12 +93,7 @@ export class UsersService {
   }
 
   async getProfile(id: string): Promise<User> {
-    const user = await this.findById(id);
-
-    if (!user) {
-      throw new NotFoundException('Utilisateur non trouvé');
-    }
-
-    return user;
+    // Utilise findOne qui throw automatiquement une NotFoundException
+    return this.findOne(id);
   }
 }

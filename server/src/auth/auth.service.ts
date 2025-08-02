@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -19,15 +14,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const {
-      first_name,
-      last_name,
-      email,
-      password,
-      confirm_password,
-      role,
-      is_admin,
-    } = registerDto;
+    const { first_name, last_name, email, password, confirm_password, role, is_admin } = registerDto;
 
     const existingUser = await this.usersService.findByEmail(email);
 
@@ -81,7 +68,11 @@ export class AuthService {
       is_admin: user.is_admin,
     };
 
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, {
+      expiresIn: '24h',
+      issuer: 'sc-planner',
+      audience: 'sc-planner-client',
+    });
 
     return {
       user: {
@@ -96,11 +87,7 @@ export class AuthService {
     };
   }
 
-  async resetPassword(
-    token: string,
-    new_password: string,
-    confirm_password: string,
-  ) {
+  async resetPassword(token: string, new_password: string, confirm_password: string) {
     let decoded;
     try {
       decoded = this.jwtService.verify(token);
@@ -129,21 +116,15 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
-      // On ne révèle pas si l'email existe ou non pour des raisons de sécurité
       return {
-        message:
-          'Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.',
+        message: 'Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.',
       };
     }
 
     const token = this.jwtService.sign({ email }, { expiresIn: '1h' });
 
-    // Ici vous pourriez appeler un service d'email
-    // await this.emailService.sendPasswordResetEmail(email, token);
-
     return {
-      message:
-        'Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.',
+      message: 'Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.',
     };
   }
 }
