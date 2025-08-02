@@ -1,0 +1,27 @@
+# monitoring/prometheus/prometheus-staging.yml
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 🔥 Ton application NestJS en staging
+  - job_name: 'sc-planner-server-staging'
+    static_configs:
+      - targets: ['server:3002']  # Nom du service dans Docker
+    metrics_path: '/api/health/metrics'
+    scrape_interval: 5s
+
+  # Node Exporter (métriques système)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
