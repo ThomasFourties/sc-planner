@@ -1,18 +1,23 @@
+# deploy-prod.yml - VERSION AMÉLIORÉE
 name: Release to Production
 on:
   push:
     tags:
-      - v*
+      - 'v*'  # Plus explicite avec quotes
 
 jobs:
   build-and-deploy:
-    name: 🚀 Build & Deploy Prod
+    name: 🚀 Build & Deploy Production
     runs-on: ubuntu-22.04
+    
     env:
       VERSION_TAG: ${{ github.ref_name }}
+      REGISTRY: docker.io
+      IMAGE_PREFIX: thoomaas123/sc-planner
 
     steps:
-      - uses: actions/checkout@v3
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4  # Version mise à jour
         with:
           fetch-depth: 0
 
@@ -21,51 +26,72 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          logout: true
 
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - name: 🛠️ Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: 🛠️ Build & Push Client
+      - name: 🛠️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🏗️ Build & Push Client Image
         uses: docker/build-push-action@v6
         with:
           context: ./client
           push: true
           tags: |
-            thoomaas123/sc-planner-client:${{ env.VERSION_TAG }}
-            thoomaas123/sc-planner-client:latest
-          no-cache: true
+            ${{ env.IMAGE_PREFIX }}-client:${{ env.VERSION_TAG }}
+            ${{ env.IMAGE_PREFIX }}-client:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64  # Spécifier la plateforme
 
-      - name: 🛠️ Build & Push Server
+      - name: 🏗️ Build & Push Server Image
         uses: docker/build-push-action@v6
         with:
           context: ./server
           push: true
           tags: |
-            thoomaas123/sc-planner-server:${{ env.VERSION_TAG }}
-            thoomaas123/sc-planner-server:latest
-          no-cache: true
+            ${{ env.IMAGE_PREFIX }}-server:${{ env.VERSION_TAG }}
+            ${{ env.IMAGE_PREFIX }}-server:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
 
-      # - name: 🔐 SSH & Deploy
-      #   uses: appleboy/ssh-action@v1
+      - name: 📝 Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: \`${{ env.VERSION_TAG }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Client Image**: \`${{ env.IMAGE_PREFIX }}-client:${{ env.VERSION_TAG }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Server Image**: \`${{ env.IMAGE_PREFIX }}-server:${{ env.VERSION_TAG }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Images pushed successfully" >> $GITHUB_STEP_SUMMARY
+
+      # Section SSH déployement (à décommenter quand prêt)
+      # - name: 🚀 Deploy to Production Server
+      #   uses: appleboy/ssh-action@v1.0.3
       #   with:
       #     host: ${{ secrets.PROD_HOST }}
       #     username: ${{ secrets.PROD_USERNAME }}
-      #     password: ${{ secrets.PROD_PASSWORD }}
+      #     key: ${{ secrets.PROD_SSH_KEY }}  # Utiliser une clé SSH au lieu d'un mot de passe
       #     port: 22
       #     script: |
       #       cd /var/www/vhosts/thomasfourties.fr/sc-planner.thomasfourties.fr
-      #       eval $(ssh-agent) && ssh-add ~/.ssh/thomas
-      #       git checkout .
-      #       git pull origin master
-
+      #       
+      #       # Backup de la version actuelle
+      #       docker-compose -f docker-compose.prod.yml down
+      #       
+      #       # Pull du code et des nouvelles images
+      #       git fetch --tags
+      #       git checkout ${{ env.VERSION_TAG }}
+      #       
+      #       # Mise à jour du docker-compose avec la nouvelle version
       #       export TAG=${{ env.VERSION_TAG }}
-
       #       sed -i "s|image: thoomaas123/sc-planner-client:.*|image: thoomaas123/sc-planner-client:$TAG|" docker-compose.prod.yml
       #       sed -i "s|image: thoomaas123/sc-planner-server:.*|image: thoomaas123/sc-planner-server:$TAG|" docker-compose.prod.yml
-
+      #       
+      #       # Déploiement
       #       docker-compose -f docker-compose.prod.yml pull
       #       docker-compose -f docker-compose.prod.yml up -d --remove-orphans
-
-      #       docker image prune -a -f
-      #       docker volume prune -f
+      #       
+      #       # Nettoyage
+      #       docker image prune -f
+      #       docker system prune -f
