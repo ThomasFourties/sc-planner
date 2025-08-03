@@ -1,4 +1,9 @@
 export default defineEventHandler(async (event) => {
+  // 🚨 LOGS ULTRA VISIBLES 🚨
+  console.log('='.repeat(80));
+  console.log('🚨🚨🚨 ENDPOINT /api/auth/me APPELÉ ! 🚨🚨🚨');
+  console.log('='.repeat(80));
+
   const config = useRuntimeConfig();
 
   // 🔍 DEBUG : Informations sur la requête
@@ -6,6 +11,13 @@ export default defineEventHandler(async (event) => {
   console.log('🌐 URL:', getRequestURL(event).href);
   console.log('📍 Method:', getMethod(event));
   console.log('🕒 Timestamp:', new Date().toISOString());
+  console.log('🔥 FICHIER: server/api/auth/me.get.ts');
+  console.log('🔥 FONCTION: defineEventHandler');
+
+  // 🚨 Test d'affichage
+  console.log("🚨 SI VOUS VOYEZ CE MESSAGE, L'ENDPOINT FONCTIONNE !");
+  console.log('🚨 TERMINAL:', process.stdout.isTTY ? 'TTY' : 'NON-TTY');
+  console.log('🚨 CONSOLE LOG FONCTIONNE:', typeof console.log);
 
   // 🔍 DEBUG : Headers de la requête
   const headers = getHeaders(event);
@@ -47,12 +59,16 @@ export default defineEventHandler(async (event) => {
 
   if (!token) {
     console.log('❌ ERREUR: Aucun token trouvé - arrêt du traitement');
+    console.log('🚨🚨🚨 ATTENTION: PAS DE TOKEN ! 🚨🚨🚨');
     console.log('🚀 === FIN DEBUG (ERREUR) ===\n');
+    console.log('='.repeat(80));
     throw createError({
       statusCode: 401,
       statusMessage: 'Non authentifié',
     });
   }
+
+  console.log('🚨🚨🚨 TOKEN TROUVÉ - CONTINUATION ! 🚨🚨🚨');
 
   try {
     console.log("🔄 Tentative d'appel vers l'API NestJS...");
@@ -103,7 +119,9 @@ export default defineEventHandler(async (event) => {
       console.log('📡 Response headers:', error.response.headers);
     }
 
+    console.log("🚨🚨🚨 ERREUR DANS L'ENDPOINT ! 🚨🚨🚨");
     console.log('🚀 === FIN DEBUG (ERREUR API) ===\n');
+    console.log('='.repeat(80));
 
     if (error.status === 401 || error.statusCode === 401) {
       throw createError({
