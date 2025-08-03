@@ -39,7 +39,7 @@
         <!-- Header fixe -->
         <div class="tasks-header">
           <div class="header-cell checkbox-cell">
-            <!-- <span>Terminé</span> -->
+            <span>Terminé</span>
           </div>
           <div class="header-cell name-cell" @click="sortBy('name')">
             <span :class="{ 'active': sortByField === 'name' }">Nom de la tâche</span>
@@ -684,7 +684,7 @@ onUnmounted(() => {
 
 .tasks-header {
   display: grid;
-  grid-template-columns: 0.2fr 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   background-color: #f8f9fa;
   border-bottom: 2px solid #dee2e6;
@@ -754,7 +754,7 @@ onUnmounted(() => {
 
 .task-row {
   display: grid;
-  grid-template-columns: 0.2fr 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   padding: 0 12px;
   border-bottom: 1px solid #dee2e6;
@@ -794,9 +794,8 @@ onUnmounted(() => {
 }
 
 .task-checkbox {
-  width: 20px;
-  height: 20px;
-  border-radius: 100%;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
   accent-color: #10b981;
 }

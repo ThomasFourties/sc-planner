@@ -16,7 +16,11 @@
     <!-- Project Header -->
     <div v-if="project" class="project-header">
       <div class="project-info">
-        <h1 class="h2">{{ project.name }}</h1>
+        <h1 class="project-title">{{ project.name }}</h1>
+        <div class="project-meta">
+          <span class="project-status">{{ project.status || 'En cours' }}</span>
+          <span class="project-client" v-if="project.client">Client: {{ project.client.name }}</span>
+        </div>
       </div>
       <div class="project-stats">
         <div class="stat">
@@ -25,7 +29,7 @@
         </div>
         <div class="stat">
           <span class="stat-label">Terminées</span>
-          <span class="stat-value">{{tasks.filter(t => t.status === 'done').length}}</span>
+          <span class="stat-value">{{ tasks.filter(t => t.status === 'done').length }}</span>
         </div>
       </div>
     </div>
@@ -35,9 +39,16 @@
 
     <!-- Formulaire de création/modification -->
     <div v-if="uiStore.isTaskFormVisible" class="form-section">
-      <CreateTaskForm ref="createTaskFormRef" :task-id="uiStore.isEditing ? uiStore.currentTask?.id : null"
-        :initial-task="uiStore.currentTask" :project-id="projectId" @task-created="onTaskCreated"
-        @task-updated="onTaskUpdated" @task-deleted="onTaskDeleted" @closeComplete="handleTaskFormComplete" />
+      <CreateTaskForm 
+        ref="createTaskFormRef"
+        :task-id="uiStore.isEditing ? uiStore.currentTask?.id : null"
+        :initial-task="uiStore.currentTask"
+        :project-id="projectId"
+        @task-created="onTaskCreated" 
+        @task-updated="onTaskUpdated"
+        @task-deleted="onTaskDeleted"
+        @closeComplete="handleTaskFormComplete" 
+      />
     </div>
 
     <!-- Liste des tâches -->
@@ -50,7 +61,7 @@
         <!-- Header fixe -->
         <div class="tasks-header">
           <div class="header-cell checkbox-cell">
-            <!-- <span>Terminé</span> -->
+            <span>Terminé</span>
           </div>
           <div class="header-cell name-cell" @click="sortBy('name')">
             <span :class="{ 'active': sortByField === 'name' }">Nom de la tâche</span>
@@ -120,12 +131,15 @@
           </div>
 
           <!-- Lignes des tâches -->
-          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row"
-            :class="{ 'completed': task.completed }" @click="editTask(task)">
+          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row" :class="{ 'completed': task.completed }" @click="editTask(task)">
             <!-- Checkbox de complétion -->
             <div class="task-cell checkbox-cell" @click.stop>
-              <input type="checkbox" :checked="task.completed" @change="toggleTaskCompleted(task)"
-                class="task-checkbox" />
+              <input 
+                type="checkbox" 
+                :checked="task.completed" 
+                @change="toggleTaskCompleted(task)"
+                class="task-checkbox"
+              />
             </div>
             <!-- Nom de la tâche -->
             <div class="task-cell name-cell">
@@ -140,15 +154,18 @@
 
             <!-- Statut -->
             <div class="task-cell status-cell" @click.stop>
-              <div class="status-dropdown" @click="toggleStatusDropdown(task.id, $event)"
-                :ref="`status-dropdown-${task.id}`">
+              <div class="status-dropdown" @click="toggleStatusDropdown(task.id, $event)" :ref="`status-dropdown-${task.id}`">
                 <span class="status-badge" :class="`status-${task.status}`">
                   {{ getStatusText(task.status) }}
                 </span>
                 <div v-if="openStatusDropdown === task.id" class="status-dropdown-menu" :style="dropdownPosition">
-                  <div v-for="status in availableStatuses" :key="status.value"
-                    @click="updateTaskStatus(task, status.value)" class="status-dropdown-item"
-                    :class="`status-${status.value}`">
+                  <div 
+                    v-for="status in availableStatuses" 
+                    :key="status.value"
+                    @click="updateTaskStatus(task, status.value)"
+                    class="status-dropdown-item"
+                    :class="`status-${status.value}`"
+                  >
                     <div class="status-indicator" :class="`status-${status.value}`"></div>
                     {{ status.label }}
                   </div>
@@ -181,16 +198,18 @@
 
             <!-- Priorité -->
             <div class="task-cell priority-cell" @click.stop>
-              <div class="priority-dropdown" @click="togglePriorityDropdown(task.id, $event)"
-                :ref="`priority-dropdown-${task.id}`">
+              <div class="priority-dropdown" @click="togglePriorityDropdown(task.id, $event)" :ref="`priority-dropdown-${task.id}`">
                 <span class="priority-badge" :class="`priority-${task.priority}`">
                   {{ getPriorityText(task.priority) }}
                 </span>
-                <div v-if="openPriorityDropdown === task.id" class="priority-dropdown-menu"
-                  :style="priorityDropdownPosition">
-                  <div v-for="priority in availablePriorities" :key="priority.value"
-                    @click="updateTaskPriority(task, priority.value)" class="priority-dropdown-item"
-                    :class="`priority-${priority.value}`">
+                <div v-if="openPriorityDropdown === task.id" class="priority-dropdown-menu" :style="priorityDropdownPosition">
+                  <div 
+                    v-for="priority in availablePriorities" 
+                    :key="priority.value"
+                    @click="updateTaskPriority(task, priority.value)"
+                    class="priority-dropdown-item"
+                    :class="`priority-${priority.value}`"
+                  >
                     <div class="priority-indicator" :class="`priority-${priority.value}`">●</div>
                     {{ priority.label }}
                   </div>
@@ -476,12 +495,12 @@ const toggleStatusDropdown = (taskId, event) => {
 
   const target = event.currentTarget;
   const rect = target.getBoundingClientRect();
-
+  
   dropdownPosition.value = {
     top: `${rect.bottom + 4}px`,
     left: `${rect.left}px`
   };
-
+  
   openStatusDropdown.value = taskId;
 };
 
@@ -496,7 +515,7 @@ const updateTaskStatus = async (task, newStatus) => {
       method: 'PATCH',
       body: { status: newStatus }
     });
-
+    
     // Mettre à jour la tâche dans la liste
     const index = tasks.value.findIndex(t => t.id === task.id);
     if (index !== -1) {
@@ -504,7 +523,7 @@ const updateTaskStatus = async (task, newStatus) => {
     }
   } catch (error) {
     console.error('Erreur lors de la mise à jour du statut:', error);
-
+    
     // Afficher une notification d'erreur à l'utilisateur
     if (error.statusMessage) {
       alert(`Erreur: ${error.statusMessage}`);
@@ -527,12 +546,12 @@ const togglePriorityDropdown = (taskId, event) => {
 
   const target = event.currentTarget;
   const rect = target.getBoundingClientRect();
-
+  
   priorityDropdownPosition.value = {
     top: `${rect.bottom + 4}px`,
     left: `${rect.left}px`
   };
-
+  
   openPriorityDropdown.value = taskId;
 };
 
@@ -547,7 +566,7 @@ const updateTaskPriority = async (task, newPriority) => {
       method: 'PATCH',
       body: { priority: newPriority }
     });
-
+    
     // Mettre à jour la tâche dans la liste
     const index = tasks.value.findIndex(t => t.id === task.id);
     if (index !== -1) {
@@ -567,7 +586,7 @@ const toggleTaskCompleted = async (task) => {
       method: 'PATCH',
       body: { completed: !task.completed }
     });
-
+    
     // Mettre à jour la tâche dans la liste
     const index = tasks.value.findIndex(t => t.id === task.id);
     if (index !== -1) {
@@ -623,17 +642,21 @@ onUnmounted(() => {
 }
 
 .project-header {
+  background: white;
+  border-radius: 8px;
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   .project-info {
-    margin-bottom: 0;
-
     .project-title {
-      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0 0 8px 0;
     }
 
     .project-meta {
@@ -736,7 +759,7 @@ onUnmounted(() => {
 .tasks-container {
   background: white;
   border-radius: 4px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow:0 0 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   height: auto;
   max-height: calc(100vh - 314px);
@@ -746,7 +769,7 @@ onUnmounted(() => {
 
 .tasks-header {
   display: grid;
-  grid-template-columns: 0.2fr 2fr 1.5fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   background-color: #f8f9fa;
   border-bottom: 2px solid #dee2e6;
@@ -816,7 +839,7 @@ onUnmounted(() => {
 
 .task-row {
   display: grid;
-  grid-template-columns: 0.2fr 2fr 1.5fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   padding: 0 12px;
   border-bottom: 1px solid #dee2e6;
@@ -836,7 +859,7 @@ onUnmounted(() => {
 
   &.completed {
     opacity: 0.5;
-
+    
     .task-info .name {
       text-decoration: line-through;
     }
@@ -856,9 +879,8 @@ onUnmounted(() => {
 }
 
 .task-checkbox {
-  width: 20px;
-  height: 20px;
-  border-radius: 100%;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
   accent-color: #10b981;
 }
