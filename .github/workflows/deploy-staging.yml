@@ -74,7 +74,9 @@ jobs:
           context: ./client
           push: true
           no-cache: true
-          tags: thoomaas123/sc-planner-client:staging-${{ steps.short_sha.outputs.sha_short }}
+          tags: |
+            thoomaas123/sc-planner-client:staging-${{ steps.short_sha.outputs.sha_short }}
+            thoomaas123/sc-planner-client:staging-latest
 
       - name: 🛠️ Build & Push Server
         if: ${{ fromJSON(needs.changes.outputs.server) }}
@@ -83,7 +85,9 @@ jobs:
           context: ./server
           push: true
           no-cache: true
-          tags: thoomaas123/sc-planner-server:staging-${{ steps.short_sha.outputs.sha_short }}
+          tags: |
+            thoomaas123/sc-planner-server:staging-${{ steps.short_sha.outputs.sha_short }}
+            thoomaas123/sc-planner-server:staging-latest
 
   deploy:
     name: 🚚 Deploy to Staging
@@ -126,7 +130,7 @@ jobs:
               export CLIENT_TAG="$NEW_TAG"
               echo "✅ Client changed - Will use new tag: $CLIENT_TAG"
             else
-              export CLIENT_TAG="${CLIENT_TAG:-latest}"
+              export CLIENT_TAG="${CLIENT_TAG:-staging-latest}"
               echo "ℹ️  Client unchanged - Keeping current tag: $CLIENT_TAG"
             fi
             
@@ -134,7 +138,7 @@ jobs:
               export SERVER_TAG="$NEW_TAG"
               echo "✅ Server changed - Will use new tag: $SERVER_TAG"
             else
-              export SERVER_TAG="${SERVER_TAG:-latest}"
+              export SERVER_TAG="${SERVER_TAG:-staging-latest}"
               echo "ℹ️  Server unchanged - Keeping current tag: $SERVER_TAG"
             fi
 
