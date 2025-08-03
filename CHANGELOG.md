@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/ThomasFourties/sc-planner/compare/v1.0.0...v1.1.0) (2025-08-03)
+
+
+### 🐛 Bug Fixes
+
+* correct token usage in cookie configuration and enhance logging in authentication process ([385e1e6](https://github.com/ThomasFourties/sc-planner/commit/385e1e61d233cd31cf84dd0edd34ccc739bf1c1b))
+
+
+### 🛠️ Chore
+
+* add comments section in app.vue for better code clarity ([075e5d4](https://github.com/ThomasFourties/sc-planner/commit/075e5d42d5b8c5c0ed06cacb80da02971ca5549d))
+* enhance staging deployment workflow by adding 'staging-latest' tags for client and server images ([c53c06f](https://github.com/ThomasFourties/sc-planner/commit/c53c06fc1be28eed04f8fd92ecb4db935b3b424a))
+* remove commented-out code and unnecessary comments from app.vue and main.ts for cleaner codebase ([7d76008](https://github.com/ThomasFourties/sc-planner/commit/7d760082b35afde514df146ef62633152b726fd7))
+* remove unnecessary blank line in GitHub Actions workflow for production deployment ([8330dfa](https://github.com/ThomasFourties/sc-planner/commit/8330dfacc1ed4abd52c5bce65798ce929f9af991))
+* update .gitignore to include specific script paths and comment out general script exclusion for better clarity ([1c30787](https://github.com/ThomasFourties/sc-planner/commit/1c30787b4a19a9f3728bd7fd574f28cadac14bd2))
+* update port mappings in docker-compose for client and server services ([bab2efe](https://github.com/ThomasFourties/sc-planner/commit/bab2efeb24214b0c66ee7c62a4a2a0d021fbbc7a))
+
+
+### ✨ Features
+
+* add user profile retrieval endpoint with JWT authentication ([1dd07b0](https://github.com/ThomasFourties/sc-planner/commit/1dd07b03f246346a40ab9d53cf0992806bb1c48b))
+* enhance release script with pre-flight checks for git status, branch validation, and tag existence before creating GitHub release ([f0471aa](https://github.com/ThomasFourties/sc-planner/commit/f0471aaa0887c93ec2e669c566eb029324c789ea))
+* implement project and task management features, including project info display, task completion status, and API endpoints for project and task retrieval ([f91fde3](https://github.com/ThomasFourties/sc-planner/commit/f91fde37a57d152cc2de4a1fc10f81658a1a504e))
+* improve production deployment workflow with enhanced image tagging, summary creation, and updated action versions ([a53db70](https://github.com/ThomasFourties/sc-planner/commit/a53db70ac4e9f266a9bd3679268a439b06d6b78d))
+* refactor authentication middleware and initialization logic to streamline user access control and enhance navigation based on authentication state ([cb52cc7](https://github.com/ThomasFourties/sc-planner/commit/cb52cc7573bab401b9ca0e8a2741991943393c0f))
+* update login method to set secure cookies and enhance logging for user authentication ([708dfcd](https://github.com/ThomasFourties/sc-planner/commit/708dfcdeb4442022a2f064f855dbf75e02b058f0))
+
+
+### ♻️ Refactoring
+
+* add extensive logging to the authentication endpoint for improved debugging and monitoring ([5f4b25d](https://github.com/ThomasFourties/sc-planner/commit/5f4b25ddfba6b068bd74750607e6b38c74c330a5))
+* clean up Nginx configuration by removing commented-out API proxy settings and unnecessary comments for improved readability ([7321ff5](https://github.com/ThomasFourties/sc-planner/commit/7321ff5ec0c898e20fc72c12584fe12fec67dd3a))
+* comment out unused components in default layout, enhance client-side authentication checks, and streamline navigation logic in auth-init plugin ([d398268](https://github.com/ThomasFourties/sc-planner/commit/d3982684c62c7e3c827390d7444106a9489592d9))
+* enhance authentication middleware with detailed logging, improve client-side initialization checks, and streamline user retrieval process in auth store ([2941b9c](https://github.com/ThomasFourties/sc-planner/commit/2941b9cbeefebb5d25f275c279961ff6334b4ae0))
+* improve user retrieval logic in auth store to handle different response structures and enhance logging for better debugging ([ed36014](https://github.com/ThomasFourties/sc-planner/commit/ed3601415c7aea0c194ea82d0a3311bf1e14510c))
+* remove comments from app.vue, disable SSR in nuxt.config.ts, and simplify authentication logic in auth-init.client.ts ([d64c9da](https://github.com/ThomasFourties/sc-planner/commit/d64c9da0c9ba8701b19ce3be1e7cb22d2084bae1))
+* streamline navigation logic in index.vue to redirect users based on authentication status ([11184ed](https://github.com/ThomasFourties/sc-planner/commit/11184ed6955da7c6fffb82d12dec5fb10510b54c))
+* update Dockerfile ([949cf3e](https://github.com/ThomasFourties/sc-planner/commit/949cf3e613e4e26e62ac0a99a9fa51ae6d0b9dba))
+* update Dockerfile to enable corepack, switch build command to 'build', and adjust final image to run Node.js server ([6e31ac2](https://github.com/ThomasFourties/sc-planner/commit/6e31ac26a7ab4f382a54faa698a91f1398086964))
+* update Dockerfile to enhance production configuration with health checks and environment variables, and enable SSR in nuxt.config.ts ([1817dd7](https://github.com/ThomasFourties/sc-planner/commit/1817dd7c702e7df5563174ad146058f22712af07))
+* update Dockerfile to improve build stages, streamline dependency installation, and configure production environment variables ([720e7c2](https://github.com/ThomasFourties/sc-planner/commit/720e7c271c8bb67f9bfcd004aa682f79bf3b8ec1))
+* update Dockerfile to remove unnecessary .npmrc copy, simplifying dependency installation process ([fede608](https://github.com/ThomasFourties/sc-planner/commit/fede608ea103bd0f19e1127c2b13ec3bcfdb0798))
+* update Dockerfile to switch from nginx to Node.js server, enable SSR in nuxt.config.ts, and adjust environment variables for production in docker-compose ([1fc4a51](https://github.com/ThomasFourties/sc-planner/commit/1fc4a51b9104ad9a54f960098715ad0fe198bb60))
+* update Dockerfile to switch from Node.js to Nginx base image, change build command to generate, and streamline static file serving configuration ([fa9b1a1](https://github.com/ThomasFourties/sc-planner/commit/fa9b1a1864e4fab7a6328565aa1bfc43d4c4c460))
+* update Dockerfile to use Node.js base image, implement custom start script, and configure Nginx for API proxying and static file serving ([c710469](https://github.com/ThomasFourties/sc-planner/commit/c710469a41ed37432d6a074366619d4d42516496))
+* update task and project components for improved layout and functionality, including header adjustments, grid column modifications, and enhanced checkbox styling ([667b1d7](https://github.com/ThomasFourties/sc-planner/commit/667b1d7bd496bc7cf7c707167951518027ca456b))
+
 ## [1.0.0](https://github.com/ThomasFourties/sc-planner/compare/v0.5.0...v1.0.0) (2025-08-02)
 
 
