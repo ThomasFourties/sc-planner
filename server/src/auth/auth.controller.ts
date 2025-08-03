@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query, Res, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Query, Res, Logger, Get, Request, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UsersService } from 'src/users/users.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -75,5 +76,11 @@ export class AuthController {
     return {
       message: 'Votre mot de passe a été réinitialisé avec succès.',
     };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getProfile(@Request() req: { user: { sub: string } }) {
+    return await this.authService.getProfile(req.user.sub);
   }
 }
