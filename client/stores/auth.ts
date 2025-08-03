@@ -41,11 +41,12 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ user: User; message: string }>('/api/auth/login', {
           method: 'POST',
           body: credentials,
-          credentials: 'include', // AJOUT IMPORTANT
+          credentials: 'include',
         });
 
         this.user = response.user;
         this.isAuthenticated = true;
+        this.initialized = true;
 
         return { success: true, message: response.message };
       } catch (error: any) {
@@ -83,8 +84,9 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ message: string }>('/api/auth/register', {
           method: 'POST',
           body: serverData,
-          credentials: 'include', // AJOUT IMPORTANT
+          credentials: 'include',
         });
+
         return { success: true, message: response.message };
       } catch (error: any) {
         let errorMessage = "Erreur lors de l'inscription";
@@ -99,7 +101,6 @@ export const useAuthStore = defineStore('auth', {
           errorMessage = error.statusMessage;
         }
 
-        console.error("Erreur d'inscription:", error);
         throw new Error(errorMessage);
       } finally {
         this.loading = false;
@@ -115,7 +116,7 @@ export const useAuthStore = defineStore('auth', {
             new_password,
             confirm_password,
           },
-          credentials: 'include', // AJOUT IMPORTANT
+          credentials: 'include',
         });
 
         return { success: true, message: response.message };
@@ -126,7 +127,6 @@ export const useAuthStore = defineStore('auth', {
           errorMessage = Array.isArray(error.data.message) ? error.data.message.join(', ') : error.data.message;
         }
 
-        console.error('Reset error:', error);
         throw new Error(errorMessage);
       } finally {
         this.loading = false;
@@ -139,7 +139,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ message: string }>('/api/auth/forgot-password', {
           method: 'POST',
           body: { email },
-          credentials: 'include', // AJOUT IMPORTANT
+          credentials: 'include',
         });
 
         return { success: true, message: response.message };
@@ -159,13 +159,12 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       this.loading = true;
       try {
-        // Appeler l'endpoint Nuxt qui gère les cookies
         await $fetch('/api/auth/logout', {
           method: 'POST',
           credentials: 'include',
         });
       } catch (error: any) {
-        console.error('Erreur lors de la déconnexion:', error);
+        // Ignorer les erreurs de logout
       } finally {
         this.clearAuth();
         this.loading = false;
@@ -177,24 +176,38 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async initializeAuth() {
-      if (this.initialized) return;
+      if (this.initialized) {
+        return this.isAuthenticated;
+      }
 
       try {
-        // Appel direct à l'API NestJS (pas l'endpoint Nuxt)
-        const config = useRuntimeConfig();
-        const user = await $fetch<User>(`${config.public.API_URL}/users/me`, {
-          credentials: 'include', // IMPORTANT pour envoyer les cookies
+        const response = await $fetch<{ data: User }>('/api/auth/me', {
+          method: 'GET',
+          credentials: 'include',
         });
-        this.user = user;
-        this.isAuthenticated = true;
-      } catch (error) {
+
+        if (response?.data) {
+          this.user = response.data;
+          this.isAuthenticated = true;
+          return true;
+        } else {
+          this.clearAuth();
+          return false;
+        }
+      } catch (error: any) {
         this.clearAuth();
+        return false;
       } finally {
         this.initialized = true;
       }
     },
 
     clearAuth() {
+      this.user = null;
+      this.isAuthenticated = false;
+    },
+
+    forceReset() {
       this.user = null;
       this.isAuthenticated = false;
       this.initialized = false;
