@@ -6,6 +6,7 @@ import {
   IsUUID,
   IsDateString,
   IsNotEmpty,
+  IsBoolean,
 } from 'class-validator';
 import { TaskStatus, TaskPriority } from '../entities/task.entity';
 
@@ -27,6 +28,10 @@ export class CreateTaskDto {
   assigned_to_id?: string;
 
   @IsOptional()
+  @IsUUID()
+  project_id?: string;
+
+  @IsOptional()
   @IsDateString()
   start_date?: string;
 
@@ -45,4 +50,8 @@ export class CreateTaskDto {
   @IsOptional()
   @IsUUID()
   dependency_id?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  completed?: boolean;
 }

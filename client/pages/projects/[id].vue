@@ -1,53 +1,32 @@
 <template>
-  <div class="project-detail-page">
-    <!-- En-tête du projet -->
-    <div v-if="project" class="project-header">
-      <div class="project-info">
-        <div class="breadcrumb">
-          <button @click="navigateBack" class="back-btn">
-            <ArrowLeft :size="16" />
-            Retour au client
-          </button>
-        </div>
-        <h1 class="project-title">{{ project.name }}</h1>
-        <div class="project-meta">
-          <div class="project-status" :class="`status-${project.status}`">
-            {{ getStatusText(project.status) }}
-          </div>
-          <div v-if="project.description" class="project-description">
-            {{ project.description }}
-          </div>
-          <div class="project-dates" v-if="project.start_date || project.end_date">
-            <div v-if="project.start_date" class="date-info">
-              <strong>Début :</strong> {{ formatDate(project.start_date) }}
-            </div>
-            <div v-if="project.end_date" class="date-info">
-              <strong>Fin :</strong> {{ formatDate(project.end_date) }}
-            </div>
-          </div>
-          <div class="hours-summary">
-            <strong>{{ formatHours(project.spent_hours) }} / {{ formatHours(project.sold_hours) }} heures</strong>
-            <div class="hours-progress-bar">
-              <div 
-                class="hours-progress-fill" 
-                :style="{ 
-                  width: `${Math.min((project.spent_hours || 0) / (project.sold_hours || 1) * 100, 100)}%`,
-                  backgroundColor: getHoursProgressColor(project.spent_hours || 0, project.sold_hours || 1)
-                }"
-              ></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions -->
+  <div class="tasks-page">
     <div class="header">
       <div class="header-actions">
         <button @click="uiStore.toggleTaskForm()" class="toggle-form-btn">
           <Plus />
           Ajouter une tâche
         </button>
+        <!-- <button @click="showArchives" class="archives-btn">
+          <Archive />
+          Archives
+        </button> -->
+      </div>
+    </div>
+
+    <!-- Project Header -->
+    <div v-if="project" class="project-header">
+      <div class="project-info">
+        <h1 class="h2">{{ project.name }}</h1>
+      </div>
+      <div class="project-stats">
+        <div class="stat">
+          <span class="stat-label">Tâches</span>
+          <span class="stat-value">{{ tasks.length }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Terminées</span>
+          <span class="stat-value">{{tasks.filter(t => t.status === 'done').length}}</span>
+        </div>
       </div>
     </div>
 
@@ -56,16 +35,9 @@
 
     <!-- Formulaire de création/modification -->
     <div v-if="uiStore.isTaskFormVisible" class="form-section">
-      <CreateTaskForm 
-        ref="createTaskFormRef"
-        :task-id="uiStore.isEditing ? uiStore.currentTask?.id : null"
-        :initial-task="uiStore.currentTask"
-        :project-id="projectId"
-        @task-created="onTaskCreated" 
-        @task-updated="onTaskUpdated"
-        @task-deleted="onTaskDeleted"
-        @closeComplete="handleTaskFormComplete" 
-      />
+      <CreateTaskForm ref="createTaskFormRef" :task-id="uiStore.isEditing ? uiStore.currentTask?.id : null"
+        :initial-task="uiStore.currentTask" :project-id="projectId" @task-created="onTaskCreated"
+        @task-updated="onTaskUpdated" @task-deleted="onTaskDeleted" @closeComplete="handleTaskFormComplete" />
     </div>
 
     <!-- Liste des tâches -->
@@ -77,8 +49,11 @@
       <div v-else class="tasks-container">
         <!-- Header fixe -->
         <div class="tasks-header">
+          <div class="header-cell checkbox-cell">
+            <!-- <span>Terminé</span> -->
+          </div>
           <div class="header-cell name-cell" @click="sortBy('name')">
-            <span>Nom de la tâche</span>
+            <span :class="{ 'active': sortByField === 'name' }">Nom de la tâche</span>
             <div class="sort-indicator" :class="getSortClass('name')">
               <ChevronUp v-if="sortByField === 'name' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'name' && sortOrder === 'desc'" :size="14" />
@@ -86,146 +61,308 @@
             </div>
           </div>
           <div class="header-cell status-cell" @click="sortBy('status')">
-            <span>Statut</span>
+            <span :class="{ 'active': sortByField === 'status' }">Statut</span>
             <div class="sort-indicator" :class="getSortClass('status')">
               <ChevronUp v-if="sortByField === 'status' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'status' && sortOrder === 'desc'" :size="14" />
               <ChevronsUpDown v-else :size="14" />
             </div>
           </div>
+          <div class="header-cell creator-cell" @click="sortBy('created_by')">
+            <span :class="{ 'active': sortByField === 'created_by' }">Créé par</span>
+            <div class="sort-indicator" :class="getSortClass('created_by')">
+              <ChevronUp v-if="sortByField === 'created_by' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'created_by' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
+          <div class="header-cell date-cell" @click="sortBy('created_at')">
+            <span :class="{ 'active': sortByField === 'created_at' }">Créé le</span>
+            <div class="sort-indicator" :class="getSortClass('created_at')">
+              <ChevronUp v-if="sortByField === 'created_at' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'created_at' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
+          <div class="header-cell date-cell" @click="sortBy('start_date')">
+            <span :class="{ 'active': sortByField === 'start_date' }">À faire le</span>
+            <div class="sort-indicator" :class="getSortClass('start_date')">
+              <ChevronUp v-if="sortByField === 'start_date' && sortOrder === 'asc'" :size="14" />
+              <ChevronDown v-else-if="sortByField === 'start_date' && sortOrder === 'desc'" :size="14" />
+              <ChevronsUpDown v-else :size="14" />
+            </div>
+          </div>
           <div class="header-cell priority-cell" @click="sortBy('priority')">
-            <span>Priorité</span>
+            <span :class="{ 'active': sortByField === 'priority' }">Priorité</span>
             <div class="sort-indicator" :class="getSortClass('priority')">
               <ChevronUp v-if="sortByField === 'priority' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'priority' && sortOrder === 'desc'" :size="14" />
               <ChevronsUpDown v-else :size="14" />
             </div>
           </div>
-          <div class="header-cell assigned-cell">Assigné à</div>
-          <div class="header-cell due-date-cell" @click="sortBy('due_date')">
-            <span>Date limite</span>
-            <div class="sort-indicator" :class="getSortClass('due_date')">
-              <ChevronUp v-if="sortByField === 'due_date' && sortOrder === 'asc'" :size="14" />
-              <ChevronDown v-else-if="sortByField === 'due_date' && sortOrder === 'desc'" :size="14" />
-              <ChevronsUpDown v-else :size="14" />
-            </div>
-          </div>
-          <div class="header-cell duration-cell" @click="sortBy('duration')">
-            <span>Durée</span>
-            <div class="sort-indicator" :class="getSortClass('duration')">
-              <ChevronUp v-if="sortByField === 'duration' && sortOrder === 'asc'" :size="14" />
-              <ChevronDown v-else-if="sortByField === 'duration' && sortOrder === 'desc'" :size="14" />
-              <ChevronsUpDown v-else :size="14" />
-            </div>
-          </div>
+          <!-- <div class="header-cell project-cell">
+            <span :class="{ 'active': sortByField === 'project' }">Projets</span>
+          </div> -->
+          <!-- <div class="header-cell actions-cell">
+            <span>Actions</span>
+          </div> -->
         </div>
 
-        <!-- Liste des tâches -->
-        <div class="tasks-list">
-          <div v-if="filteredAndSortedTasks.length === 0" class="empty-state">
-            <p>Aucune tâche pour ce projet</p>
+        <!-- Contenu scrollable -->
+        <div class="tasks-body">
+          <!-- Message si aucune tâche -->
+          <div v-if="sortedTasks.length === 0" class="empty-state">
+            <div class="empty-content">
+              <div class="empty-icon">📝</div>
+              <div class="empty-text">Aucune tâche trouvée</div>
+              <div class="empty-subtext">Créez votre première tâche en cliquant sur le bouton ci-dessus</div>
+            </div>
           </div>
-          
-          <div
-            v-for="task in filteredAndSortedTasks"
-            :key="task.id"
-            class="task-row"
-            :class="{ 'is-completed': task.status === 'completed' }"
-            @click="openTaskDetail(task)"
-          >
+
+          <!-- Lignes des tâches -->
+          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row"
+            :class="{ 'completed': task.completed }" @click="editTask(task)">
+            <!-- Checkbox de complétion -->
+            <div class="task-cell checkbox-cell" @click.stop>
+              <input type="checkbox" :checked="task.completed" @change="toggleTaskCompleted(task)"
+                class="task-checkbox" />
+            </div>
             <!-- Nom de la tâche -->
-            <div class="cell name-cell">
-              <div class="task-name">
-                {{ task.name }}
-                <span v-if="task.created_by === authStore.user?.id" class="created-by-me">Créé par moi</span>
+            <div class="task-cell name-cell">
+              <div class="task-info">
+                <span class="task-icon" :class="`priority-${task.priority}`">●</span>
+                <div>
+                  <div class="name">{{ task.name }}</div>
+                  <div v-if="task.description" class="description">{{ task.description }}</div>
+                </div>
               </div>
             </div>
 
             <!-- Statut -->
-            <div class="cell status-cell">
-              <StatusSelector 
-                :task="task" 
-                @status-updated="onStatusUpdated" 
-              />
+            <div class="task-cell status-cell" @click.stop>
+              <div class="status-dropdown" @click="toggleStatusDropdown(task.id, $event)"
+                :ref="`status-dropdown-${task.id}`">
+                <span class="status-badge" :class="`status-${task.status}`">
+                  {{ getStatusText(task.status) }}
+                </span>
+                <div v-if="openStatusDropdown === task.id" class="status-dropdown-menu" :style="dropdownPosition">
+                  <div v-for="status in availableStatuses" :key="status.value"
+                    @click="updateTaskStatus(task, status.value)" class="status-dropdown-item"
+                    :class="`status-${status.value}`">
+                    <div class="status-indicator" :class="`status-${status.value}`"></div>
+                    {{ status.label }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Créé par -->
+            <div class="task-cell creator-cell">
+              <div class="user-info">
+                <div class="name">{{ task.created_by?.first_name || '' }} {{ task.created_by?.last_name || '' }}</div>
+                <!-- <div v-if="task.created_by.id === authStore.currentUser?.id" class="created-by-me">Créé par moi</div> -->
+              </div>
+            </div>
+
+            <!-- Créé le -->
+            <div class="task-cell date-cell">
+              {{ formatDate(task.created_at) }}
+            </div>
+
+            <!-- À faire le -->
+            <div class="task-cell date-cell">
+              <div v-if="task.start_date">
+                {{ formatDate(task.start_date) }}
+              </div>
+              <div v-else class="no-date">
+                Non planifié
+              </div>
             </div>
 
             <!-- Priorité -->
-            <div class="cell priority-cell">
-              <PrioritySelector 
-                :task="task" 
-                @priority-updated="onPriorityUpdated" 
-              />
-            </div>
-
-            <!-- Assigné à -->
-            <div class="cell assigned-cell">
-              <div v-if="task.assigned_to" class="assignee-info">
-                <div class="assignee-avatar">
-                  {{ getInitials(task.assigned_to?.first_name || '', task.assigned_to?.last_name || '') }}
-                </div>
-                <span class="assignee-name">
-                  {{ task.assigned_to?.first_name || '' }} {{ task.assigned_to?.last_name || '' }}
+            <div class="task-cell priority-cell" @click.stop>
+              <div class="priority-dropdown" @click="togglePriorityDropdown(task.id, $event)"
+                :ref="`priority-dropdown-${task.id}`">
+                <span class="priority-badge" :class="`priority-${task.priority}`">
+                  {{ getPriorityText(task.priority) }}
                 </span>
+                <div v-if="openPriorityDropdown === task.id" class="priority-dropdown-menu"
+                  :style="priorityDropdownPosition">
+                  <div v-for="priority in availablePriorities" :key="priority.value"
+                    @click="updateTaskPriority(task, priority.value)" class="priority-dropdown-item"
+                    :class="`priority-${priority.value}`">
+                    <div class="priority-indicator" :class="`priority-${priority.value}`">●</div>
+                    {{ priority.label }}
+                  </div>
+                </div>
               </div>
-              <span v-else class="no-assignee">Non assigné</span>
             </div>
 
-            <!-- Date limite -->
-            <div class="cell due-date-cell">
-              <span v-if="task.due_date" class="due-date" :class="getDueDateClass(task.due_date)">
-                {{ formatDueDate(task.due_date) }}
-              </span>
-              <span v-else class="no-due-date">Aucune</span>
-            </div>
+            <!-- Projets -->
+            <!-- <div class="task-cell project-cell">
+              <span class="project-placeholder">-</span>
+            </div> -->
 
-            <!-- Durée -->
-            <div class="cell duration-cell">
-              <span class="duration">{{ formatDuration(task.duration) }}</span>
-            </div>
+            <!-- Actions -->
+            <!-- <div class="task-cell actions-cell">
+              <div class="actions-group">
+                <button @click="editTask(task)" class="edit-btn" title="Modifier">
+                  ✏️
+                </button>
+                <button @click="deleteTask(task.id)" class="delete-btn" title="Supprimer">
+                  🗑️
+                </button>
+              </div>
+            </div> -->
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Panneau de détail des tâches -->
-    <TaskDetailPanel 
-      v-if="uiStore.isTaskDetailVisible"
-      :task="uiStore.selectedTask"
-      @task-updated="onTaskUpdated"
-      @task-deleted="onTaskDeleted"
-      @close="uiStore.closeTaskDetail"
-    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { Plus, ArrowLeft, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-vue-next';
-// import { useUiStore } from '~/stores/ui';
+import { Plus, ChevronUp, ChevronDown, ChevronsUpDown, Archive } from 'lucide-vue-next';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
+import { useUIStore } from '~/stores/ui';
 import { useAuthStore } from '~/stores/auth';
-
-// Composants
-import CreateTaskForm from '~/components/base/CreateTaskForm.vue';
-import TaskDetailPanel from '~/components/base/TaskDetailPanel.vue';
-import StatusSelector from '~/components/form/StatusSelector.vue';
-import PrioritySelector from '~/components/form/PrioritySelector.vue';
 
 // Le middleware global gère l'authentification
 
+// Route
 const route = useRoute();
 const projectId = route.params.id;
-const uiStore = useUiStore();
+
+// Store
+const uiStore = useUIStore();
 const authStore = useAuthStore();
 
 // État
-const project = ref(null);
 const tasks = ref([]);
-const loadingProject = ref(true);
 const loadingTasks = ref(true);
+const createTaskFormRef = ref(null);
+const project = ref(null);
+const loadingProject = ref(true);
 
-// Tri et filtrage
-const sortByField = ref('created_at');
-const sortOrder = ref('desc');
+// État du tri
+const sortByField = ref('status');
+const sortOrder = ref('asc'); // 'asc' ou 'desc'
+
+// État du dropdown de statut
+const openStatusDropdown = ref(null);
+const dropdownPosition = ref({});
+
+// État du dropdown de priorité
+const openPriorityDropdown = ref(null);
+const priorityDropdownPosition = ref({});
+
+// Ordre des statuts pour le tri
+const statusOrder = {
+  'todo': 1,
+  'in_progress': 2,
+  'waiting_for_info': 3,
+  'blocked': 4,
+  'cancelled': 5,
+  'to_validate': 6,
+  'validated': 7,
+  'to_timer': 8,
+  'processed_prod': 9,
+  'processed_preprod': 10,
+  'done': 11
+};
+
+// Ordre des priorités pour le tri
+const priorityOrder = {
+  'low': 1,
+  'medium': 2,
+  'high': 3,
+  'urgent': 4
+};
+
+// Statuts disponibles
+const availableStatuses = [
+  { value: 'todo', label: 'À faire' },
+  { value: 'in_progress', label: 'En cours' },
+  { value: 'waiting_for_info', label: 'En attente d\'informations' },
+  { value: 'blocked', label: 'Bloqué' },
+  { value: 'cancelled', label: 'Annulé' },
+  { value: 'to_validate', label: 'À valider' },
+  { value: 'validated', label: 'Validé' },
+  { value: 'to_timer', label: 'À timer' },
+  { value: 'processed_prod', label: 'Traité en prod' },
+  { value: 'processed_preprod', label: 'Traité en préprod' },
+  { value: 'done', label: 'Terminé' }
+];
+
+// Priorités disponibles
+const availablePriorities = [
+  { value: 'low', label: 'Faible' },
+  { value: 'medium', label: 'Moyenne' },
+  { value: 'high', label: 'Élevée' },
+  { value: 'urgent', label: 'Urgente' }
+];
+
+// Tâches triées
+const sortedTasks = computed(() => {
+  if (tasks.value.length === 0) return [];
+
+  const sorted = [...tasks.value].sort((a, b) => {
+    let aValue, bValue;
+
+    // Gérer les différents types de tri
+    switch (sortByField.value) {
+      case 'name':
+        aValue = a.name?.toLowerCase() || '';
+        bValue = b.name?.toLowerCase() || '';
+        break;
+      case 'status':
+        aValue = statusOrder[a.status] || 999;
+        bValue = statusOrder[b.status] || 999;
+        break;
+      case 'priority':
+        aValue = priorityOrder[a.priority] || 999;
+        bValue = priorityOrder[b.priority] || 999;
+        break;
+      case 'created_by':
+        aValue = `${a.created_by?.first_name || ''} ${a.created_by?.last_name || ''}`.toLowerCase();
+        bValue = `${b.created_by?.first_name || ''} ${b.created_by?.last_name || ''}`.toLowerCase();
+        break;
+      case 'created_at':
+      case 'start_date':
+        aValue = a[sortByField.value] ? new Date(a[sortByField.value]).getTime() : 0;
+        bValue = b[sortByField.value] ? new Date(b[sortByField.value]).getTime() : 0;
+        break;
+      default:
+        aValue = a[sortByField.value] || '';
+        bValue = b[sortByField.value] || '';
+    }
+
+    // Comparer les valeurs
+    if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  return sorted;
+});
+
+// Fonction de tri
+const sortBy = (field) => {
+  if (sortByField.value === field) {
+    // Inverser l'ordre si on clique sur la même colonne
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Nouveau champ, commencer par asc
+    sortByField.value = field;
+    sortOrder.value = 'asc';
+  }
+};
+
+// Fonctions pour les indicateurs visuels
+const getSortClass = (field) => {
+  if (sortByField.value !== field) return '';
+  return sortOrder.value === 'asc' ? 'sort-asc' : 'sort-desc';
+};
 
 // Charger le projet
 const loadProject = async () => {
@@ -234,529 +371,1061 @@ const loadProject = async () => {
     project.value = await $fetch(`/api/projects/${projectId}`);
   } catch (error) {
     console.error('Erreur lors du chargement du projet:', error);
+    project.value = null;
   } finally {
     loadingProject.value = false;
   }
 };
 
-// // Charger les tâches du projet
-// const loadTasks = async () => {
-//   try {
-//     loadingTasks.value = true;
-//     tasks.value = await $fetch(`/api/tasks/project/${projectId}`);
-//   } catch (error) {
-//     console.error('Erreur lors du chargement des tâches:', error);
-//     tasks.value = [];
-//   } finally {
-//     loadingTasks.value = false;
-//   }
-// };
-
-// Navigation retour
-const navigateBack = () => {
-  if (project.value && project.value.client_id) {
-    navigateTo(`/clients/${project.value.client_id}`);
-  } else {
-    navigateTo('/clients');
+// Charger les tâches du projet
+const loadTasks = async () => {
+  try {
+    loadingTasks.value = true;
+    tasks.value = await $fetch(`/api/tasks/project/${projectId}`);
+  } catch (error) {
+    console.error('Erreur lors du chargement des tâches:', error);
+    tasks.value = [];
+  } finally {
+    loadingTasks.value = false;
   }
 };
 
-// Fonctions utilitaires (réutilisées depuis mes-taches)
-const formatHours = (hours) => {
-  const numHours = parseFloat(hours);
-  if (!numHours || numHours === 0 || isNaN(numHours)) return '0';
-  
-  if (numHours % 1 === 0) return numHours.toString();
-  return parseFloat(numHours.toFixed(2)).toString();
-};
-
-const getStatusText = (status) => {
-  const statuses = {
-    'planning': 'Planification',
-    'in_progress': 'En cours',
-    'on_hold': 'En pause',
-    'completed': 'Terminé',
-    'cancelled': 'Annulé'
-  };
-  return statuses[status] || status;
-};
-
-const getHoursProgressColor = (spent, sold) => {
-  const spentNum = parseFloat(spent) || 0;
-  const soldNum = parseFloat(sold) || 1;
-  
-  if (soldNum === 0) return '#3B82F6';
-  
-  const percentage = (spentNum / soldNum) * 100;
-  if (isNaN(percentage)) return '#3B82F6';
-  
-  if (percentage >= 90) return '#EF4444';
-  if (percentage >= 70) return '#F59E0B';
-  return '#3B82F6';
-};
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-};
-
-const getInitials = (firstName, lastName) => {
-  if (!firstName && !lastName) return '?';
-  const first = firstName ? firstName.charAt(0) : '';
-  const last = lastName ? lastName.charAt(0) : '';
-  return (first + last).toUpperCase();
-};
-
-const formatDueDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short'
-  });
-};
-
-const formatDuration = (duration) => {
-  if (!duration) return 'Non définie';
-  const hours = Math.floor(duration / 60);
-  const minutes = duration % 60;
-  if (hours === 0) return `${minutes}min`;
-  if (minutes === 0) return `${hours}h`;
-  return `${hours}h${minutes}min`;
-};
-
-const getDueDateClass = (dueDate) => {
-  const now = new Date();
-  const due = new Date(dueDate);
-  const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
-  
-  if (diffDays < 0) return 'overdue';
-  if (diffDays <= 1) return 'due-soon';
-  if (diffDays <= 7) return 'due-this-week';
-  return '';
-};
-
-// Tri
-const sortBy = (field) => {
-  if (sortByField.value === field) {
-    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortByField.value = field;
-    sortOrder.value = 'asc';
-  }
-};
-
-const getSortClass = (field) => {
-  if (sortByField.value !== field) return '';
-  return sortOrder.value === 'asc' ? 'asc' : 'desc';
-};
-
-// Calculs
-const filteredAndSortedTasks = computed(() => {
-  let filtered = [...tasks.value];
-  
-  // Tri
-  filtered.sort((a, b) => {
-    let aValue = a[sortByField.value];
-    let bValue = b[sortByField.value];
-    
-    if (sortByField.value === 'priority') {
-      const priorityOrder = { 'low': 1, 'medium': 2, 'high': 3, 'urgent': 4 };
-      aValue = priorityOrder[aValue] || 0;
-      bValue = priorityOrder[bValue] || 0;
-    }
-    
-    if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1;
-    return 0;
-  });
-  
-  return filtered;
-});
-
-// Gestion des événements
-const handleTaskFormClose = () => {
-  uiStore.closeTaskForm();
-};
-
-const handleTaskFormComplete = () => {
-  uiStore.closeTaskForm();
-};
-
-const openTaskDetail = (task) => {
-  uiStore.openTaskDetail(task);
-};
-
+// Gestionnaire de création de tâche
 const onTaskCreated = (newTask) => {
   tasks.value.unshift(newTask);
   uiStore.closeTaskForm();
 };
 
+// Gestionnaire de modification de tâche
 const onTaskUpdated = (updatedTask) => {
-  const index = tasks.value.findIndex(t => t.id === updatedTask.id);
+  const index = tasks.value.findIndex(task => task.id === updatedTask.id);
   if (index !== -1) {
     tasks.value[index] = updatedTask;
   }
+  uiStore.closeTaskForm();
 };
 
+// Gestionnaire de suppression de tâche
 const onTaskDeleted = (taskId) => {
-  tasks.value = tasks.value.filter(t => t.id !== taskId);
-  uiStore.closeTaskDetail();
+  tasks.value = tasks.value.filter(task => task.id !== taskId);
+  uiStore.closeTaskForm();
 };
 
-const onStatusUpdated = (updatedTask) => {
-  onTaskUpdated(updatedTask);
+// Formatage des textes
+const getStatusText = (status) => {
+  const statuses = {
+    'todo': 'À faire',
+    'in_progress': 'En cours',
+    'waiting_for_info': 'En attente d\'informations',
+    'blocked': 'Bloqué',
+    'cancelled': 'Annulé',
+    'to_validate': 'À valider',
+    'validated': 'Validé',
+    'to_timer': 'À timer',
+    'processed_prod': 'Traité en prod',
+    'processed_preprod': 'Traité en préprod',
+    'done': 'Terminé'
+  };
+  return statuses[status] || status;
 };
 
-const onPriorityUpdated = (updatedTask) => {
-  onTaskUpdated(updatedTask);
+const getPriorityText = (priority) => {
+  const priorities = {
+    'low': 'Faible',
+    'medium': 'Moyenne',
+    'high': 'Élevée',
+    'urgent': 'Urgente'
+  };
+  return priorities[priority] || priority;
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
+// Actions sur les tâches
+const editTask = (task) => {
+  uiStore.openTaskEdit(task);
+};
+
+const deleteTask = async (taskId) => {
+  try {
+    await $fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
+    tasks.value = tasks.value.filter(task => task.id !== taskId);
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la tâche:', error);
+  }
+};
+
+const showArchives = () => {
+  // TODO: Implémenter la page des archives
+  console.log('Afficher les archives');
+};
+
+// Fonctions pour le dropdown de statut
+const toggleStatusDropdown = (taskId, event) => {
+  if (openStatusDropdown.value === taskId) {
+    openStatusDropdown.value = null;
+    return;
+  }
+
+  const target = event.currentTarget;
+  const rect = target.getBoundingClientRect();
+
+  dropdownPosition.value = {
+    top: `${rect.bottom + 4}px`,
+    left: `${rect.left}px`
+  };
+
+  openStatusDropdown.value = taskId;
+};
+
+const updateTaskStatus = async (task, newStatus) => {
+  if (task.status === newStatus) {
+    openStatusDropdown.value = null;
+    return;
+  }
+
+  try {
+    const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      body: { status: newStatus }
+    });
+
+    // Mettre à jour la tâche dans la liste
+    const index = tasks.value.findIndex(t => t.id === task.id);
+    if (index !== -1) {
+      tasks.value[index] = { ...tasks.value[index], ...updatedTask };
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du statut:', error);
+
+    // Afficher une notification d'erreur à l'utilisateur
+    if (error.statusMessage) {
+      alert(`Erreur: ${error.statusMessage}`);
+    } else if (error.message) {
+      alert(`Erreur: ${error.message}`);
+    } else {
+      alert('Erreur lors de la mise à jour du statut');
+    }
+  } finally {
+    openStatusDropdown.value = null;
+  }
+};
+
+// Fonctions pour le dropdown de priorité
+const togglePriorityDropdown = (taskId, event) => {
+  if (openPriorityDropdown.value === taskId) {
+    openPriorityDropdown.value = null;
+    return;
+  }
+
+  const target = event.currentTarget;
+  const rect = target.getBoundingClientRect();
+
+  priorityDropdownPosition.value = {
+    top: `${rect.bottom + 4}px`,
+    left: `${rect.left}px`
+  };
+
+  openPriorityDropdown.value = taskId;
+};
+
+const updateTaskPriority = async (task, newPriority) => {
+  if (task.priority === newPriority) {
+    openPriorityDropdown.value = null;
+    return;
+  }
+
+  try {
+    const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      body: { priority: newPriority }
+    });
+
+    // Mettre à jour la tâche dans la liste
+    const index = tasks.value.findIndex(t => t.id === task.id);
+    if (index !== -1) {
+      tasks.value[index] = { ...tasks.value[index], ...updatedTask };
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la priorité:', error);
+  } finally {
+    openPriorityDropdown.value = null;
+  }
+};
+
+// Fonction pour basculer le statut de complétion
+const toggleTaskCompleted = async (task) => {
+  try {
+    const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      body: { completed: !task.completed }
+    });
+
+    // Mettre à jour la tâche dans la liste
+    const index = tasks.value.findIndex(t => t.id === task.id);
+    if (index !== -1) {
+      tasks.value[index] = { ...tasks.value[index], ...updatedTask };
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du statut de complétion:', error);
+  }
+};
+
+const handleTaskFormClose = async () => {
+  if (createTaskFormRef.value?.handleClose) {
+    await createTaskFormRef.value.handleClose();
+  } else {
+    uiStore.closeTaskForm();
+  }
+};
+
+const handleTaskFormComplete = () => {
+  // Cette fonction est appelée quand l'auto-sauvegarde est terminée
+  uiStore.closeTaskForm();
+};
+
+// Fermer les dropdowns quand on clique à l'extérieur
+const handleClickOutside = (event) => {
+  if (!event.target.closest('.status-dropdown')) {
+    openStatusDropdown.value = null;
+  }
+  if (!event.target.closest('.priority-dropdown')) {
+    openPriorityDropdown.value = null;
+  }
 };
 
 // Chargement initial
 onMounted(() => {
   loadProject();
   loadTasks();
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
-<style lang="scss" scoped>
-@use '../../assets/scss/base/_variables.scss' as *;
-@use '../../assets/scss/utils/_mixins.scss' as *;
+<style scoped lang="scss">
+@use '../../assets/scss/base/variables' as *;
+@use '../../assets/scss/utils/mixins' as *;
 
-.project-detail-page {
-  padding: 40px;
-  min-height: 100vh;
+
+.tasks-page {
+  margin: 0 auto;
 }
 
 .project-header {
-  background: white;
-  border-radius: 4px;
-  padding: 32px;
-  margin-bottom: 32px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-  .breadcrumb {
-    margin-bottom: 16px;
+  .project-info {
+    margin-bottom: 0;
 
-    .back-btn {
+    .project-title {
+      margin: 0;
+    }
+
+    .project-meta {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #6B7280;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      transition: color 0.2s;
-
-      &:hover {
-        color: $blue;
-      }
-    }
-  }
-
-  .project-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: $black;
-    margin: 0 0 16px 0;
-  }
-
-  .project-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
-    .project-status {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: uppercase;
-      width: fit-content;
-
-      &.status-planning {
-        background: #FEF3C7;
-        color: #92400E;
-      }
-
-      &.status-in_progress {
-        background: #DBEAFE;
-        color: #1E40AF;
-      }
-
-      &.status-on_hold {
-        background: #FEE2E2;
-        color: #991B1B;
-      }
-
-      &.status-completed {
-        background: #D1FAE5;
-        color: #065F46;
-      }
-
-      &.status-cancelled {
-        background: #F3F4F6;
-        color: #374151;
-      }
-    }
-
-    .project-description {
-      color: #6B7280;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .project-dates {
-      display: flex;
-      gap: 24px;
+      gap: 16px;
+      color: #6b7280;
       font-size: 14px;
 
-      .date-info {
-        color: #6B7280;
-
-        strong {
-          color: #374151;
-        }
-      }
-    }
-
-    .hours-summary {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 14px;
-
-      strong {
-        color: #374151;
-      }
-
-      .hours-progress-bar {
-        width: 200px;
-        height: 8px;
-        background: #F3F4F6;
+      .project-status {
+        background: #e5e7eb;
+        padding: 4px 8px;
         border-radius: 4px;
-        overflow: hidden;
+        font-weight: 500;
+      }
 
-        .hours-progress-fill {
-          height: 100%;
-          border-radius: 4px;
-          transition: all 0.3s ease;
-        }
+      .project-client {
+        font-weight: 500;
+      }
+    }
+  }
+
+  .project-stats {
+    display: flex;
+    gap: 24px;
+
+    .stat {
+      text-align: center;
+
+      .stat-label {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 4px;
+      }
+
+      .stat-value {
+        display: block;
+        font-size: 24px;
+        font-weight: 600;
+        color: #1f2937;
       }
     }
   }
 }
 
-// Réutiliser les styles de mes-taches pour le reste
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  margin-bottom: 32px;
-  padding: 0 40px;
+  margin-bottom: 30px;
 
   .header-actions {
     display: flex;
-    gap: 16px;
+    gap: 12px;
+  }
 
-    .toggle-form-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: $blue;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
+  .archives-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    // padding: 10px 16px;
+    background-color: #6b7280;
+    color: white;
+    // border: none;
+    // border-radius: 4px;
+    // font-size: 14px;
+    // font-weight: 500;
+    // cursor: pointer;
+    // transition: all 0.2s;
 
-      &:hover {
-        background: #2563EB;
-      }
+    // &:hover {
+    //   background-color: #4b5563;
+    //   // transform: translateY(-1px);
+    // }
+
+    svg {
+      width: 16px;
+      height: 16px;
     }
   }
 }
 
 .form-section {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  width: 90%;
-  max-width: 800px;
+  // Le formulaire est maintenant en position fixed, plus besoin de styles spéciaux
 }
 
 .tasks-section {
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
 }
 
 .loading {
   text-align: center;
   padding: 40px;
-  color: #6B7280;
-  font-size: 16px;
+  color: #666;
 }
 
 .tasks-container {
-  .tasks-header {
-    display: grid;
-    grid-template-columns: 2fr 120px 120px 180px 120px 100px;
-    gap: 16px;
-    padding: 16px 24px;
-    background: #F9FAFB;
-    border-bottom: 1px solid #E5E7EB;
-    font-size: 12px;
-    font-weight: 600;
-    color: #6B7280;
-    text-transform: uppercase;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  height: auto;
+  max-height: calc(100vh - 314px);
+  display: flex;
+  flex-direction: column;
+}
 
-    .header-cell {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      transition: color 0.2s;
+.tasks-header {
+  display: grid;
+  grid-template-columns: 0.2fr 2fr 1.5fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  padding: 0 12px;
+  min-height: 48px;
+  align-items: center;
+  flex-shrink: 0;
+}
 
-      &:hover {
-        color: $blue;
-      }
+.header-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 6px;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
 
-      .sort-indicator {
-        opacity: 0.5;
-        transition: opacity 0.2s;
-
-        &.asc, &.desc {
-          opacity: 1;
-          color: $blue;
-        }
-      }
-    }
+  span.active {
+    color: #007bff;
   }
 
-  .tasks-list {
-    max-height: 60vh;
-    overflow-y: auto;
+  &:hover {
+    color: #007bff;
+  }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px;
-      color: #6B7280;
-      font-style: italic;
+  span:first-child {
+    white-space: nowrap;
+  }
+}
+
+.sort-indicator {
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+
+  &.sort-asc,
+  &.sort-desc {
+    opacity: 1;
+    color: #007bff;
+  }
+}
+
+.tasks-body {
+  flex: 1;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c0c3c6;
+    border-radius: 4px;
+  }
+}
+
+.task-row {
+  display: grid;
+  grid-template-columns: 0.2fr 2fr 1.5fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid #dee2e6;
+  transition: all 0.2s;
+  min-height: 60px;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f8f9fa;
+    // transform: translateY(-2px);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.completed {
+    opacity: 0.5;
+
+    .task-info .name {
+      text-decoration: line-through;
     }
+  }
+}
 
-    .task-row {
-      display: grid;
-      grid-template-columns: 2fr 120px 120px 180px 120px 100px;
-      gap: 16px;
-      padding: 16px 24px;
-      border-bottom: 1px solid #F3F4F6;
-      cursor: pointer;
-      transition: all 0.2s;
+.task-cell {
+  padding: 12px 6px;
+  overflow: hidden;
+}
+
+.checkbox-cell {
+  min-width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  cursor: pointer;
+  accent-color: #10b981;
+}
+
+.name-cell {
+  min-width: 200px;
+}
+
+.status-cell {
+  min-width: 120px;
+  position: relative;
+
+  .status-dropdown {
+    position: relative;
+    cursor: pointer;
+
+    .status-badge {
+      transition: opacity 0.2s;
 
       &:hover {
-        background: #F9FAFB;
+        opacity: 0.8;
+      }
+    }
+
+    .status-dropdown-menu {
+      position: fixed;
+      z-index: 9999;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+      min-width: 180px;
+      max-height: 250px;
+      overflow-y: auto;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
       }
 
-      &.is-completed {
-        opacity: 0.6;
-
-        .task-name {
-          text-decoration: line-through;
-        }
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
       }
 
-      .cell {
+      &::-webkit-scrollbar-thumb {
+        background: #c0c3c6;
+        border-radius: 4px;
+      }
+
+      .status-dropdown-item {
         display: flex;
         align-items: center;
-        font-size: 14px;
-      }
+        gap: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
 
-      .name-cell {
-        .task-name {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-
-          .created-by-me {
-            font-size: 11px;
-            color: $blue;
-            font-weight: 500;
-          }
-        }
-      }
-
-      .assigned-cell {
-        .assignee-info {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          .assignee-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: $blue;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-          }
-
-          .assignee-name {
-            font-size: 13px;
-          }
+        &:first-child {
+          border-radius: 4px 4px 0 0;
         }
 
-        .no-assignee {
-          color: #9CA3AF;
-          font-style: italic;
-        }
-      }
-
-      .due-date-cell {
-        .due-date {
-          &.overdue {
-            color: #DC2626;
-            font-weight: 500;
-          }
-
-          &.due-soon {
-            color: #F59E0B;
-            font-weight: 500;
-          }
-
-          &.due-this-week {
-            color: #3B82F6;
-          }
+        &:last-child {
+          border-radius: 0 0 4px 4px;
         }
 
-        .no-due-date {
-          color: #9CA3AF;
-          font-style: italic;
+        &:hover {
+          background-color: #f3f4f6;
         }
-      }
 
-      .duration-cell {
-        .duration {
-          font-size: 13px;
-          color: #6B7280;
+        .status-indicator {
+          width: 8px;
+          height: 8px;
+          border-radius: 2px;
+
+          &.status-waiting_for_info {
+            background-color: #f87171;
+          }
+
+          &.status-blocked {
+            background-color: #f22121;
+          }
+
+          &.status-todo {
+            background-color: #fb923c;
+          }
+
+          &.status-in_progress {
+            background-color: #d97706;
+          }
+
+          &.status-processed_preprod {
+            background-color: #7dd3fc;
+          }
+
+          &.status-processed_prod {
+            background-color: #f9a8d4;
+          }
+
+          &.status-to_validate {
+            background-color: #fde047;
+          }
+
+          &.status-validated {
+            background-color: #bef264;
+          }
+
+          &.status-cancelled {
+            background-color: #a3a3a3;
+          }
+
+          &.status-to_timer {
+            background-color: #e9d5ff;
+          }
+
+          &.status-done {
+            background-color: #a3e635;
+          }
         }
       }
     }
   }
 }
-</style> 
+
+.creator-cell {
+  min-width: 150px;
+}
+
+.date-cell {
+  min-width: 100px;
+  font-size: 14px;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.priority-cell {
+  min-width: 100px;
+  position: relative;
+
+  .priority-dropdown {
+    position: relative;
+    cursor: pointer;
+
+    .priority-badge {
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .priority-dropdown-menu {
+      position: fixed;
+      z-index: 9999;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+      min-width: 140px;
+      max-height: 250px;
+      overflow-y: auto;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #c0c3c6;
+        border-radius: 4px;
+      }
+
+      .priority-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:first-child {
+          border-radius: 4px 4px 0 0;
+        }
+
+        &:last-child {
+          border-radius: 0 0 4px 4px;
+        }
+
+        &:hover {
+          background-color: #f3f4f6;
+        }
+
+        .priority-indicator {
+          font-size: 12px;
+
+          &.priority-low {
+            color: #86efac;
+          }
+
+          &.priority-medium {
+            color: #facc15;
+          }
+
+          &.priority-high {
+            color: #fb923c;
+          }
+
+          &.priority-urgent {
+            color: #f87171;
+          }
+        }
+      }
+    }
+  }
+}
+
+.project-cell {
+  min-width: 80px;
+}
+
+.actions-cell {
+  min-width: 80px;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 60px 20px;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.empty-subtext {
+  font-size: 14px;
+  color: #6c757d;
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+.task-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  .task-icon {
+    font-size: 12px;
+    margin-top: 2px;
+
+    &.priority-urgent {
+      color: #f87171;
+    }
+
+    &.priority-high {
+      color: #fb923c;
+    }
+
+    &.priority-medium {
+      color: #facc15;
+    }
+
+    &.priority-low {
+      color: #86efac;
+    }
+  }
+
+  .name {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 4px;
+  }
+
+  .description {
+    font-size: 12px;
+    color: #6c757d;
+    // max-width: 200px;
+    // max-width: 330px;
+    max-width: 270px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.status-waiting_for_info {
+    background-color: #f87171;
+    color: white;
+  }
+
+  &.status-blocked {
+    background-color: #f22121;
+    color: white;
+  }
+
+  &.status-todo {
+    background-color: #fb923c;
+    color: white;
+  }
+
+  &.status-in_progress {
+    background-color: #d97706;
+    color: white;
+  }
+
+  &.status-processed_preprod {
+    background-color: #7dd3fc;
+    color: #0c4a6e;
+  }
+
+  &.status-processed_prod {
+    background-color: #f9a8d4;
+    color: #831843;
+  }
+
+  &.status-to_validate {
+    background-color: #fde047;
+    color: #713f12;
+  }
+
+  &.status-validated {
+    background-color: #bef264;
+    color: #365314;
+  }
+
+  &.status-cancelled {
+    background-color: #a3a3a3;
+    color: white;
+  }
+
+  &.status-to_timer {
+    background-color: #e9d5ff;
+    color: #581c87;
+  }
+
+  &.status-done {
+    background-color: #a3e635;
+    color: #365314;
+  }
+}
+
+.priority-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.priority-low {
+    background-color: #86efac;
+    color: #15803d;
+  }
+
+  &.priority-medium {
+    background-color: #fde047;
+    color: #a16207;
+  }
+
+  &.priority-high {
+    background-color: #fb923c;
+    color: white;
+  }
+
+  &.priority-urgent {
+    background-color: #f87171;
+    color: white;
+  }
+}
+
+.user-info {
+  .name {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 2px;
+  }
+
+  .email {
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  .created-by-me {
+    font-size: 10px;
+    color: #9ca3af;
+    font-style: italic;
+    margin-top: 2px;
+  }
+}
+
+.task-created,
+.task-due {
+  font-size: 14px;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.no-date {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.project-placeholder {
+  color: #6c757d;
+  font-style: italic;
+}
+
+
+
+.actions-group {
+  display: flex;
+  gap: 8px;
+
+  button {
+    padding: 6px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .edit-btn {
+    background-color: #e9ecef;
+
+    &:hover {
+      background-color: #dee2e6;
+    }
+  }
+
+  .delete-btn {
+    background-color: #f8d7da;
+
+    &:hover {
+      background-color: #f5c6cb;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .tasks-container {
+    // height: calc(100vh - 280px);
+    margin: 0 -20px;
+    border-radius: 0;
+  }
+
+  .tasks-header {
+    grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 0.8fr 0.8fr 0.6fr;
+    gap: 8px;
+    padding: 0 8px;
+    min-height: 44px;
+  }
+
+  .header-cell {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .task-row {
+    grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 0.8fr 0.8fr 0.6fr;
+    gap: 8px;
+    padding: 0 8px;
+    min-height: 56px;
+  }
+
+  .task-cell {
+    padding: 8px 4px;
+  }
+
+  .name-cell {
+    min-width: 120px;
+  }
+
+  .status-cell {
+    min-width: 80px;
+  }
+
+  .creator-cell {
+    min-width: 100px;
+  }
+
+  .date-cell {
+    min-width: 80px;
+    font-size: 12px;
+  }
+
+  .priority-cell {
+    min-width: 70px;
+  }
+
+  .project-cell {
+    min-width: 60px;
+  }
+
+  .actions-cell {
+    min-width: 60px;
+  }
+
+  .task-info .description {
+    max-width: 120px;
+  }
+
+  .user-info {
+    .name {
+      font-size: 12px;
+    }
+
+    .email {
+      font-size: 10px;
+    }
+  }
+
+  .empty-content {
+    .empty-icon {
+      font-size: 36px;
+    }
+
+    .empty-text {
+      font-size: 16px;
+    }
+  }
+
+  .actions-group {
+    button {
+      padding: 4px;
+      font-size: 12px;
+    }
+  }
+}
+</style>

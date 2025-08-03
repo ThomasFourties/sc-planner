@@ -74,6 +74,9 @@ export class Task {
   })
   priority: TaskPriority;
 
+  @Column({ name: 'completed', type: 'boolean', default: false })
+  completed: boolean;
+
   @Column({ name: 'dependency_id', nullable: true })
   dependency_id?: string;
 

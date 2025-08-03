@@ -6,10 +6,12 @@
       <p class="soustitle">
         Aujourd'hui,
         <NuxtLink to="/mes-taches" class="link">
-          <span>{{tasks.filter(task => getMyTodayTasks(task, currentUser)).length}}</span>
+          <span v-if="tasks.filter(task => getMyTodayTasks(task, currentUser)).length > 0">{{tasks.filter(task => getMyTodayTasks(task, currentUser)).length}}</span>
         </NuxtLink>
-        {{tasks.filter(task => getMyTodayTasks(task)).length <= 1 ? 'tâche vous est attribuée'
-          : 'tâches vous sont attribuées'}} </p>
+        {{tasks.filter(task => getMyTodayTasks(task, currentUser)).length === 0 ? 'aucune tâche vous est attribué' 
+          : tasks.filter(task => getMyTodayTasks(task, currentUser)).length === 1 ? 'tâche vous est attribué'
+          : 'tâches vous sont attribuées'}} 
+          </p>
     </div>
     <div class="dashboard-content">
       <div class="left">

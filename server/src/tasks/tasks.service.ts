@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task } from './entities/task.entity';
+import { Task, TaskStatus } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
@@ -22,6 +22,11 @@ export class TasksService {
   ): Promise<Task> {
     if (!createTaskDto.name) {
       throw new BadRequestException('Le nom de la tâche est requis');
+    }
+
+    // Gérer automatiquement le statut basé sur completed
+    if (createTaskDto.completed) {
+      createTaskDto.status = TaskStatus.DONE;
     }
 
     const task = this.tasksRepository.create({
@@ -62,7 +67,15 @@ export class TasksService {
   async findByUser(userId: string): Promise<Task[]> {
     return await this.tasksRepository.find({
       where: [{ assigned_to_id: userId }, { created_by_id: userId }],
-      relations: ['assigned_to', 'created_by'],
+      relations: ['assigned_to', 'created_by', 'project', 'project.client'],
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async findByProject(projectId: string): Promise<Task[]> {
+    return await this.tasksRepository.find({
+      where: { project_id: projectId },
+      relations: ['assigned_to', 'created_by', 'project'],
       order: { created_at: 'DESC' },
     });
   }
@@ -74,6 +87,19 @@ export class TasksService {
     // Si un nom est fourni, il ne doit pas être vide
     if (updateTaskDto.name !== undefined && !updateTaskDto.name.trim()) {
       throw new BadRequestException('Le nom de la tâche ne peut pas être vide');
+    }
+
+    // Gérer automatiquement le statut basé sur completed
+    if (updateTaskDto.completed !== undefined) {
+      if (updateTaskDto.completed) {
+        // Si la tâche est marquée comme complétée, mettre le statut à "done"
+        updateTaskDto.status = TaskStatus.DONE;
+      } else {
+        // Si la tâche est décochée, remettre le statut à "todo" si elle était "done"
+        if (existingTask.status === TaskStatus.DONE) {
+          updateTaskDto.status = TaskStatus.TODO;
+        }
+      }
     }
 
     await this.tasksRepository.update(id, updateTaskDto);
