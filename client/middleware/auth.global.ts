@@ -1,4 +1,9 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+  // ✅ AJOUT : Attendre que le processus soit côté client
+  if (process.server) {
+    return;
+  }
+
   const publicPages = ['/login', '/register', '/forgot-password', '/reset-password'];
 
   if (publicPages.includes(to.path)) {
@@ -7,7 +12,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const authStore = useAuthStore();
 
-  if (!authStore.initialized) {
+  // ✅ MODIFICATION : S'assurer que l'initialisation se fait côté client
+  if (!authStore.initialized || !authStore.isHydrated) {
     await authStore.initializeAuth();
   }
 
