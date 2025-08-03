@@ -12,7 +12,7 @@
       </div>
     </div>
 
-    <div class="form-body" :class="{ 'completed': form.status === 'done' }">
+    <div class="form-body">
       <div class="form-top">
         <input v-model="form.name" class="title-input"
           :placeholder="taskId ? 'Nom de la tâche' : 'Créer une nouvelle tâche'" required />
@@ -21,6 +21,20 @@
       </div>
 
       <div class="separator"></div>
+
+      <div class="project-info">
+        <div v-if="projectInfo">
+          <div class="project-info-item">
+            <label class="label">Projet: <a :href="`/projects/${projectInfo.id}`">{{ projectInfo.name }}</a></label>
+          </div>
+          <div v-if="clientInfo" class="client-info-item">
+            <label class="label">Client: <a :href="`/clients/${clientInfo.id}`">{{ clientInfo.name }}</a></label>
+          </div>
+        </div>
+        <div v-else>
+          <label class="label">Aucun projet associé</label>
+        </div>
+      </div>
 
       <UserSelector v-model="form.assigned_to_id" :users="users" label="Assigné à" />
 
@@ -83,15 +97,16 @@
       </div>
 
       <!-- Créé par -->
-      <div v-if="taskId && initialTask?.created_by" class="created-by-section">
+      <!-- <div v-if="taskId && initialTask?.created_by" class="created-by-section">
         <div class="created-by-info">
           <div class="user-avatar"></div>
           <div class="user-details">
-            <div class="user-name">{{ initialTask.created_by?.first_name || '' }} {{ initialTask.created_by?.last_name || '' }}</div>
+            <div class="user-name">{{ initialTask.created_by?.first_name || '' }} {{ initialTask.created_by?.last_name
+              || '' }}</div>
             <div class="created-label">Créé par</div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Messages d'erreur/succès -->
       <!-- <div v-if="error" class="error-message">{{ error }}</div> -->
@@ -107,16 +122,9 @@
     </div>
 
     <!-- Modal de confirmation de suppression -->
-    <ConfirmModal
-      :is-visible="showDeleteConfirm"
-      title="Supprimer la tâche"
-      message="Êtes-vous sûr de vouloir supprimer cette tâche ? Cette action est irréversible."
-      confirm-text="Supprimer"
-      cancel-text="Annuler"
-      :is-danger="true"
-      @confirm="confirmDelete"
-      @cancel="cancelDelete"
-    />
+    <ConfirmModal :is-visible="showDeleteConfirm" title="Supprimer la tâche"
+      message="Êtes-vous sûr de vouloir supprimer cette tâche ? Cette action est irréversible." confirm-text="Supprimer"
+      cancel-text="Annuler" :is-danger="true" @confirm="confirmDelete" @cancel="cancelDelete" />
   </div>
 </template>
 
@@ -142,6 +150,10 @@ const props = defineProps({
   initialTask: {
     type: Object,
     default: null
+  },
+  projectId: {
+    type: String,
+    default: null
   }
 });
 
@@ -160,8 +172,14 @@ const form = reactive({
   assigned_to_id: null,
   start_date: null,
   priority: 'medium',
-  status: 'todo'
+  status: 'todo',
+  project_id: props.projectId || null
 });
+
+// Initialiser le project_id si il est fourni en prop
+if (props.projectId) {
+  form.project_id = props.projectId;
+}
 
 // État de l'interface
 const loading = ref(false);
@@ -170,6 +188,10 @@ const success = ref('');
 const users = ref([]);
 const activeTab = ref('description');
 const createdBy = ref(null);
+
+// Informations du projet et client
+const projectInfo = ref(null);
+const clientInfo = ref(null);
 
 // État de la modal de confirmation
 const showDeleteConfirm = ref(false);
@@ -205,8 +227,36 @@ const loadTaskData = (task) => {
     assigned_to_id: task.assigned_to_id || null,
     start_date: task.start_date || null,
     priority: task.priority || 'medium',
-    status: task.status || 'todo'
+    status: task.status || 'todo',
+    project_id: task.project_id || props.projectId || null
   });
+
+  // Charger les informations du projet et client si disponibles
+  if (task.project) {
+    projectInfo.value = task.project;
+    if (task.project.client) {
+      clientInfo.value = task.project.client;
+    }
+  }
+};
+
+// Fonction pour charger les informations du projet
+const loadProjectInfo = async (projectId) => {
+  if (!projectId) return;
+
+  try {
+    const project = await $fetch(`/api/projects/${projectId}`);
+    projectInfo.value = project;
+    if (project.client) {
+      clientInfo.value = project.client;
+    } else {
+      clientInfo.value = null;
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement du projet:', error);
+    // Ne pas vider les informations existantes en cas d'erreur
+    // projectInfo.value et clientInfo.value gardent leurs valeurs précédentes
+  }
 };
 
 // Charger les données initiales
@@ -219,6 +269,18 @@ onMounted(async () => {
 
   if (props.taskId && props.initialTask) {
     loadTaskData(props.initialTask);
+  } else if (props.initialTask) {
+    loadTaskData(props.initialTask);
+  } else if (props.projectId) {
+    // Charger les informations du projet si on crée une nouvelle tâche
+    await loadProjectInfo(props.projectId);
+  }
+});
+
+// Surveiller les changements de projectId pour recharger les informations
+watch(() => props.projectId, async (newProjectId) => {
+  if (newProjectId && !props.taskId) {
+    await loadProjectInfo(newProjectId);
   }
 });
 
@@ -316,9 +378,13 @@ const resetForm = () => {
     assigned_to_id: null,
     start_date: null,
     priority: 'medium',
-    status: 'todo'
+    status: 'todo',
+    project_id: props.projectId || form.project_id // Préserver l'ID du projet
   });
   activeTab.value = 'description';
+
+  // Ne pas réinitialiser projectInfo et clientInfo car ils sont liés au projet
+  // Ces informations doivent rester affichées même après création d'une tâche
 };
 
 const handleFileUpload = () => {
@@ -364,10 +430,10 @@ const confirmDelete = async () => {
 
   try {
     loading.value = true;
-    await $fetch(`/api/tasks/${taskToDelete.value}`, { 
-      method: 'DELETE' 
+    await $fetch(`/api/tasks/${taskToDelete.value}`, {
+      method: 'DELETE'
     });
-    
+
     emit('taskDeleted', taskToDelete.value);
     emit('closeComplete');
   } catch (err) {
@@ -448,4 +514,29 @@ defineExpose({
 
 <style lang="scss">
 @use '../../assets/scss/base/modal' as *;
+
+.project-info {
+  margin-bottom: 20px;
+
+  .project-info-item,
+  .client-info-item {
+    margin-bottom: 8px;
+
+    .label {
+      span {
+        font-weight: 600;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .client-info-item {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #dee2e6;
+  }
+}
 </style>

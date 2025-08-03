@@ -86,6 +86,7 @@ describe('TasksService', () => {
     created_by: mockCreatedBy, // Relation obligatoire
     project: mockProject, // Relation optionnelle
     dependency: undefined, // Relation optionnelle
+    completed: false,
   };
 
   beforeEach(async () => {
@@ -240,7 +241,7 @@ describe('TasksService', () => {
 
       expect(mockTasksRepository.find).toHaveBeenCalledWith({
         where: [{ assigned_to_id: 'user-1' }, { created_by_id: 'user-1' }],
-        relations: ['assigned_to', 'created_by'],
+        relations: ['assigned_to', 'created_by', 'project', 'project.client'],
         order: { created_at: 'DESC' },
       });
       expect(result).toEqual(userTasks);
@@ -263,7 +264,7 @@ describe('TasksService', () => {
       const result = await service.findAll();
 
       expect(mockTasksRepository.find).toHaveBeenCalledWith({
-        relations: ['assigned_to', 'created_by'],
+        relations: ['assigned_to', 'created_by', 'project', 'project.client'],
         order: { created_at: 'DESC' },
       });
       expect(result).toEqual(allTasks);

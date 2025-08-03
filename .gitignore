@@ -49,7 +49,9 @@ pod.yml
 service.yml
 
 # Scripts
-*.sh
+# *.sh
+scripts/*/*.sh
+scripts/*.sh
 
 # Coverage directory for code coverage reports
 coverage/

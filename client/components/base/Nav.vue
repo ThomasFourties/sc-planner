@@ -6,7 +6,7 @@
     <NuxtLink to="/mes-taches" class="tasks nav-link">
       <ListTodo /> Mes tâches
     </NuxtLink>
-    <NuxtLink to="/planning" class="planning nav-link">
+    <NuxtLink class="planning nav-link closed">
       <ChartGantt />Planning
     </NuxtLink>
     <!-- <i class="separator"></i> -->
@@ -66,6 +66,10 @@ import { LayoutDashboard, ListTodo, ChartGantt, ChevronDown, Users, FolderOpenDo
     transition: background-color 0.2s ease;
     min-width: max-content;
 
+    &.closed {
+      cursor: not-allowed;
+    }
+
     &.active {
       background-color: rgba($gray, 0.1);
     }
@@ -76,7 +80,7 @@ import { LayoutDashboard, ListTodo, ChartGantt, ChevronDown, Users, FolderOpenDo
 
     &:hover {
       background-color: rgba($gray, 0.1);
-      cursor: pointer;
+      // cursor: pointer;
     }
   }
 }

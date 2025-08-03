@@ -2,10 +2,10 @@
   <div class="tasks-page">
     <div class="header">
       <div class="header-actions">
-        <button @click="uiStore.toggleTaskForm()" class="toggle-form-btn">
+        <!-- <button @click="uiStore.toggleTaskForm()" class="toggle-form-btn">
           <Plus />
           Ajouter une tâche
-        </button>
+        </button> -->
         <!-- <button @click="showArchives" class="archives-btn">
           <Archive />
           Archives
@@ -38,6 +38,9 @@
       <div v-else class="tasks-container">
         <!-- Header fixe -->
         <div class="tasks-header">
+          <div class="header-cell checkbox-cell">
+            <span>Terminé</span>
+          </div>
           <div class="header-cell name-cell" @click="sortBy('name')">
             <span :class="{ 'active': sortByField === 'name' }">Nom de la tâche</span>
             <div class="sort-indicator" :class="getSortClass('name')">
@@ -86,8 +89,11 @@
               <ChevronsUpDown v-else :size="14" />
             </div>
           </div>
-          <div class="header-cell project-cell">
-            <span :class="{ 'active': sortByField === 'project' }">Projets</span>
+          <!-- <div class="header-cell project-cell">
+            <span>Projet</span>
+          </div> -->
+          <div class="header-cell client-cell">
+            <span>Client</span>
           </div>
           <!-- <div class="header-cell actions-cell">
             <span>Actions</span>
@@ -106,7 +112,16 @@
           </div>
 
           <!-- Lignes des tâches -->
-          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row" @click="editTask(task)">
+          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row" :class="{ 'completed': task.completed }" @click="editTask(task)">
+            <!-- Checkbox de complétion -->
+            <div class="task-cell checkbox-cell" @click.stop>
+              <input 
+                type="checkbox" 
+                :checked="task.completed" 
+                @change="toggleTaskCompleted(task)"
+                class="task-checkbox"
+              />
+            </div>
             <!-- Nom de la tâche -->
             <div class="task-cell name-cell">
               <div class="task-info">
@@ -183,9 +198,25 @@
               </div>
             </div>
 
-            <!-- Projets -->
-            <div class="task-cell project-cell">
-              <span class="project-placeholder">-</span>
+            <!-- Projet -->
+            <!-- <div class="task-cell project-cell">
+              <div v-if="task.project" class="project-info">
+                <div class="project-name">{{ task.project.name }}</div>
+                <div v-if="task.project.description" class="project-description">{{ task.project.description }}</div>
+              </div>
+              <div v-else class="no-project">
+                Aucun projet
+              </div>
+            </div> -->
+
+            <!-- Client -->
+            <div class="task-cell client-cell">
+              <div v-if="task.project?.client" class="client-info">
+                <div class="client-name"><a :href="`/clients/${task.project.client.id}`">{{ task.project.client.name }}</a></div>
+              </div>
+              <div v-else class="no-client">
+                -
+              </div>
             </div>
 
             <!-- Actions -->
@@ -525,6 +556,24 @@ const updateTaskPriority = async (task, newPriority) => {
   }
 };
 
+// Fonction pour basculer le statut de complétion
+const toggleTaskCompleted = async (task) => {
+  try {
+    const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      body: { completed: !task.completed }
+    });
+    
+    // Mettre à jour la tâche dans la liste
+    const index = tasks.value.findIndex(t => t.id === task.id);
+    if (index !== -1) {
+      tasks.value[index] = { ...tasks.value[index], ...updatedTask };
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du statut de complétion:', error);
+  }
+};
+
 const handleTaskFormClose = async () => {
   if (createTaskFormRef.value?.handleClose) {
     await createTaskFormRef.value.handleClose();
@@ -635,7 +684,7 @@ onUnmounted(() => {
 
 .tasks-header {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   background-color: #f8f9fa;
   border-bottom: 2px solid #dee2e6;
@@ -705,7 +754,7 @@ onUnmounted(() => {
 
 .task-row {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
   gap: 12px;
   padding: 0 12px;
   border-bottom: 1px solid #dee2e6;
@@ -722,11 +771,33 @@ onUnmounted(() => {
   &:last-child {
     border-bottom: none;
   }
+
+  &.completed {
+    opacity: 0.5;
+    
+    .task-info .name {
+      text-decoration: line-through;
+    }
+  }
 }
 
 .task-cell {
   padding: 12px 6px;
   overflow: hidden;
+}
+
+.checkbox-cell {
+  min-width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.task-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #10b981;
 }
 
 .name-cell {
@@ -949,7 +1020,11 @@ onUnmounted(() => {
 }
 
 .project-cell {
-  min-width: 80px;
+  min-width: 120px;
+}
+
+.client-cell {
+  min-width: 120px;
 }
 
 .actions-cell {
@@ -1157,9 +1232,52 @@ onUnmounted(() => {
   font-style: italic;
 }
 
-.project-placeholder {
+.project-info {
+  .project-name {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 2px;
+    font-size: 14px;
+  }
+
+  .project-description {
+    font-size: 12px;
+    color: #6c757d;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.no-project {
   color: #6c757d;
   font-style: italic;
+  font-size: 14px;
+}
+
+.client-info {
+  .client-name {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 2px;
+    font-size: 14px;
+  }
+
+  .client-company {
+    font-size: 12px;
+    color: #6c757d;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.no-client {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 14px;
 }
 
 
@@ -1212,7 +1330,7 @@ onUnmounted(() => {
   }
 
   .tasks-header {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 0.8fr 0.6fr;
+    grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 0.8fr 0.8fr 0.8fr 0.6fr;
     gap: 8px;
     padding: 0 8px;
     min-height: 44px;
@@ -1224,7 +1342,7 @@ onUnmounted(() => {
   }
 
   .task-row {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 0.8fr 0.8fr 0.6fr;
+    grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 0.8fr 0.8fr 0.8fr 0.6fr;
     gap: 8px;
     padding: 0 8px;
     min-height: 56px;
@@ -1256,7 +1374,11 @@ onUnmounted(() => {
   }
 
   .project-cell {
-    min-width: 60px;
+    min-width: 80px;
+  }
+
+  .client-cell {
+    min-width: 80px;
   }
 
   .actions-cell {

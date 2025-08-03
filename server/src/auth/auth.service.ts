@@ -127,4 +127,8 @@ export class AuthService {
       message: 'Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.',
     };
   }
+
+  async getProfile(id: string) {
+    return this.usersService.getProfile(id);
+  }
 }

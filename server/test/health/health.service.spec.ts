@@ -18,7 +18,9 @@ describe('HealthService', () => {
     verify: jest.fn(),
   };
 
-  const mockEmailService = {};
+  const mockEmailService = {
+    sendPasswordResetEmail: jest.fn(),
+  };
 
   const originalEnv = process.env;
 

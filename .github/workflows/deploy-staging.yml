@@ -21,10 +21,8 @@ jobs:
           filters: |
             client:
               - 'client/**'
-              - '.github/workflows/**'
             server:
               - 'server/**'
-              - '.github/workflows/**'
 
   test:
     name: 🧪 Test Server
@@ -49,6 +47,8 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       sha_short: ${{ steps.short_sha.outputs.sha_short }}
+      client_changed: ${{ fromJSON(needs.changes.outputs.client) }}
+      server_changed: ${{ fromJSON(needs.changes.outputs.server) }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -63,7 +63,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          logout: true
 
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
@@ -75,7 +74,9 @@ jobs:
           context: ./client
           push: true
           no-cache: true
-          tags: thoomaas123/sc-planner-client:staging-${{ steps.short_sha.outputs.sha_short }}
+          tags: |
+            thoomaas123/sc-planner-client:staging-${{ steps.short_sha.outputs.sha_short }}
+            thoomaas123/sc-planner-client:staging-latest
 
       - name: 🛠️ Build & Push Server
         if: ${{ fromJSON(needs.changes.outputs.server) }}
@@ -84,7 +85,9 @@ jobs:
           context: ./server
           push: true
           no-cache: true
-          tags: thoomaas123/sc-planner-server:staging-${{ steps.short_sha.outputs.sha_short }}
+          tags: |
+            thoomaas123/sc-planner-server:staging-${{ steps.short_sha.outputs.sha_short }}
+            thoomaas123/sc-planner-server:staging-latest
 
   deploy:
     name: 🚚 Deploy to Staging
@@ -96,10 +99,6 @@ jobs:
       (fromJSON(needs.changes.outputs.client) || fromJSON(needs.changes.outputs.server))
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
       - name: 🔐 SSH & Deploy
         uses: appleboy/ssh-action@v1
         with:
@@ -113,16 +112,117 @@ jobs:
             git checkout .
             git pull origin dev
 
-            export TAG=staging-${{ needs.build.outputs.sha_short }}
+            # Variables
+            NEW_TAG="staging-${{ needs.build.outputs.sha_short }}"
+            CLIENT_CHANGED="${{ needs.build.outputs.client_changed }}"
+            SERVER_CHANGED="${{ needs.build.outputs.server_changed }}"
+            
+            echo "🔍 Changes detected:"
+            echo "   Client changed: $CLIENT_CHANGED"
+            echo "   Server changed: $SERVER_CHANGED"
+            echo "   New tag: $NEW_TAG"
 
-            export CLIENT_TAG=$TAG
-            export SERVER_TAG=$TAG
+            if [ -f .env ]; then
+              source .env
+            fi
+            
+            if [ "$CLIENT_CHANGED" = "true" ]; then
+              export CLIENT_TAG="$NEW_TAG"
+              echo "✅ Client changed - Will use new tag: $CLIENT_TAG"
+            else
+              export CLIENT_TAG="${CLIENT_TAG:-staging-latest}"
+              echo "ℹ️  Client unchanged - Keeping current tag: $CLIENT_TAG"
+            fi
+            
+            if [ "$SERVER_CHANGED" = "true" ]; then
+              export SERVER_TAG="$NEW_TAG"
+              echo "✅ Server changed - Will use new tag: $SERVER_TAG"
+            else
+              export SERVER_TAG="${SERVER_TAG:-staging-latest}"
+              echo "ℹ️  Server unchanged - Keeping current tag: $SERVER_TAG"
+            fi
 
-            sed -i "s|image: thoomaas123/sc-planner-client:.*|image: thoomaas123/sc-planner-client:$TAG|" docker-compose.staging.yml
-            sed -i "s|image: thoomaas123/sc-planner-server:.*|image: thoomaas123/sc-planner-server:$TAG|" docker-compose.staging.yml
+            echo "🔍 Verifying images exist on Docker Hub..."
+            
+            if [ "$CLIENT_CHANGED" = "true" ]; then
+              if ! docker manifest inspect "thoomaas123/sc-planner-client:$CLIENT_TAG" > /dev/null 2>&1; then
+                echo "❌ ERROR: Client image thoomaas123/sc-planner-client:$CLIENT_TAG not found!"
+                exit 1
+              fi
+              echo "✅ Client image verified: thoomaas123/sc-planner-client:$CLIENT_TAG"
+            fi
+            
+            if [ "$SERVER_CHANGED" = "true" ]; then
+              if ! docker manifest inspect "thoomaas123/sc-planner-server:$SERVER_TAG" > /dev/null 2>&1; then
+                echo "❌ ERROR: Server image thoomaas123/sc-planner-server:$SERVER_TAG not found!"
+                exit 1
+              fi
+              echo "✅ Server image verified: thoomaas123/sc-planner-server:$SERVER_TAG"
+            fi
 
-            docker-compose -f docker-compose.staging.yml pull
+            echo "📝 Updating .env file..."
+            cp .env .env.backup 2>/dev/null || true
+            
+            update_env_var() {
+              local var_name="$1"
+              local var_value="$2"
+              
+              if grep -q "^${var_name}=" .env 2>/dev/null; then
+                sed -i "s/^${var_name}=.*/${var_name}=${var_value}/" .env
+              else
+                echo "${var_name}=${var_value}" >> .env
+              fi
+            }
+            
+            update_env_var "CLIENT_TAG" "$CLIENT_TAG"
+            update_env_var "SERVER_TAG" "$SERVER_TAG"
+            
+            echo "✅ Updated .env:"
+            grep -E "(CLIENT_TAG|SERVER_TAG)" .env
+
+            echo "📥 Pulling images..."
+            
+            if [ "$CLIENT_CHANGED" = "true" ]; then
+              echo "📥 Pulling NEW client image: thoomaas123/sc-planner-client:$CLIENT_TAG"
+              docker pull "thoomaas123/sc-planner-client:$CLIENT_TAG"
+            else
+              echo "⏭️  Skipping client pull (unchanged)"
+            fi
+            
+            if [ "$SERVER_CHANGED" = "true" ]; then
+              echo "📥 Pulling NEW server image: thoomaas123/sc-planner-server:$SERVER_TAG"
+              docker pull "thoomaas123/sc-planner-server:$SERVER_TAG"
+            else
+              echo "⏭️  Skipping server pull (unchanged)"
+            fi
+
+            echo "🚀 Starting deployment..."
             docker-compose -f docker-compose.staging.yml up -d --remove-orphans
 
-            docker image prune -a -f
-            docker volume prune -f
+            echo "⏳ Waiting for services to start..."
+            sleep 15
+
+            echo "📊 Deployment status:"
+            docker-compose -f docker-compose.staging.yml ps
+            
+            echo "🏥 Health checks:"
+            
+            if curl -f -s http://localhost:3001 > /dev/null; then
+              echo "✅ Client (port 3001) is responding"
+            else
+              echo "❌ Client health check failed"
+            fi
+            
+            if curl -f -s http://localhost:3002/api > /dev/null; then
+              echo "✅ Server (port 3002) is responding"
+            else
+              echo "❌ Server health check failed"
+            fi
+
+            echo "🧹 Cleaning up old images..."
+            docker image prune -f
+
+            echo "🎉 Deployment completed successfully!"
+            echo "📋 Summary:"
+            echo "   Client: $CLIENT_TAG $([ "$CLIENT_CHANGED" = "true" ] && echo "(NEW)" || echo "(unchanged)")"
+            echo "   Server: $SERVER_TAG $([ "$SERVER_CHANGED" = "true" ] && echo "(NEW)" || echo "(unchanged)")"

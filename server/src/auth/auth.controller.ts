@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query, Res, Request, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Query, Res, Logger, Get, Request, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UsersService } from 'src/users/users.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -26,19 +27,23 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    this.logger.log(`Tentative de connexion pour: ${loginDto.email}`);
-
+  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto);
 
-    this.logger.log(`Connexion réussie pour: ${result.user.email} (ID: ${result.user.id})`);
+    this.logger.log(`Connexion réussie pour: ${loginDto.email} (ID: ${result.user.id})`);
 
-    // Retourner le token pour que Nuxt puisse le gérer
-    return {
-      message: 'Connexion réussie',
-      user: result.user,
-      token: result.token, // Retourner le token pour Nuxt
-    };
+    // Configuration cookie pour HTTPS - CORRECTION: utiliser result.token
+    res.cookie('auth-token', result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      // domain: undefined, // Laisse le navigateur décider du domaine
+      maxAge: 24 * 60 * 60 * 1000, // 24h
+    });
+
+    this.logger.log(`Cookie auth-token défini pour le domaine courant`);
+
+    return res.json(result);
   }
 
   @Post('logout')
@@ -71,5 +76,11 @@ export class AuthController {
     return {
       message: 'Votre mot de passe a été réinitialisé avec succès.',
     };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getProfile(@Request() req: { user: { sub: string } }) {
+    return await this.authService.getProfile(req.user.sub);
   }
 }

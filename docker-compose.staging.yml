@@ -2,9 +2,12 @@ services:
   client:
     image: thoomaas123/sc-planner-client:${CLIENT_TAG}
     ports:
-      - '3001:80'
+      - '3000:3000'
     env_file:
       - ./.env
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://server:3002/api
     depends_on:
       - server
     pull_policy: always
@@ -14,7 +17,7 @@ services:
   server:
     image: thoomaas123/sc-planner-server:${SERVER_TAG}
     ports:
-      - '3002:3002'
+      - '3001:3002'
     env_file:
       - ./.env
     pull_policy: always
@@ -92,7 +95,6 @@ services:
     depends_on:
       - prometheus
 
-  # 🔥 NOUVEAU : Node Exporter (métriques système)
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter-staging

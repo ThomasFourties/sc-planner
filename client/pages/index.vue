@@ -1,12 +1,11 @@
 <template>
-
+  <div></div>
 </template>
 
 <script setup>
-import { useAuthStore } from '~/stores/auth';
-
 const authStore = useAuthStore();
-if (authStore.isLoggedIn) {
+
+if (authStore.isAuthenticated) {
   navigateTo('/dashboard');
 } else {
   navigateTo('/login');
@@ -15,7 +14,6 @@ if (authStore.isLoggedIn) {
 definePageMeta({
   layout: false,
 });
-
 </script>
 
 <style lang="scss" scoped>

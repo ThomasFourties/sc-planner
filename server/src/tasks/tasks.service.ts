@@ -34,7 +34,7 @@ export class TasksService {
 
   async findAll(): Promise<Task[]> {
     return await this.tasksRepository.find({
-      relations: ['assigned_to', 'created_by'],
+      relations: ['assigned_to', 'created_by', 'project', 'project.client'],
       order: { created_at: 'DESC' },
     });
   }
@@ -62,7 +62,15 @@ export class TasksService {
   async findByUser(userId: string): Promise<Task[]> {
     return await this.tasksRepository.find({
       where: [{ assigned_to_id: userId }, { created_by_id: userId }],
-      relations: ['assigned_to', 'created_by'],
+      relations: ['assigned_to', 'created_by', 'project', 'project.client'],
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async findByProject(projectId: string): Promise<Task[]> {
+    return await this.tasksRepository.find({
+      where: { project_id: projectId },
+      relations: ['assigned_to', 'created_by', 'project'],
       order: { created_at: 'DESC' },
     });
   }

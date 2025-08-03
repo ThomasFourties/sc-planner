@@ -41,11 +41,12 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ user: User; message: string }>('/api/auth/login', {
           method: 'POST',
           body: credentials,
-          credentials: 'include', // AJOUT IMPORTANT
+          credentials: 'include',
         });
 
         this.user = response.user;
         this.isAuthenticated = true;
+        this.initialized = true;
 
         return { success: true, message: response.message };
       } catch (error: any) {
@@ -83,8 +84,9 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ message: string }>('/api/auth/register', {
           method: 'POST',
           body: serverData,
-          credentials: 'include', // AJOUT IMPORTANT
+          credentials: 'include',
         });
+
         return { success: true, message: response.message };
       } catch (error: any) {
         let errorMessage = "Erreur lors de l'inscription";
@@ -99,7 +101,6 @@ export const useAuthStore = defineStore('auth', {
           errorMessage = error.statusMessage;
         }
 
-        console.error("Erreur d'inscription:", error);
         throw new Error(errorMessage);
       } finally {
         this.loading = false;
@@ -115,7 +116,7 @@ export const useAuthStore = defineStore('auth', {
             new_password,
             confirm_password,
           },
-          credentials: 'include', // AJOUT IMPORTANT
+          credentials: 'include',
         });
 
         return { success: true, message: response.message };
@@ -126,7 +127,6 @@ export const useAuthStore = defineStore('auth', {
           errorMessage = Array.isArray(error.data.message) ? error.data.message.join(', ') : error.data.message;
         }
 
-        console.error('Reset error:', error);
         throw new Error(errorMessage);
       } finally {
         this.loading = false;
@@ -139,7 +139,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<{ message: string }>('/api/auth/forgot-password', {
           method: 'POST',
           body: { email },
-          credentials: 'include', // AJOUT IMPORTANT
+          credentials: 'include',
         });
 
         return { success: true, message: response.message };
@@ -159,13 +159,12 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       this.loading = true;
       try {
-        // Appeler l'endpoint Nuxt qui gère les cookies
         await $fetch('/api/auth/logout', {
           method: 'POST',
           credentials: 'include',
         });
       } catch (error: any) {
-        console.error('Erreur lors de la déconnexion:', error);
+        // Ignorer les erreurs de logout
       } finally {
         this.clearAuth();
         this.loading = false;
@@ -177,24 +176,81 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async initializeAuth() {
-      if (this.initialized) return;
+      console.log('🔄 === DÉBUT initializeAuth ===');
+      console.log('🏷️ initialized:', this.initialized);
+      console.log('🏷️ isHydrated:', this.isHydrated);
+      console.log('🖥️ process.client:', process.client);
+      console.log('🖥️ process.server:', process.server);
+
+      if (this.initialized && this.isHydrated) {
+        console.log('✅ Déjà initialisé et hydraté - return early');
+        return this.isAuthenticated;
+      }
+
+      if (process.client) {
+        console.log('🌐 Côté client - marquage isHydrated = true');
+        this.isHydrated = true;
+      }
 
       try {
-        // Appel direct à l'API NestJS (pas l'endpoint Nuxt)
-        const config = useRuntimeConfig();
-        const user = await $fetch<User>(`${config.public.API_URL}/users/me`, {
-          credentials: 'include', // IMPORTANT pour envoyer les cookies
+        console.log("🚀 Tentative d'appel /api/auth/me...");
+
+        // ✅ SOLUTION : S'adapter au fait que $fetch appelle directement l'API NestJS
+        const response = await $fetch('/api/auth/me', {
+          method: 'GET',
+          credentials: 'include',
         });
-        this.user = user;
-        this.isAuthenticated = true;
-      } catch (error) {
+
+        console.log('✅ Réponse reçue:', response ? 'DATA OK' : 'PAS DE DATA');
+        console.log('🔍 Type de réponse:', typeof response);
+        console.log('🔍 Clés de la réponse:', response ? Object.keys(response) : 'aucune');
+
+        // ✅ MODIFICATION : Vérifier si on a directement l'user ou s'il est dans response.data
+        let user = null;
+
+        if (response?.data) {
+          // Cas où l'endpoint Nuxt fonctionne et retourne { data: user }
+          console.log('📦 Structure { data: user } détectée');
+          user = response.data;
+        } else if (response?.id) {
+          // Cas où $fetch appelle directement l'API NestJS et retourne user
+          console.log('👤 Structure user directe détectée');
+          user = response;
+        } else {
+          console.log('❌ Structure de réponse non reconnue');
+        }
+
+        if (user && user.id) {
+          this.user = user;
+          this.isAuthenticated = true;
+          this.initialized = true;
+          console.log('✅ Utilisateur défini - authenticated = true');
+          console.log('👤 User ID:', user.id);
+          console.log('📧 User email:', user.email);
+          return true;
+        } else {
+          console.log("❌ Pas d'utilisateur valide dans la réponse - clearAuth");
+          this.clearAuth();
+          return false;
+        }
+      } catch (error: any) {
+        console.log('❌ Erreur dans initializeAuth:', error.message || error);
+        console.log('📊 Status:', error.status || error.statusCode);
         this.clearAuth();
+        return false;
       } finally {
         this.initialized = true;
+        console.log('🏁 initializeAuth terminé - initialized = true');
+        console.log('🔄 === FIN initializeAuth ===\n');
       }
     },
 
     clearAuth() {
+      this.user = null;
+      this.isAuthenticated = false;
+    },
+
+    forceReset() {
       this.user = null;
       this.isAuthenticated = false;
       this.initialized = false;

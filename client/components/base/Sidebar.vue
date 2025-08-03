@@ -9,10 +9,10 @@
       <Nav />
     </div>
     <div class="bottom">
-      <p class="settings">
+      <p class="settings closed">
         <Settings />Paramètres
       </p>
-      <p class="help">
+      <p class="help closed">
         <Info />Aide
       </p>
       <div class="profile">
@@ -73,6 +73,10 @@ const handleLogout = () => {
     text-transform: lowercase;
   }
 
+  .closed {
+    cursor: not-allowed;
+  }
+
   .logout {
     margin-top: 20px;
   }
@@ -121,7 +125,6 @@ const handleLogout = () => {
 
       &:hover {
         background-color: rgba($gray, 0.1);
-        cursor: pointer;
       }
     }
 

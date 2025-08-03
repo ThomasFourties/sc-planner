@@ -1,12 +1,7 @@
 <template>
   <div class="field-group">
     <label class="label">{{ label }} :</label>
-    <input 
-      v-model="dateValue" 
-      type="date" 
-      class="date-input" 
-      :placeholder="placeholder"
-    />
+    <input v-model="dateValue" type="date" class="date-input" :placeholder="placeholder" />
   </div>
 </template>
 
@@ -54,7 +49,7 @@ const dateValue = computed({
   // flex-direction: column;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 10px !important;
 
   .label {
     font-size: 14px;
@@ -71,6 +66,7 @@ const dateValue = computed({
     color: $black;
     background-color: white;
     transition: border-color 0.2s;
+    width: fit-content !important;
 
     &:focus {
       outline: none;

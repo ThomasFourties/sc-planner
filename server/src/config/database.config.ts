@@ -10,6 +10,7 @@ export default registerAs('database', () => ({
   password: process.env.DATABASE_PASSWORD || 'password',
   database: process.env.DATABASE_NAME || 'sc-planner-db',
   entities: [User],
-  synchronize: process.env.NODE_ENV !== 'production',
+  // synchronize: process.env.NODE_ENV !== 'production',
+  synchronize: true,
   logging: process.env.NODE_ENV !== 'production',
 }));
