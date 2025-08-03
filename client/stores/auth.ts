@@ -195,21 +195,41 @@ export const useAuthStore = defineStore('auth', {
       try {
         console.log("🚀 Tentative d'appel /api/auth/me...");
 
-        const response = await $fetch<{ data: User }>('/api/auth/me', {
+        // ✅ SOLUTION : S'adapter au fait que $fetch appelle directement l'API NestJS
+        const response = await $fetch('/api/auth/me', {
           method: 'GET',
           credentials: 'include',
         });
 
-        console.log('✅ Réponse reçue:', response?.data ? 'USER DATA OK' : 'PAS DE DATA');
+        console.log('✅ Réponse reçue:', response ? 'DATA OK' : 'PAS DE DATA');
+        console.log('🔍 Type de réponse:', typeof response);
+        console.log('🔍 Clés de la réponse:', response ? Object.keys(response) : 'aucune');
+
+        // ✅ MODIFICATION : Vérifier si on a directement l'user ou s'il est dans response.data
+        let user = null;
 
         if (response?.data) {
-          this.user = response.data;
+          // Cas où l'endpoint Nuxt fonctionne et retourne { data: user }
+          console.log('📦 Structure { data: user } détectée');
+          user = response.data;
+        } else if (response?.id) {
+          // Cas où $fetch appelle directement l'API NestJS et retourne user
+          console.log('👤 Structure user directe détectée');
+          user = response;
+        } else {
+          console.log('❌ Structure de réponse non reconnue');
+        }
+
+        if (user && user.id) {
+          this.user = user;
           this.isAuthenticated = true;
           this.initialized = true;
           console.log('✅ Utilisateur défini - authenticated = true');
+          console.log('👤 User ID:', user.id);
+          console.log('📧 User email:', user.email);
           return true;
         } else {
-          console.log('❌ Pas de data dans la réponse - clearAuth');
+          console.log("❌ Pas d'utilisateur valide dans la réponse - clearAuth");
           this.clearAuth();
           return false;
         }
