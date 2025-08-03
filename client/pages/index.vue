@@ -1,10 +1,16 @@
 <template>
-  <div>
-    <h1>Hello World</h1>
-  </div>
+  <div></div>
 </template>
 
 <script setup>
+const authStore = useAuthStore();
+
+if (authStore.isAuthenticated) {
+  navigateTo('/dashboard');
+} else {
+  navigateTo('/login');
+}
+
 definePageMeta({
   layout: false,
 });
