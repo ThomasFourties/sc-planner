@@ -1,22 +1,43 @@
-export default defineNuxtPlugin(async () => {
-  const authStore = useAuthStore();
-  const route = useRoute();
+export default defineNuxtRouteMiddleware(async (to) => {
+  console.log('🛡️ === MIDDLEWARE AUTH ===');
+  console.log('🎯 Route vers:', to.path);
+  console.log('🖥️ process.server:', process.server);
+  console.log('🖥️ process.client:', process.client);
 
-  // ✅ MODIFICATION : Initialiser seulement côté client
-  if (process.client) {
-    authStore.isHydrated = true;
-
-    const isAuthenticated = await authStore.initializeAuth();
-
-    console.log('isAuthenticated', isAuthenticated);
-
-    // ✅ MODIFICATION : Gérer la navigation selon l'état et la route actuelle
-    const publicPages = ['/login', '/register', '/forgot-password', '/reset-password'];
-
-    if (isAuthenticated && publicPages.includes(route.path)) {
-      await navigateTo('/dashboard');
-    } else if (!isAuthenticated && !publicPages.includes(route.path)) {
-      await navigateTo('/login');
-    }
+  if (process.server) {
+    console.log('⏭️ Côté serveur - skip middleware');
+    return;
   }
+
+  const publicPages = ['/login', '/register', '/forgot-password', '/reset-password'];
+
+  if (publicPages.includes(to.path)) {
+    console.log('📖 Page publique - pas de vérification auth');
+    return;
+  }
+
+  const authStore = useAuthStore();
+  console.log('📊 State avant check:', {
+    initialized: authStore.initialized,
+    isHydrated: authStore.isHydrated,
+    isAuthenticated: authStore.isAuthenticated,
+  });
+
+  if (!authStore.initialized || !authStore.isHydrated) {
+    console.log('🔄 Initialisation nécessaire...');
+    await authStore.initializeAuth();
+  }
+
+  console.log('📊 State après initializeAuth:', {
+    initialized: authStore.initialized,
+    isAuthenticated: authStore.isAuthenticated,
+  });
+
+  if (!authStore.isAuthenticated) {
+    console.log('🚪 Pas authentifié - redirection vers /login');
+    return navigateTo('/login');
+  }
+
+  console.log('✅ Authentifié - accès autorisé');
+  console.log('🛡️ === FIN MIDDLEWARE ===\n');
 });

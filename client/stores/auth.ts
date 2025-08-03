@@ -176,29 +176,52 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async initializeAuth() {
-      if (this.initialized) {
+      console.log('🔄 === DÉBUT initializeAuth ===');
+      console.log('🏷️ initialized:', this.initialized);
+      console.log('🏷️ isHydrated:', this.isHydrated);
+      console.log('🖥️ process.client:', process.client);
+      console.log('🖥️ process.server:', process.server);
+
+      if (this.initialized && this.isHydrated) {
+        console.log('✅ Déjà initialisé et hydraté - return early');
         return this.isAuthenticated;
       }
 
+      if (process.client) {
+        console.log('🌐 Côté client - marquage isHydrated = true');
+        this.isHydrated = true;
+      }
+
       try {
+        console.log("🚀 Tentative d'appel /api/auth/me...");
+
         const response = await $fetch<{ data: User }>('/api/auth/me', {
           method: 'GET',
           credentials: 'include',
         });
 
+        console.log('✅ Réponse reçue:', response?.data ? 'USER DATA OK' : 'PAS DE DATA');
+
         if (response?.data) {
           this.user = response.data;
           this.isAuthenticated = true;
+          this.initialized = true;
+          console.log('✅ Utilisateur défini - authenticated = true');
           return true;
         } else {
+          console.log('❌ Pas de data dans la réponse - clearAuth');
           this.clearAuth();
           return false;
         }
       } catch (error: any) {
+        console.log('❌ Erreur dans initializeAuth:', error.message || error);
+        console.log('📊 Status:', error.status || error.statusCode);
         this.clearAuth();
         return false;
       } finally {
         this.initialized = true;
+        console.log('🏁 initializeAuth terminé - initialized = true');
+        console.log('🔄 === FIN initializeAuth ===\n');
       }
     },
 
