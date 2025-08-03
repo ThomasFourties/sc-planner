@@ -1,22 +1,31 @@
-FROM node:22-alpine AS builder
-
+# Build Stage 1
+FROM node:22-alpine AS build
 WORKDIR /app
 
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml ./
+# Copy package.json and your lockfile
+COPY package.json pnpm-lock.yaml .npmrc ./
 
-RUN npm install -g pnpm
-RUN pnpm install --frozen-lockfile
+# Install dependencies
+RUN pnpm i
 
-COPY . .
+# Copy the entire project
+COPY . ./
 
+# Build the project
 RUN pnpm run build
 
+# Build Stage 2 - Production
 FROM node:22-alpine
 WORKDIR /app
 
+# Only `.output` folder is needed from the build stage
 COPY --from=build /app/.output/ ./
+
+# Change the port and host
+ENV PORT=80
+ENV HOST=0.0.0.0
 
 EXPOSE 80
 
