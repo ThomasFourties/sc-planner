@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     },
   },
 
-  ssr: true,
+  ssr: false,
 
   runtimeConfig: {
     public: {
