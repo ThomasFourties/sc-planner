@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [1.1.1](https://github.com/ThomasFourties/sc-planner/compare/v1.1.0...v1.1.1) (2025-08-03)
 
+
+### 🛠️ Chore
+
+* **release:** 1.1.1 ([58c1eeb](https://github.com/ThomasFourties/sc-planner/commit/58c1eeb12372bff7ff56e8899c685b59aabc0a3a))
+
+### [1.1.1](https://github.com/ThomasFourties/sc-planner/compare/v1.1.0...v1.1.1) (2025-08-03)
+
 ## [1.1.0](https://github.com/ThomasFourties/sc-planner/compare/v1.0.0...v1.1.0) (2025-08-03)
 
 
