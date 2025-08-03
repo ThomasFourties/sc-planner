@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.2](https://github.com/ThomasFourties/sc-planner/compare/v1.1.1...v1.1.2) (2025-08-03)
+
+
+### 🛠️ Chore
+
+* add dotenv dependency for environment variable management and update package manager version in package.json ([b1f01e4](https://github.com/ThomasFourties/sc-planner/commit/b1f01e4c30f6f60eb42bff35322d6303749bc282))
+
 ### [1.1.1](https://github.com/ThomasFourties/sc-planner/compare/v1.1.0...v1.1.1) (2025-08-03)
 
 
