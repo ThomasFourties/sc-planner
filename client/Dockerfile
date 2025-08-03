@@ -1,32 +1,32 @@
-# Build Stage 1
 FROM node:22-alpine AS build
 WORKDIR /app
 
 RUN corepack enable
 
-# Copy package.json and your lockfile
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN pnpm i
+RUN pnpm install --frozen-lockfile
 
-# Copy the entire project
 COPY . ./
 
-# Build the project
 RUN pnpm run build
 
-# Build Stage 2 - Production
-FROM node:22-alpine
+FROM node:22-alpine AS production
 WORKDIR /app
 
-# Only `.output` folder is needed from the build stage
+RUN apk add --no-cache curl
+
 COPY --from=build /app/.output/ ./
 
-# Change the port and host
+ENV NODE_ENV=production
 ENV PORT=80
 ENV HOST=0.0.0.0
+ENV NITRO_PORT=80
+ENV NITRO_HOST=0.0.0.0
 
 EXPOSE 80
 
-CMD ["node", "/app/server/index.mjs"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:80/api/_health || curl -f http://localhost:80/ || exit 1
+
+CMD ["node", "server/index.mjs"]

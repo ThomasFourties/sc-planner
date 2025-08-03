@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     },
   },
 
-  ssr: false,
+  ssr: true,
 
   runtimeConfig: {
     public: {
@@ -23,6 +23,10 @@ export default defineNuxtConfig({
   },
 
   css: ['@/assets/scss/main.scss'],
+
+  nitro: {
+    preset: 'node-server'
+  },
 
   vite: {
     css: {
