@@ -10,7 +10,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // Ajouter le middleware cookie-parser
   app.use(cookieParser());
 
   app.enableCors({
