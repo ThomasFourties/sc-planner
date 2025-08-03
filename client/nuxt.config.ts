@@ -14,11 +14,13 @@ export default defineNuxtConfig({
     },
   },
 
-  ssr: false,
+  ssr: true,
 
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL || 'http://localhost:3002/api',
+      API_URL: process.env.NODE_ENV === 'production' 
+        ? 'http://server:3002/api' 
+        : (process.env.API_URL || 'http://localhost:3002/api'),
     },
   },
 
@@ -66,12 +68,9 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ['@pinia/nuxt', '@nuxt/image', '@nuxt/fonts', 'nuxt-svgo', '@nuxtjs/sitemap', // 'nuxt-gtag',
-  // 'nuxt-module-hotjar',
-  // 'nuxt-swiper',
+  modules: ['@pinia/nuxt', '@nuxt/image', '@nuxt/fonts', 'nuxt-svgo', '@nuxtjs/sitemap',
   '@vueuse/nuxt',
   'nuxt-lucide-icons',
-  // '@nuxtjs/tailwindcss',
   '@samk-dev/nuxt-vcalendar',
 ],
 
@@ -84,24 +83,6 @@ export default defineNuxtConfig({
   },
 
   site: { url: process.env.FRONTEND_URL || 'http://localhost:3000' },
-
-  // gtag: {
-  //   enabled: process.env.ENV_STATUS === 'production',
-  //   id: 'G-XXXXXXXXXX',
-  // },
-
-  // hotjar: {
-  //   hotjarId: XXXXXXX,
-  //   scriptVersion: X,
-  // },
-
-  // plugins: [{ src: '~/utils/windowSize.js', mode: 'client' }],
-
-  // sitemap: {
-  //   sources: ['https://www.example.com/sitemap'],
-  //   cacheMaxAgeSeconds: 1,
-  //   exclude: ['/', '/home'],
-  // },
 
   components: [
     { path: '~/components/', pathPrefix: false },

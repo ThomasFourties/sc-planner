@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 import { MetricsInterceptor } from './monitoring/metrics.interceptor';
 import { MonitoringService } from './monitoring/monitoring.service';
 
+// comments
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 

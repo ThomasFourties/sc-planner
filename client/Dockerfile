@@ -9,17 +9,15 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm run generate
+RUN pnpm run build
 
-FROM nginx:1.25-alpine
+FROM node:22-alpine AS runner
 
-RUN rm /etc/nginx/conf.d/default.conf
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-COPY nginx.conf /etc/nginx/conf.d/
+COPY --from=builder /app/.output /app/.output
+COPY --from=builder /app/package.json /app/package.json
 
-COPY --from=builder /app/.output/public /usr/share/nginx/html
+EXPOSE 3000
 
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", ".output/server/index.mjs"]
