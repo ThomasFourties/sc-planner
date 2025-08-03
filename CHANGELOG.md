@@ -7,6 +7,21 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 🛠️ Chore
 
+* **release:** 1.1.1 ([9008718](https://github.com/ThomasFourties/sc-planner/commit/90087180fffa35e6f63aef1ae72cc80f5d0372ae))
+* **release:** 1.1.1 ([a5c2bce](https://github.com/ThomasFourties/sc-planner/commit/a5c2bce4e69618ee48f17b04228701d67376dae4))
+* **release:** 1.1.1 ([58c1eeb](https://github.com/ThomasFourties/sc-planner/commit/58c1eeb12372bff7ff56e8899c685b59aabc0a3a))
+
+
+### ✨ Features
+
+* add release script for automated versioning and GitHub releases ([dfe6b62](https://github.com/ThomasFourties/sc-planner/commit/dfe6b62e9be0d0f20c4fa2c182f0592884445680))
+* implement release script for automated versioning and GitHub release management ([c000727](https://github.com/ThomasFourties/sc-planner/commit/c0007270f5dcb46c0b51a50e0e7dec9f47424e4f))
+
+### [1.1.1](https://github.com/ThomasFourties/sc-planner/compare/v1.1.0...v1.1.1) (2025-08-03)
+
+
+### 🛠️ Chore
+
 * **release:** 1.1.1 ([a5c2bce](https://github.com/ThomasFourties/sc-planner/commit/a5c2bce4e69618ee48f17b04228701d67376dae4))
 * **release:** 1.1.1 ([58c1eeb](https://github.com/ThomasFourties/sc-planner/commit/58c1eeb12372bff7ff56e8899c685b59aabc0a3a))
 
