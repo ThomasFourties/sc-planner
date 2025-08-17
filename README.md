@@ -51,17 +51,16 @@ SC Planner est un outil professionnel de gestion de projet et de planification d
 ### Développement
 
 ```bash
-# Installation des dépendances
-pnpm install
+# 1. Copier le fichier d'environnement
+cp env.example env.
 
-# Lancement des services
+# 2. Lancer les services Docker
 docker compose -f docker-compose.dev.yml up -d
 
-# Frontend (http://localhost:3000)
-cd client && pnpm dev
-
-# Backend (http://localhost:3002)
-cd server && pnpm start:dev
+# 3. Installation et initialisation du backend
+cd server/
+npm i
+npm run seed
 ```
 
 ### Production

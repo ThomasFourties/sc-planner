@@ -184,17 +184,16 @@ GITHUB_TOKEN=your-github-token
 
 #### Développement
 ```bash
-# Installation des dépendances
-pnpm install
+# Configuration de l'environnement
+cp env.example env.
 
-# Lancement en développement
-pnpm dev:client  # Frontend sur localhost:3000
-pnpm dev:server  # Backend sur localhost:3002
+# Lancement des services Docker
+docker compose -f docker-compose.dev.yml up -d
 
-# Base de données
-pnpm migration:generate
-pnpm migration:run
-pnpm seed  # Données de test
+# Installation et initialisation du backend
+cd server/
+npm i
+npm run seed
 ```
 
 #### Tests
