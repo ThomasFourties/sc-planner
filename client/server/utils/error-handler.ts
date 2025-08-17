@@ -3,7 +3,6 @@ import { createError } from 'h3';
 export function handleApiError(error: any, defaultMessage: string) {
   console.error('Erreur API backend:', error);
   
-  // Log détaillé de l'erreur
   if (error.data) {
     console.error('Données d\'erreur:', error.data);
   }
@@ -14,7 +13,6 @@ export function handleApiError(error: any, defaultMessage: string) {
     console.error('Message d\'erreur:', error.message);
   }
 
-  // Extraire le message d'erreur de manière sécurisée
   let errorMessage = defaultMessage;
   
   if (error.data?.message) {

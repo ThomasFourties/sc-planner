@@ -74,11 +74,9 @@ const closeMenu = () => {
 
 const handleShare = async () => {
   try {
-    // Copier le lien dans le presse-papiers
     const taskUrl = `${window.location.origin}/tasks/${props.taskId}`;
     await navigator.clipboard.writeText(taskUrl);
 
-    // Vous pouvez ajouter une notification ici
     console.log('Lien copié dans le presse-papiers');
 
     emit('share', props.taskId);

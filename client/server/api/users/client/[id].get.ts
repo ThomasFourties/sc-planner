@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const clientId = getRouterParam(event, 'id');
 
-  // Récupérer le token depuis les cookies
+  
   const token = getCookie(event, 'auth-token');
   
   if (!token) {

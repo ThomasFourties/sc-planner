@@ -1,7 +1,9 @@
 <template>
   <div class="clients-dashboard">
     <header class="dashboard-header">
-      <h1>Nos clients <span>({{ clients.length }})</span></h1>
+      <h1>
+        Nos clients <span>({{ clients.length }})</span>
+      </h1>
       <button @click="openClientForm" class="add-client-btn btn" aria-label="Ajouter un nouveau client">
         <Plus :size="16" />
         Ajouter un client
@@ -17,10 +19,7 @@
     </div>
 
     <section class="clients-section">
-
-      <div v-if="loadingClients" class="loading">
-        Chargement des clients...
-      </div>
+      <div v-if="loadingClients" class="loading">Chargement des clients...</div>
 
       <div v-else class="clients-grid">
         <div v-for="client in clients" :key="client.id" class="client-card" @click="navigateToClient(client.id)">
@@ -56,20 +55,12 @@
 import { Plus } from 'lucide-vue-next';
 import CreateClientForm from '~/components/base/CreateClientForm.vue';
 
-// Le middleware global gère l'authentification
-
-// État
 const clients = ref([]);
 const loadingClients = ref(true);
 const showClientForm = ref(false);
 
-// Couleurs prédéfinies pour les avatars
-const avatarColors = [
-  '#4F46E5', '#06B6D4', '#8B5CF6', '#EF4444', '#10B981',
-  '#F59E0B', '#3B82F6', '#EC4899', '#6366F1', '#14B8A6'
-];
+const avatarColors = ['#4F46E5', '#06B6D4', '#8B5CF6', '#EF4444', '#10B981', '#F59E0B', '#3B82F6', '#EC4899', '#6366F1', '#14B8A6'];
 
-// Charger les clients
 const loadClients = async () => {
   try {
     loadingClients.value = true;
@@ -84,23 +75,22 @@ const loadClients = async () => {
 
 const getInitials = (name) => {
   if (!name) return '?';
-  return name.split(' ')
-    .map(word => word.charAt(0))
+  return name
+    .split(' ')
+    .map((word) => word.charAt(0))
     .join('')
     .toUpperCase()
     .slice(0, 2);
 };
 
 const getRandomColor = (id) => {
-  // Utilise l'ID pour générer une couleur consistante pour chaque client
   const hash = id.split('').reduce((a, b) => {
-    a = ((a << 5) - a) + b.charCodeAt(0);
+    a = (a << 5) - a + b.charCodeAt(0);
     return a & a;
   }, 0);
   return avatarColors[Math.abs(hash) % avatarColors.length];
 };
 
-// Gestion du formulaire modal
 const openClientForm = () => {
   showClientForm.value = true;
 };
@@ -113,18 +103,16 @@ const onClientCreated = (newClient) => {
   const normalizedClient = {
     ...newClient,
     website: newClient.website_prod || newClient.website_preprod || '',
-    contact_email: newClient.contact_email || '', // si dispo
+    contact_email: newClient.contact_email || '',
   };
   clients.value.unshift(normalizedClient);
   showClientForm.value = false;
 };
 
-// Navigation vers le détail d'un client
 const navigateToClient = (clientId) => {
   navigateTo(`/clients/${clientId}`);
 };
 
-// Chargement initial
 onMounted(() => {
   loadClients();
 });
@@ -151,8 +139,6 @@ onMounted(() => {
   }
 
   h1 {
-    // font-size: 32px;
-    // font-weight: 600;
     color: $black;
     margin: 0;
 
@@ -191,14 +177,14 @@ onMounted(() => {
 .loading {
   text-align: center;
   padding: 40px;
-  color: #6B7280;
+  color: #6b7280;
   font-size: 16px;
 }
 
 .empty-state {
   text-align: center;
   padding: 40px;
-  color: #6B7280;
+  color: #6b7280;
   font-size: 16px;
 }
 
@@ -220,13 +206,11 @@ onMounted(() => {
   background: white;
   border-radius: 4px;
   padding: 24px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #e5e7eb;
   transition: all 0.1s ease;
   cursor: pointer;
 
   &:hover {
-    //   transform: translateY(-2px);
-    //   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     border-color: $blue;
   }
 
@@ -269,17 +253,16 @@ onMounted(() => {
 
     .client-description {
       font-size: 14px;
-      color: #6B7280;
+      color: #6b7280;
       margin: 0 0 16px 0;
       line-height: 1.4;
     }
 
     .contact-info {
-
       .contact-email,
       .contact-website {
         font-size: 12px;
-        color: #9CA3AF;
+        color: #9ca3af;
         margin: 4px 0;
       }
 

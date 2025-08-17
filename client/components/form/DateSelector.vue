@@ -28,11 +28,9 @@ const emit = defineEmits(['update:modelValue']);
 const dateValue = computed({
   get() {
     if (!props.modelValue) return '';
-    // Si c'est une Date, la convertir en string YYYY-MM-DD
     if (props.modelValue instanceof Date) {
       return props.modelValue.toISOString().split('T')[0];
     }
-    // Si c'est déjà une string, la retourner
     return props.modelValue;
   },
   set(value) {

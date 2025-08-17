@@ -91,7 +91,6 @@ const validateInput = (event) => {
   }
 };
 
-// Synchroniser displayValue avec internalValue
 watch(() => props.modelValue, (newValue) => {
   const value = typeof newValue === 'string' ? parseFloat(newValue) || 0 : newValue || 0;
   displayValue.value = value.toString();
@@ -173,7 +172,6 @@ watch(() => props.modelValue, (newValue) => {
           text-align: center;
           outline: none;
 
-          // Masquer les flèches spinner
           &::-webkit-outer-spin-button,
           &::-webkit-inner-spin-button {
             -webkit-appearance: none;

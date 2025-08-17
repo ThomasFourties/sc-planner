@@ -66,37 +66,31 @@ const emit = defineEmits(['update:modelValue']);
 const isOpen = ref(false);
 const dropdown = ref(null);
 
-// Utilisateurs sélectionnés avec leurs infos complètes
 const selectedUsers = computed(() => {
   return props.users.filter(user => props.modelValue.includes(user.id));
 });
 
-// Utilisateurs disponibles (non sélectionnés)
 const availableUsers = computed(() => {
   return props.users.filter(user => !props.modelValue.includes(user.id));
 });
 
-// Sélectionner un utilisateur
 const selectUser = (user) => {
   const newSelection = [...props.modelValue, user.id];
   emit('update:modelValue', newSelection);
   isOpen.value = false;
 };
 
-// Retirer un utilisateur
 const removeUser = (userId) => {
   const newSelection = props.modelValue.filter(id => id !== userId);
   emit('update:modelValue', newSelection);
 };
 
-// Toggle dropdown
 const toggleDropdown = () => {
   if (availableUsers.value.length > 0) {
     isOpen.value = !isOpen.value;
   }
 };
 
-// Affichage du rôle
 const getRoleDisplay = (role) => {
   const roles = {
     'SALARIE': 'Salarié',
@@ -107,7 +101,6 @@ const getRoleDisplay = (role) => {
   return roles[role] || role;
 };
 
-// Fermer le dropdown en cliquant à l'extérieur
 const handleClickOutside = (event) => {
   if (dropdown.value && !dropdown.value.contains(event.target)) {
     isOpen.value = false;

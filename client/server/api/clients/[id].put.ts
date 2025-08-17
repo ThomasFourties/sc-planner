@@ -3,13 +3,13 @@ import { defineEventHandler, createError, getCookie, getRouterParam, readBody } 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const id = getRouterParam(event, 'id');
-  
+
   const token = getCookie(event, 'auth-token');
-  
+
   if (!token) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Token d\'authentification manquant',
+      statusMessage: "Token d'authentification manquant",
     });
   }
 
@@ -22,11 +22,11 @@ export default defineEventHandler(async (event) => {
 
   try {
     const body = await readBody(event);
-    
+
     const response = await $fetch(`${config.public.API_URL}/clients/${id}`, {
-      method: 'PATCH', // Le backend utilise PATCH
+      method: 'PATCH',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: body,
@@ -39,4 +39,4 @@ export default defineEventHandler(async (event) => {
       statusMessage: error.data?.message || error.message || 'Erreur lors de la modification du client',
     });
   }
-}); 
+});
