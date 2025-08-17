@@ -11,9 +11,9 @@ const dataSource = new DataSource({
   type: 'postgres',
   host: process.env.DATABASE_HOST || 'localhost',
   port: parseInt(process.env.DATABASE_PORT || '5432', 10),
-  username: process.env.DATABASE_USER || 'user',
-  password: process.env.DATABASE_PASSWORD || 'password',
-  database: process.env.DATABASE_NAME || 'sc-planner-db',
+  username: process.env.DATABASE_USER || 'your_user',
+  password: process.env.DATABASE_PASSWORD || 'your_pass',
+  database: process.env.DATABASE_NAME || 'sc_planner',
   entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
   synchronize: true,
 });
