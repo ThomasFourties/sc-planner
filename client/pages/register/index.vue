@@ -39,8 +39,8 @@
 
             <!-- <div class="form-group">
               <label for="code" class="label-info">Code d'accès (optionnel)
-                <button class="tooltip-button" @click="handleTooltipToggle">
-                  <Info class="info-icon" />
+                                <button class="tooltip-button" @click="handleTooltipToggle" aria-label="Afficher les informations sur le mot de passe">
+                  <Icon name="material-symbols:info-outline" />
                 </button>
                 <p class="toolbox" :class="{ active: showTooltip }" v-if="showTooltip">{{ tooltipMessage }}</p>
               </label>
@@ -57,7 +57,7 @@
             <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
             <p class="msg" :class="{ active: success, green: success }">{{ successMessage }}</p>
 
-            <button class="btn" type="submit" :disabled="loading">
+            <button class="btn" type="submit" :disabled="loading" aria-label="Créer un compte">
               <span>Créer un compte</span>
             </button>
 

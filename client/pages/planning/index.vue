@@ -3,16 +3,12 @@
     <div class="planning-header">
       <h1 class="planning-title">Planning</h1>
       <div class="week-navigation">
-        <button @click="previousWeek" class="nav-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+                <button @click="previousWeek" class="nav-btn" aria-label="Semaine précédente">
+          <Icon name="material-symbols:chevron-left" />
         </button>
-        <span class="week-date">{{ formatWeekRange() }}</span>
-        <button @click="nextWeek" class="nav-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <h2>{{ formattedDate }}</h2>
+        <button @click="nextWeek" class="nav-btn" aria-label="Semaine suivante">
+          <Icon name="material-symbols:chevron-right" />
         </button>
       </div>
     </div>

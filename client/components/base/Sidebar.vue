@@ -27,7 +27,7 @@
       </div>
 
       <div class="logout">
-        <button class="logout-btn" @click="handleLogout">
+        <button class="logout-btn" @click="handleLogout" aria-label="Se déconnecter">
           Déconnexion
         </button>
       </div>

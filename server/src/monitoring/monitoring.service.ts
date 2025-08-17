@@ -1,110 +1,92 @@
-// server/src/monitoring/monitoring.service.ts - VERSION SINGLETON (RECOMMANDÉE)
-
 import { Injectable } from '@nestjs/common';
-import { register, collectDefaultMetrics, Counter, Histogram, Gauge } from 'prom-client';
+import { register, Counter, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
 
 @Injectable()
 export class MonitoringService {
-  private static instance: MonitoringService;
-  private static metricsInitialized = false;
-
-  private readonly httpRequestsTotal: Counter<string>;
-  private readonly httpRequestDuration: Histogram<string>;
-  private readonly memoryUsagePercent: Gauge<string>;
-  private readonly cpuUsagePercent: Gauge<string>;
-  private readonly dbResponseTime: Histogram<string>;
-  private readonly serviceStatus: Gauge<string>;
+  private httpRequestsCounter: Counter<string>;
+  private httpDurationHistogram: Histogram<string>;
+  private memoryUsageGauge: Gauge<string>;
+  private cpuUsageGauge: Gauge<string>;
+  private dbResponseTimeHistogram: Histogram<string>;
+  private serviceStatusGauge: Gauge<string>;
 
   constructor() {
-    // 🔥 Pattern Singleton pour éviter la double initialisation
-    if (MonitoringService.instance) {
-      return MonitoringService.instance;
-    }
+    // Activer la collecte des métriques par défaut
+    collectDefaultMetrics({ register });
 
-    if (!MonitoringService.metricsInitialized) {
-      // Clear le registry seulement la première fois
-      register.clear();
-
-      // Collecte des métriques par défaut de Node.js
-      collectDefaultMetrics({ register });
-
-      MonitoringService.metricsInitialized = true;
-    }
-
-    // Métriques HTTP
-    this.httpRequestsTotal = new Counter({
+    // Compteur des requêtes HTTP
+    this.httpRequestsCounter = new Counter({
       name: 'http_requests_total',
       help: 'Total number of HTTP requests',
       labelNames: ['method', 'route', 'status'],
       registers: [register],
     });
 
-    this.httpRequestDuration = new Histogram({
+    // Histogramme de durée des requêtes HTTP
+    this.httpDurationHistogram = new Histogram({
       name: 'http_request_duration_seconds',
       help: 'Duration of HTTP requests in seconds',
       labelNames: ['method', 'route'],
-      buckets: [0.1, 0.5, 1, 2, 5],
       registers: [register],
     });
 
-    // Métriques health
-    this.memoryUsagePercent = new Gauge({
+    // Gauge pour l'utilisation mémoire
+    this.memoryUsageGauge = new Gauge({
       name: 'system_memory_usage_percent',
-      help: 'System memory usage percentage from health check',
+      help: 'System memory usage percentage',
       registers: [register],
     });
 
-    this.cpuUsagePercent = new Gauge({
+    // Gauge pour l'utilisation CPU
+    this.cpuUsageGauge = new Gauge({
       name: 'system_cpu_usage_percent',
-      help: 'System CPU usage percentage from health check',
+      help: 'System CPU usage percentage',
       registers: [register],
     });
 
-    this.dbResponseTime = new Histogram({
+    // Histogramme pour le temps de réponse de la base de données
+    this.dbResponseTimeHistogram = new Histogram({
       name: 'database_response_time_ms',
-      help: 'Database response time in milliseconds from health check',
-      buckets: [5, 10, 25, 50, 100, 250, 500],
+      help: 'Database response time in milliseconds',
       registers: [register],
     });
 
-    this.serviceStatus = new Gauge({
+    // Gauge pour le statut des services
+    this.serviceStatusGauge = new Gauge({
       name: 'service_status',
-      help: 'Status of various services (1=healthy, 0=unhealthy)',
+      help: 'Service status (1 = up, 0 = down)',
       labelNames: ['service_name'],
       registers: [register],
     });
-
-    MonitoringService.instance = this;
   }
 
-  // Méthodes HTTP
-  incrementHttpRequests(method: string, route: string, status: number) {
-    this.httpRequestsTotal.inc({ method, route, status: status.toString() });
+  incrementHttpRequests(method: string, route: string, status: number): void {
+    this.httpRequestsCounter.inc({ method, route, status: status.toString() });
   }
 
-  observeHttpDuration(method: string, route: string, duration: number) {
-    this.httpRequestDuration.observe({ method, route }, duration);
+  observeHttpDuration(method: string, route: string, duration: number): void {
+    this.httpDurationHistogram.observe({ method, route }, duration);
   }
 
-  // Méthodes Health
-  setMemoryUsage(percentage: number) {
-    this.memoryUsagePercent.set(percentage);
+  setMemoryUsage(percentage: number): void {
+    this.memoryUsageGauge.set(percentage);
   }
 
-  setCpuUsage(percentage: number) {
-    this.cpuUsagePercent.set(percentage);
+  setCpuUsage(percentage: number): void {
+    this.cpuUsageGauge.set(percentage);
   }
 
-  observeDbResponseTime(timeMs: number) {
-    this.dbResponseTime.observe(timeMs);
+  observeDbResponseTime(timeMs: number): void {
+    // Gérer les valeurs négatives en les convertissant en 0
+    const validTime = Math.max(0, timeMs);
+    this.dbResponseTimeHistogram.observe(validTime);
   }
 
-  setServiceStatus(serviceName: string, status: number) {
-    this.serviceStatus.set({ service_name: serviceName }, status);
+  setServiceStatus(serviceName: string, status: number): void {
+    this.serviceStatusGauge.set({ service_name: serviceName }, status);
   }
 
-  // Exposer les métriques
-  getMetrics(): Promise<string> {
+  async getMetrics(): Promise<string> {
     return register.metrics();
   }
 }

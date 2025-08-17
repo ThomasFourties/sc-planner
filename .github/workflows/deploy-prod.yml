@@ -1,4 +1,3 @@
-# deploy-prod.yml - VERSION AMÉLIORÉE
 name: Release to Production
 on:
   push:

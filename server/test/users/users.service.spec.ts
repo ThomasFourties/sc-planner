@@ -3,7 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { UsersService } from '../../src/users/users.service';
 import { User } from '../../src/users/entities/user.entity';
 import { UserRole } from '../../src/users/enums/user-role.enum';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -61,7 +61,70 @@ describe('UsersService', () => {
     jest.clearAllMocks();
   });
 
+  describe('create', () => {
+    it('should create a user successfully', async () => {
+      const userData = {
+        first_name: 'Jane',
+        last_name: 'Smith',
+        email: 'jane@example.com',
+        role: UserRole.CLIENT,
+      };
 
+      const createdUser = { ...mockUser, ...userData };
+      mockRepository.create.mockReturnValue(createdUser);
+      mockRepository.save.mockResolvedValue(createdUser);
+
+      const result = await service.create(userData);
+
+      expect(mockRepository.create).toHaveBeenCalledWith(userData);
+      expect(mockRepository.save).toHaveBeenCalledWith(createdUser);
+      expect(result).toEqual(createdUser);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a user when found', async () => {
+      mockRepository.findOne.mockResolvedValue(mockUser);
+
+      const result = await service.findOne(mockUser.id);
+
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockUser.id },
+        relations: ['client'],
+      });
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.findOne('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent-id')).rejects.toThrow('Utilisateur non trouvé');
+    });
+  });
+
+  describe('findByClientId', () => {
+    it('should return users by client id', async () => {
+      const users = [mockUser];
+      mockRepository.find.mockResolvedValue(users);
+
+      const result = await service.findByClientId(mockClient.id);
+
+      expect(mockRepository.find).toHaveBeenCalledWith({
+        where: { client: { id: mockClient.id } },
+        relations: ['client'],
+      });
+      expect(result).toEqual(users);
+    });
+
+    it('should return empty array when no users found for client', async () => {
+      mockRepository.find.mockResolvedValue([]);
+
+      const result = await service.findByClientId('nonexistent-client-id');
+
+      expect(result).toEqual([]);
+    });
+  });
 
   describe('findAll', () => {
     it('should return an array of all users', async () => {
@@ -128,8 +191,6 @@ describe('UsersService', () => {
       expect(result).toBeNull();
     });
   });
-
-
 
   // describe('unassignClient', () => {
   //   it('should unassign a client from a user successfully', async () => {
@@ -208,9 +269,7 @@ describe('UsersService', () => {
       const updateData = { first_name: 'Updated John' };
       const updatedUser = { ...mockUser, ...updateData };
 
-      mockRepository.findOne
-        .mockResolvedValueOnce(mockUser)
-        .mockResolvedValueOnce(updatedUser);
+      mockRepository.findOne.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(updatedUser);
 
       mockRepository.update.mockResolvedValue({ affected: 1 });
 
@@ -220,22 +279,26 @@ describe('UsersService', () => {
         where: { id: mockUser.id },
         relations: ['client'],
       });
-      expect(mockRepository.update).toHaveBeenCalledWith(
-        mockUser.id,
-        updateData,
-      );
+      expect(mockRepository.update).toHaveBeenCalledWith(mockUser.id, updateData);
       expect(result).toEqual(updatedUser);
+    });
+
+    it('should throw InternalServerErrorException when update fails', async () => {
+      const updateData = { first_name: 'Updated John' };
+
+      mockRepository.findOne.mockResolvedValue(mockUser);
+      // Simuler un échec de mise à jour
+      mockRepository.update.mockResolvedValue({ affected: 0 });
+
+      await expect(service.update(mockUser.id, updateData)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.update(mockUser.id, updateData)).rejects.toThrow('Erreur lors de la mise à jour');
     });
 
     it('should throw NotFoundException when user does not exist', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.update('nonexistent-id', { first_name: 'Updated' }),
-      ).rejects.toThrow(NotFoundException);
-      await expect(
-        service.update('nonexistent-id', { first_name: 'Updated' }),
-      ).rejects.toThrow('Utilisateur non trouvé');
+      await expect(service.update('nonexistent-id', { first_name: 'Updated' })).rejects.toThrow(NotFoundException);
+      await expect(service.update('nonexistent-id', { first_name: 'Updated' })).rejects.toThrow('Utilisateur non trouvé');
 
       expect(mockRepository.update).not.toHaveBeenCalled();
     });
@@ -256,15 +319,34 @@ describe('UsersService', () => {
       expect(result).toEqual({ message: 'Utilisateur supprimé avec succès' });
     });
 
+    it('should throw BadRequestException when trying to delete CHEF_DE_PROJET', async () => {
+      const chefDeProjetUser = {
+        ...mockUser,
+        role: UserRole.CHEF_DE_PROJET,
+      };
+
+      mockRepository.findOne.mockResolvedValue(chefDeProjetUser);
+
+      await expect(service.delete(mockUser.id)).rejects.toThrow(BadRequestException);
+      await expect(service.delete(mockUser.id)).rejects.toThrow('Impossible de supprimer un chef de projet');
+
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw InternalServerErrorException when delete fails', async () => {
+      mockRepository.findOne.mockResolvedValue(mockUser);
+      // Simuler un échec de suppression
+      mockRepository.delete.mockResolvedValue({ affected: 0 });
+
+      await expect(service.delete(mockUser.id)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.delete(mockUser.id)).rejects.toThrow('Erreur lors de la suppression');
+    });
+
     it('should throw NotFoundException when user does not exist', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.delete('nonexistent-id')).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.delete('nonexistent-id')).rejects.toThrow(
-        'Utilisateur non trouvé',
-      );
+      await expect(service.delete('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.delete('nonexistent-id')).rejects.toThrow('Utilisateur non trouvé');
 
       expect(mockRepository.delete).not.toHaveBeenCalled();
     });
@@ -286,12 +368,8 @@ describe('UsersService', () => {
     it('should throw NotFoundException when user does not exist', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getProfile('nonexistent-id')).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.getProfile('nonexistent-id')).rejects.toThrow(
-        'Utilisateur non trouvé',
-      );
+      await expect(service.getProfile('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.getProfile('nonexistent-id')).rejects.toThrow('Utilisateur non trouvé');
     });
   });
 });

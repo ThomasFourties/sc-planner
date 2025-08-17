@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
@@ -16,10 +12,7 @@ export class TasksService {
     private tasksRepository: Repository<Task>,
   ) {}
 
-  async create(
-    createTaskDto: CreateTaskDto,
-    created_by_id: string,
-  ): Promise<Task> {
+  async create(createTaskDto: CreateTaskDto, created_by_id: string): Promise<Task> {
     if (!createTaskDto.name) {
       throw new BadRequestException('Le nom de la tâche est requis');
     }
@@ -40,16 +33,27 @@ export class TasksService {
   }
 
   async findOne(id: string): Promise<Task> {
-    const task = await this.tasksRepository.findOne({
-      where: { id },
-      relations: ['assigned_to', 'created_by', 'dependency'],
-    });
+    try {
+      const task = await this.tasksRepository.findOne({
+        where: { id },
+        relations: ['assigned_to', 'created_by', 'dependency'],
+      });
 
-    if (!task) {
-      throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+      if (!task) {
+        throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+      }
+
+      return task;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      // Si l'erreur est liée à un UUID invalide
+      if (error.message.includes('invalid input syntax for type uuid')) {
+        throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+      }
+      throw error;
     }
-
-    return task;
   }
 
   async findById(id: string): Promise<Task | null> {
@@ -76,23 +80,45 @@ export class TasksService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
-    // Vérifier que la tâche existe avant la mise à jour
-    const existingTask = await this.findOne(id);
-    
-    // Si un nom est fourni, il ne doit pas être vide
-    if (updateTaskDto.name !== undefined && !updateTaskDto.name.trim()) {
-      throw new BadRequestException('Le nom de la tâche ne peut pas être vide');
-    }
+    try {
+      // Vérifier que la tâche existe avant la mise à jour
+      await this.findOne(id);
 
-    await this.tasksRepository.update(id, updateTaskDto);
-    return await this.findOne(id);
+      // Si un nom est fourni, il ne doit pas être vide
+      if (updateTaskDto.name !== undefined && !updateTaskDto.name.trim()) {
+        throw new BadRequestException('Le nom de la tâche ne peut pas être vide');
+      }
+
+      await this.tasksRepository.update(id, updateTaskDto);
+      return await this.findOne(id);
+    } catch (error: any) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      // Si l'erreur est liée à un UUID invalide
+      if (error?.message?.includes('invalid input syntax for type uuid')) {
+        throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+      }
+      throw error;
+    }
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.tasksRepository.delete(id);
+    try {
+      const result = await this.tasksRepository.delete(id);
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+      if (result.affected === 0) {
+        throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+      }
+    } catch (error: any) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      // Si l'erreur est liée à un UUID invalide
+      if (error?.message?.includes('invalid input syntax for type uuid')) {
+        throw new NotFoundException(`Tâche avec l'ID ${id} non trouvée`);
+      }
+      throw error;
     }
   }
 }

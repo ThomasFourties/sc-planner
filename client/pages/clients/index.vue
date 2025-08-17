@@ -2,7 +2,7 @@
   <div class="clients-dashboard">
     <header class="dashboard-header">
       <h1>Nos clients <span>({{ clients.length }})</span></h1>
-      <button @click="openClientForm" class="add-client-btn btn">
+      <button @click="openClientForm" class="add-client-btn btn" aria-label="Ajouter un nouveau client">
         <Plus :size="16" />
         Ajouter un client
       </button>

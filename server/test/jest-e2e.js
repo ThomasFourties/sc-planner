@@ -3,6 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   rootDir: '..',
   testMatch: ['**/test/**/*.e2e-spec.ts'],
+  collectCoverage: true,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.spec.ts',
@@ -11,10 +12,25 @@ module.exports = {
     '!src/config/**',
     '!src/database/**',
     '!src/app.module.ts',
+    '!src/**/*.module.ts',
+    '!src/**/*.dto.ts',
+    '!src/**/*.entity.ts',
+    '!src/**/*.enum.ts',
+    '!src/**/*.service.ts',
+    '!src/**/guards/**',
+    '!src/**/*.interceptor.ts',
   ],
   coverageDirectory: './coverage-e2e',
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   moduleNameMapper: {
-    '^src/(.*)$': '<rootDir>/src/$1'
-  }
+    '^src/(.*)$': '<rootDir>/src/$1',
+  },
+  coverageThreshold: {
+    global: {
+      branches: 60,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
 };

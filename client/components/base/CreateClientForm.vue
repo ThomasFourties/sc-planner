@@ -45,7 +45,7 @@
       </div>
 
       <div class="form-actions">
-        <button @click="handleSubmit" class="btn btn-primary" :disabled="!form.name || loading">
+        <button @click="handleSubmit" class="btn btn-primary" :disabled="!form.name || loading" aria-label="Créer le client">
           {{ loading ? 'Création...' : 'Créer le client' }}
         </button>
       </div>

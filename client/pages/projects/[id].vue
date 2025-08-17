@@ -2,7 +2,7 @@
   <div class="tasks-page">
     <div class="header">
       <div class="header-actions">
-        <button @click="uiStore.toggleTaskForm()" class="toggle-form-btn">
+        <button @click="uiStore.toggleTaskForm()" class="toggle-form-btn" aria-label="Ajouter une nouvelle tâche">
           <Plus />
           Ajouter une tâche
         </button>

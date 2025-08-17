@@ -36,7 +36,7 @@
       </div>
 
       <div class="form-actions">
-        <button @click="handleSubmit" class="btn btn-primary" :disabled="!form.name.trim() || loading">
+        <button @click="handleSubmit" class="btn btn-primary" :disabled="!form.name.trim() || loading" aria-label="Enregistrer les modifications du client">
           Sauvegarder les modifications
         </button>
       </div>

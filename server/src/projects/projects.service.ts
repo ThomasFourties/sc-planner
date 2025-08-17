@@ -48,55 +48,83 @@ export class ProjectsService {
   }
 
   async findOne(id: string): Promise<Project> {
-    const project = await this.projectsRepository.findOne({
-      where: { id },
-      relations: ['client', 'tasks'],
-    });
-
-    if (!project) {
-      throw new NotFoundException('Projet non trouvé');
-    }
-
-    return project;
-  }
-
-  async update(id: string, updateProjectDto: any): Promise<Project> {
-    const project = await this.projectsRepository.findOne({
-      where: { id },
-      relations: ['client', 'tasks'],
-    });
-
-    if (!project) {
-      throw new NotFoundException('Projet non trouvé');
-    }
-
-    if (updateProjectDto.name !== undefined && updateProjectDto.name.trim() === '') {
-      throw new BadRequestException('Le nom du projet est requis');
-    }
-
-    let client: Client | null = null;
-    if (updateProjectDto.client_id) {
-      client = await this.clientsRepository.findOne({
-        where: { id: updateProjectDto.client_id },
+    try {
+      const project = await this.projectsRepository.findOne({
+        where: { id },
+        relations: ['client', 'tasks'],
       });
 
-      if (!client) {
-        throw new NotFoundException('Client non trouvé');
+      if (!project) {
+        throw new NotFoundException('Projet non trouvé');
       }
+
+      return project;
+    } catch (error: any) {
+      if (error?.code === '22P02') { // Invalid UUID error code
+        throw new NotFoundException('Projet non trouvé');
+      }
+      throw error;
     }
+  }
 
-    const updatedProject = {
-      ...project,
-      ...updateProjectDto,
-      client: client ?? project.client,
-      client_id: updateProjectDto.client_id ?? project.client_id,
-    };
+  async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
+    try {
+      const project = await this.projectsRepository.findOne({
+        where: { id },
+        relations: ['client', 'tasks'],
+      });
 
-    return await this.projectsRepository.save(updatedProject);
+      if (!project) {
+        throw new NotFoundException('Projet non trouvé');
+      }
+
+      if (updateProjectDto.name !== undefined && updateProjectDto.name.trim() === '') {
+        throw new BadRequestException('Le nom du projet est requis');
+      }
+
+      let client: Client | null = null;
+      if (updateProjectDto.client_id) {
+        try {
+          client = await this.clientsRepository.findOne({
+            where: { id: updateProjectDto.client_id },
+          });
+
+          if (!client) {
+            throw new NotFoundException('Client non trouvé');
+          }
+        } catch (error: any) {
+          if (error?.code === '22P02') {
+            throw new NotFoundException('Client non trouvé');
+          }
+          throw error;
+        }
+      }
+
+      const updatedProject = {
+        ...project,
+        ...updateProjectDto,
+        client: client ?? project.client,
+        client_id: updateProjectDto.client_id ?? project.client_id,
+      };
+
+      return await this.projectsRepository.save(updatedProject);
+    } catch (error: any) {
+      if (error?.code === '22P02') {
+        throw new NotFoundException('Projet non trouvé');
+      }
+      throw error;
+    }
   }
 
   async remove(id: string): Promise<void> {
-    const project = await this.findOne(id);
-    await this.projectsRepository.remove(project);
+    try {
+      const project = await this.findOne(id);
+      await this.projectsRepository.remove(project);
+    } catch (error: any) {
+      if (error?.code === '22P02') {
+        throw new NotFoundException('Projet non trouvé');
+      }
+      throw error;
+    }
   }
 }

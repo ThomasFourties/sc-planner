@@ -26,7 +26,7 @@
 
               <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
 
-              <button class="btn" type="submit" :disabled="loading || !password || !confirm_password">
+              <button class="btn" type="submit" :disabled="loading || !password || !confirm_password" aria-label="Réinitialiser le mot de passe">
                 <span v-if="!loading">Réinitialiser le mot de passe</span>
                 <span v-else>Réinitialisation en cours...</span>
               </button>

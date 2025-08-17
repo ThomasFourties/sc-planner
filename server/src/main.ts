@@ -4,6 +4,7 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { MetricsInterceptor } from './monitoring/metrics.interceptor';
 import { MonitoringService } from './monitoring/monitoring.service';
+import { setupSwagger } from './config/swagger';
 
 // comments
 
@@ -27,9 +28,14 @@ async function bootstrap() {
   const monitoringService = app.get(MonitoringService);
   app.useGlobalInterceptors(new MetricsInterceptor(monitoringService));
 
+  // Configuration Swagger
+  setupSwagger(app);
+
   await app.listen(3002);
   console.log('🚀 Server running on http://localhost:3002');
   console.log('📊 Metrics available on http://localhost:3002/api/metrics');
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error("Erreur lors du démarrage de l'application :", err);
+});
