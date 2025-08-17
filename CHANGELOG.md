@@ -13,6 +13,20 @@ All notable changes to this project will be documented in this file. See [standa
 ### 🛠️ Chore
 
 * add dotenv as a dependency ([c24520f](https://github.com/ThomasFourties/sc-planner/commit/c24520fc15f44e100d4995465d9f615205a0be31))
+* **release:** 2.0.3 ([e0281c9](https://github.com/ThomasFourties/sc-planner/commit/e0281c95c6b0f66f5ca417ba9dda8e0bb0bdb932))
+* some fixes variable ([9061a3d](https://github.com/ThomasFourties/sc-planner/commit/9061a3d032818f8f995f55ed722095b10f6848db))
+
+### [2.0.3](https://github.com/ThomasFourties/sc-planner/compare/v2.0.2...v2.0.3) (2025-08-17)
+
+
+### 📝 Documentation
+
+* update launch cmd ([588a3f7](https://github.com/ThomasFourties/sc-planner/commit/588a3f7fe04adbd870cbca73135dd1f50dd63064))
+
+
+### 🛠️ Chore
+
+* add dotenv as a dependency ([c24520f](https://github.com/ThomasFourties/sc-planner/commit/c24520fc15f44e100d4995465d9f615205a0be31))
 * some fixes variable ([9061a3d](https://github.com/ThomasFourties/sc-planner/commit/9061a3d032818f8f995f55ed722095b10f6848db))
 
 ### [2.0.2](https://github.com/ThomasFourties/sc-planner/compare/v2.0.1...v2.0.2) (2025-08-17)
