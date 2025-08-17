@@ -9,7 +9,15 @@ module.exports = {
     '!src/**/*.e2e-spec.ts'
   ],
   coverageDirectory: './coverage',
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/src/$1'
+  },
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
   }
 };
