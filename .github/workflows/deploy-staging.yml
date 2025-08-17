@@ -25,7 +25,7 @@ jobs:
               - 'server/**'
 
   test:
-    name: 🧪 Unit Tests Only
+    name: 🧪 Run tests
     needs: changes
     if: ${{ fromJSON(needs.changes.outputs.server) }}
     runs-on: ubuntu-22.04
@@ -63,7 +63,7 @@ jobs:
       - name: Run unit tests only
         run: |
           cd server
-          npm run test
+          npm run test:all
 
   build:
     name: 🚀 Build & Push Images
