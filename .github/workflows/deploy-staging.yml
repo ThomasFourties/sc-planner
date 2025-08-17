@@ -60,10 +60,10 @@ jobs:
           cd server
           npm install
 
-      - name: Run unit tests only
+      - name: Run unit tests
         run: |
           cd server
-          npm run test:all
+          npm run test
 
   build:
     name: 🚀 Build & Push Images
