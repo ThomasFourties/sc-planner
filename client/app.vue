@@ -5,7 +5,6 @@
     <NuxtPage />
   </NuxtLayout>
 </template>
-<!-- comments -->
 
 <script setup>
 useSeoMeta({

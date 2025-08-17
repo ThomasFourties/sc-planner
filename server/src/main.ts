@@ -6,6 +6,8 @@ import { MetricsInterceptor } from './monitoring/metrics.interceptor';
 import { MonitoringService } from './monitoring/monitoring.service';
 import { setupSwagger } from './config/swagger';
 
+// comments
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
