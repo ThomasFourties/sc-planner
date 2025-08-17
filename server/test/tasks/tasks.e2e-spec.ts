@@ -19,6 +19,8 @@ import { EmailService } from '../../src/email/email.service';
 import { UserRole } from '../../src/users/enums/user-role.enum';
 import { ProjectStatus } from '../../src/projects/entities/project.entity';
 
+// comments
+
 const mockEmailService = {
   sendEmail: jest.fn().mockResolvedValue(true),
   sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
