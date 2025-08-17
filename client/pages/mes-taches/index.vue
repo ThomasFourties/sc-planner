@@ -18,22 +18,20 @@
 
     <!-- Formulaire de création/modification -->
     <div v-if="uiStore.isTaskFormVisible" class="form-section">
-      <CreateTaskForm 
+      <CreateTaskForm
         ref="createTaskFormRef"
         :task-id="uiStore.isEditing ? uiStore.currentTask?.id : null"
         :initial-task="uiStore.currentTask"
-        @task-created="onTaskCreated" 
+        @task-created="onTaskCreated"
         @task-updated="onTaskUpdated"
         @task-deleted="onTaskDeleted"
-        @closeComplete="handleTaskFormComplete" 
+        @closeComplete="handleTaskFormComplete"
       />
     </div>
 
     <!-- Liste des tâches -->
     <div class="tasks-section">
-      <div v-if="loadingTasks" class="loading">
-        Chargement des tâches...
-      </div>
+      <div v-if="loadingTasks" class="loading">Chargement des tâches...</div>
 
       <div v-else class="tasks-container">
         <!-- Header fixe -->
@@ -42,7 +40,7 @@
             <span>Terminé</span>
           </div>
           <div class="header-cell name-cell" @click="sortBy('name')">
-            <span :class="{ 'active': sortByField === 'name' }">Nom de la tâche</span>
+            <span :class="{ active: sortByField === 'name' }">Nom de la tâche</span>
             <div class="sort-indicator" :class="getSortClass('name')">
               <ChevronUp v-if="sortByField === 'name' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'name' && sortOrder === 'desc'" :size="14" />
@@ -50,7 +48,7 @@
             </div>
           </div>
           <div class="header-cell status-cell" @click="sortBy('status')">
-            <span :class="{ 'active': sortByField === 'status' }">Statut</span>
+            <span :class="{ active: sortByField === 'status' }">Statut</span>
             <div class="sort-indicator" :class="getSortClass('status')">
               <ChevronUp v-if="sortByField === 'status' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'status' && sortOrder === 'desc'" :size="14" />
@@ -58,7 +56,7 @@
             </div>
           </div>
           <div class="header-cell creator-cell" @click="sortBy('created_by')">
-            <span :class="{ 'active': sortByField === 'created_by' }">Créé par</span>
+            <span :class="{ active: sortByField === 'created_by' }">Créé par</span>
             <div class="sort-indicator" :class="getSortClass('created_by')">
               <ChevronUp v-if="sortByField === 'created_by' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'created_by' && sortOrder === 'desc'" :size="14" />
@@ -66,7 +64,7 @@
             </div>
           </div>
           <div class="header-cell date-cell" @click="sortBy('created_at')">
-            <span :class="{ 'active': sortByField === 'created_at' }">Créé le</span>
+            <span :class="{ active: sortByField === 'created_at' }">Créé le</span>
             <div class="sort-indicator" :class="getSortClass('created_at')">
               <ChevronUp v-if="sortByField === 'created_at' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'created_at' && sortOrder === 'desc'" :size="14" />
@@ -74,7 +72,7 @@
             </div>
           </div>
           <div class="header-cell date-cell" @click="sortBy('start_date')">
-            <span :class="{ 'active': sortByField === 'start_date' }">À faire le</span>
+            <span :class="{ active: sortByField === 'start_date' }">À faire le</span>
             <div class="sort-indicator" :class="getSortClass('start_date')">
               <ChevronUp v-if="sortByField === 'start_date' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'start_date' && sortOrder === 'desc'" :size="14" />
@@ -82,7 +80,7 @@
             </div>
           </div>
           <div class="header-cell priority-cell" @click="sortBy('priority')">
-            <span :class="{ 'active': sortByField === 'priority' }">Priorité</span>
+            <span :class="{ active: sortByField === 'priority' }">Priorité</span>
             <div class="sort-indicator" :class="getSortClass('priority')">
               <ChevronUp v-if="sortByField === 'priority' && sortOrder === 'asc'" :size="14" />
               <ChevronDown v-else-if="sortByField === 'priority' && sortOrder === 'desc'" :size="14" />
@@ -112,15 +110,10 @@
           </div>
 
           <!-- Lignes des tâches -->
-          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row" :class="{ 'completed': task.completed }" @click="editTask(task)">
+          <div v-else v-for="task in sortedTasks" :key="task.id" class="task-row" :class="{ completed: task.completed }" @click="editTask(task)">
             <!-- Checkbox de complétion -->
             <div class="task-cell checkbox-cell" @click.stop>
-              <input 
-                type="checkbox" 
-                :checked="task.completed" 
-                @change="toggleTaskCompleted(task)"
-                class="task-checkbox"
-              />
+              <input type="checkbox" :checked="task.completed" @change="toggleTaskCompleted(task)" class="task-checkbox" />
             </div>
             <!-- Nom de la tâche -->
             <div class="task-cell name-cell">
@@ -140,13 +133,7 @@
                   {{ getStatusText(task.status) }}
                 </span>
                 <div v-if="openStatusDropdown === task.id" class="status-dropdown-menu" :style="dropdownPosition">
-                  <div 
-                    v-for="status in availableStatuses" 
-                    :key="status.value"
-                    @click="updateTaskStatus(task, status.value)"
-                    class="status-dropdown-item"
-                    :class="`status-${status.value}`"
-                  >
+                  <div v-for="status in availableStatuses" :key="status.value" @click="updateTaskStatus(task, status.value)" class="status-dropdown-item" :class="`status-${status.value}`">
                     <div class="status-indicator" :class="`status-${status.value}`"></div>
                     {{ status.label }}
                   </div>
@@ -172,9 +159,7 @@
               <div v-if="task.start_date">
                 {{ formatDate(task.start_date) }}
               </div>
-              <div v-else class="no-date">
-                Non planifié
-              </div>
+              <div v-else class="no-date">Non planifié</div>
             </div>
 
             <!-- Priorité -->
@@ -184,8 +169,8 @@
                   {{ getPriorityText(task.priority) }}
                 </span>
                 <div v-if="openPriorityDropdown === task.id" class="priority-dropdown-menu" :style="priorityDropdownPosition">
-                  <div 
-                    v-for="priority in availablePriorities" 
+                  <div
+                    v-for="priority in availablePriorities"
                     :key="priority.value"
                     @click="updateTaskPriority(task, priority.value)"
                     class="priority-dropdown-item"
@@ -212,11 +197,11 @@
             <!-- Client -->
             <div class="task-cell client-cell">
               <div v-if="task.project?.client" class="client-info">
-                <div class="client-name"><a :href="`/clients/${task.project.client.id}`">{{ task.project.client.name }}</a></div>
+                <div class="client-name">
+                  <a :href="`/clients/${task.project.client.id}`">{{ task.project.client.name }}</a>
+                </div>
               </div>
-              <div v-else class="no-client">
-                -
-              </div>
+              <div v-else class="no-client">-</div>
             </div>
 
             <!-- Actions -->
@@ -240,60 +225,50 @@
 <script setup>
 import { Plus, ChevronUp, ChevronDown, ChevronsUpDown, Archive } from 'lucide-vue-next';
 import { ref, onMounted, computed } from 'vue';
-// import { useUIStore } from '~/stores/ui';
+
 import { useAuthStore } from '~/stores/auth';
 
-// Le middleware global gère l'authentification
-
-// Store
 const uiStore = useUIStore();
 const authStore = useAuthStore();
 
-// État
 const tasks = ref([]);
 const loadingTasks = ref(true);
 const createTaskFormRef = ref(null);
 
-// État du tri
 const sortByField = ref('status');
-const sortOrder = ref('asc'); // 'asc' ou 'desc'
+const sortOrder = ref('asc');
 
-// État du dropdown de statut
 const openStatusDropdown = ref(null);
 const dropdownPosition = ref({});
 
-// État du dropdown de priorité
 const openPriorityDropdown = ref(null);
 const priorityDropdownPosition = ref({});
 
-// Ordre des statuts pour le tri
 const statusOrder = {
-  'todo': 1,
-  'in_progress': 2,
-  'waiting_for_info': 3,
-  'blocked': 4,
-  'cancelled': 5,
-  'to_validate': 6,
-  'validated': 7,
-  'to_timer': 8,
-  'processed_prod': 9,
-  'processed_preprod': 10,
-  'done': 11
+  todo: 1,
+  in_progress: 2,
+  waiting_for_info: 3,
+  blocked: 4,
+  cancelled: 5,
+  to_validate: 6,
+  validated: 7,
+  to_timer: 8,
+  processed_prod: 9,
+  processed_preprod: 10,
+  done: 11,
 };
 
-// Ordre des priorités pour le tri
 const priorityOrder = {
-  'low': 1,
-  'medium': 2,
-  'high': 3,
-  'urgent': 4
+  low: 1,
+  medium: 2,
+  high: 3,
+  urgent: 4,
 };
 
-// Statuts disponibles
 const availableStatuses = [
   { value: 'todo', label: 'À faire' },
   { value: 'in_progress', label: 'En cours' },
-  { value: 'waiting_for_info', label: 'En attente d\'informations' },
+  { value: 'waiting_for_info', label: "En attente d'informations" },
   { value: 'blocked', label: 'Bloqué' },
   { value: 'cancelled', label: 'Annulé' },
   { value: 'to_validate', label: 'À valider' },
@@ -301,25 +276,22 @@ const availableStatuses = [
   { value: 'to_timer', label: 'À timer' },
   { value: 'processed_prod', label: 'Traité en prod' },
   { value: 'processed_preprod', label: 'Traité en préprod' },
-  { value: 'done', label: 'Terminé' }
+  { value: 'done', label: 'Terminé' },
 ];
 
-// Priorités disponibles
 const availablePriorities = [
   { value: 'low', label: 'Faible' },
   { value: 'medium', label: 'Moyenne' },
   { value: 'high', label: 'Élevée' },
-  { value: 'urgent', label: 'Urgente' }
+  { value: 'urgent', label: 'Urgente' },
 ];
 
-// Tâches triées
 const sortedTasks = computed(() => {
   if (tasks.value.length === 0) return [];
 
   const sorted = [...tasks.value].sort((a, b) => {
     let aValue, bValue;
 
-    // Gérer les différents types de tri
     switch (sortByField.value) {
       case 'name':
         aValue = a.name?.toLowerCase() || '';
@@ -347,7 +319,6 @@ const sortedTasks = computed(() => {
         bValue = b[sortByField.value] || '';
     }
 
-    // Comparer les valeurs
     if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1;
     if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1;
     return 0;
@@ -356,25 +327,20 @@ const sortedTasks = computed(() => {
   return sorted;
 });
 
-// Fonction de tri
 const sortBy = (field) => {
   if (sortByField.value === field) {
-    // Inverser l'ordre si on clique sur la même colonne
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
   } else {
-    // Nouveau champ, commencer par asc
     sortByField.value = field;
     sortOrder.value = 'asc';
   }
 };
 
-// Fonctions pour les indicateurs visuels
 const getSortClass = (field) => {
   if (sortByField.value !== field) return '';
   return sortOrder.value === 'asc' ? 'sort-asc' : 'sort-desc';
 };
 
-// Charger les tâches
 const loadTasks = async () => {
   try {
     loadingTasks.value = true;
@@ -386,51 +352,47 @@ const loadTasks = async () => {
   }
 };
 
-// Gestionnaire de création de tâche
 const onTaskCreated = (newTask) => {
   tasks.value.unshift(newTask);
   uiStore.closeTaskForm();
 };
 
-// Gestionnaire de modification de tâche
 const onTaskUpdated = (updatedTask) => {
-  const index = tasks.value.findIndex(task => task.id === updatedTask.id);
+  const index = tasks.value.findIndex((task) => task.id === updatedTask.id);
   if (index !== -1) {
     tasks.value[index] = updatedTask;
   }
   uiStore.closeTaskForm();
 };
 
-// Gestionnaire de suppression de tâche
 const onTaskDeleted = (taskId) => {
-  tasks.value = tasks.value.filter(task => task.id !== taskId);
+  tasks.value = tasks.value.filter((task) => task.id !== taskId);
   uiStore.closeTaskForm();
 };
 
-// Formatage des textes
 const getStatusText = (status) => {
   const statuses = {
-    'todo': 'À faire',
-    'in_progress': 'En cours',
-    'waiting_for_info': 'En attente d\'informations',
-    'blocked': 'Bloqué',
-    'cancelled': 'Annulé',
-    'to_validate': 'À valider',
-    'validated': 'Validé',
-    'to_timer': 'À timer',
-    'processed_prod': 'Traité en prod',
-    'processed_preprod': 'Traité en préprod',
-    'done': 'Terminé'
+    todo: 'À faire',
+    in_progress: 'En cours',
+    waiting_for_info: "En attente d'informations",
+    blocked: 'Bloqué',
+    cancelled: 'Annulé',
+    to_validate: 'À valider',
+    validated: 'Validé',
+    to_timer: 'À timer',
+    processed_prod: 'Traité en prod',
+    processed_preprod: 'Traité en préprod',
+    done: 'Terminé',
   };
   return statuses[status] || status;
 };
 
 const getPriorityText = (priority) => {
   const priorities = {
-    'low': 'Faible',
-    'medium': 'Moyenne',
-    'high': 'Élevée',
-    'urgent': 'Urgente'
+    low: 'Faible',
+    medium: 'Moyenne',
+    high: 'Élevée',
+    urgent: 'Urgente',
   };
   return priorities[priority] || priority;
 };
@@ -444,7 +406,6 @@ const formatDate = (dateString) => {
   });
 };
 
-// Actions sur les tâches
 const editTask = (task) => {
   uiStore.openTaskEdit(task);
 };
@@ -452,18 +413,16 @@ const editTask = (task) => {
 const deleteTask = async (taskId) => {
   try {
     await $fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
-    tasks.value = tasks.value.filter(task => task.id !== taskId);
+    tasks.value = tasks.value.filter((task) => task.id !== taskId);
   } catch (error) {
     console.error('Erreur lors de la suppression de la tâche:', error);
   }
 };
 
 const showArchives = () => {
-  // TODO: Implémenter la page des archives
   console.log('Afficher les archives');
 };
 
-// Fonctions pour le dropdown de statut
 const toggleStatusDropdown = (taskId, event) => {
   if (openStatusDropdown.value === taskId) {
     openStatusDropdown.value = null;
@@ -472,12 +431,12 @@ const toggleStatusDropdown = (taskId, event) => {
 
   const target = event.currentTarget;
   const rect = target.getBoundingClientRect();
-  
+
   dropdownPosition.value = {
     top: `${rect.bottom + 4}px`,
-    left: `${rect.left}px`
+    left: `${rect.left}px`,
   };
-  
+
   openStatusDropdown.value = taskId;
 };
 
@@ -490,18 +449,16 @@ const updateTaskStatus = async (task, newStatus) => {
   try {
     const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
       method: 'PATCH',
-      body: { status: newStatus }
+      body: { status: newStatus },
     });
-    
-    // Mettre à jour la tâche dans la liste
-    const index = tasks.value.findIndex(t => t.id === task.id);
+
+    const index = tasks.value.findIndex((t) => t.id === task.id);
     if (index !== -1) {
       tasks.value[index] = { ...tasks.value[index], ...updatedTask };
     }
   } catch (error) {
     console.error('Erreur lors de la mise à jour du statut:', error);
-    
-    // Afficher une notification d'erreur à l'utilisateur
+
     if (error.statusMessage) {
       alert(`Erreur: ${error.statusMessage}`);
     } else if (error.message) {
@@ -514,7 +471,6 @@ const updateTaskStatus = async (task, newStatus) => {
   }
 };
 
-// Fonctions pour le dropdown de priorité
 const togglePriorityDropdown = (taskId, event) => {
   if (openPriorityDropdown.value === taskId) {
     openPriorityDropdown.value = null;
@@ -523,12 +479,12 @@ const togglePriorityDropdown = (taskId, event) => {
 
   const target = event.currentTarget;
   const rect = target.getBoundingClientRect();
-  
+
   priorityDropdownPosition.value = {
     top: `${rect.bottom + 4}px`,
-    left: `${rect.left}px`
+    left: `${rect.left}px`,
   };
-  
+
   openPriorityDropdown.value = taskId;
 };
 
@@ -541,11 +497,10 @@ const updateTaskPriority = async (task, newPriority) => {
   try {
     const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
       method: 'PATCH',
-      body: { priority: newPriority }
+      body: { priority: newPriority },
     });
-    
-    // Mettre à jour la tâche dans la liste
-    const index = tasks.value.findIndex(t => t.id === task.id);
+
+    const index = tasks.value.findIndex((t) => t.id === task.id);
     if (index !== -1) {
       tasks.value[index] = { ...tasks.value[index], ...updatedTask };
     }
@@ -556,16 +511,14 @@ const updateTaskPriority = async (task, newPriority) => {
   }
 };
 
-// Fonction pour basculer le statut de complétion
 const toggleTaskCompleted = async (task) => {
   try {
     const updatedTask = await $fetch(`/api/tasks/${task.id}`, {
       method: 'PATCH',
-      body: { completed: !task.completed }
+      body: { completed: !task.completed },
     });
-    
-    // Mettre à jour la tâche dans la liste
-    const index = tasks.value.findIndex(t => t.id === task.id);
+
+    const index = tasks.value.findIndex((t) => t.id === task.id);
     if (index !== -1) {
       tasks.value[index] = { ...tasks.value[index], ...updatedTask };
     }
@@ -583,11 +536,9 @@ const handleTaskFormClose = async () => {
 };
 
 const handleTaskFormComplete = () => {
-  // Cette fonction est appelée quand l'auto-sauvegarde est terminée
   uiStore.closeTaskForm();
 };
 
-// Fermer les dropdowns quand on clique à l'extérieur
 const handleClickOutside = (event) => {
   if (!event.target.closest('.status-dropdown')) {
     openStatusDropdown.value = null;
@@ -597,7 +548,6 @@ const handleClickOutside = (event) => {
   }
 };
 
-// Chargement initial
 onMounted(() => {
   loadTasks();
   document.addEventListener('click', handleClickOutside);
@@ -611,7 +561,6 @@ onUnmounted(() => {
 <style scoped lang="scss">
 @use '../../assets/scss/base/variables' as *;
 @use '../../assets/scss/utils/mixins' as *;
-
 
 .tasks-page {
   margin: 0 auto;
@@ -632,20 +581,9 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     gap: 8px;
-    // padding: 10px 16px;
+
     background-color: #6b7280;
     color: white;
-    // border: none;
-    // border-radius: 4px;
-    // font-size: 14px;
-    // font-weight: 500;
-    // cursor: pointer;
-    // transition: all 0.2s;
-
-    // &:hover {
-    //   background-color: #4b5563;
-    //   // transform: translateY(-1px);
-    // }
 
     svg {
       width: 16px;
@@ -655,7 +593,6 @@ onUnmounted(() => {
 }
 
 .form-section {
-  // Le formulaire est maintenant en position fixed, plus besoin de styles spéciaux
 }
 
 .tasks-section {
@@ -674,7 +611,7 @@ onUnmounted(() => {
 .tasks-container {
   background: white;
   border-radius: 4px;
-  box-shadow:0 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   height: auto;
   max-height: calc(100vh - 314px);
@@ -765,7 +702,6 @@ onUnmounted(() => {
 
   &:hover {
     background-color: #f8f9fa;
-    // transform: translateY(-2px);
   }
 
   &:last-child {
@@ -774,7 +710,7 @@ onUnmounted(() => {
 
   &.completed {
     opacity: 0.5;
-    
+
     .task-info .name {
       text-decoration: line-through;
     }
@@ -1100,8 +1036,7 @@ onUnmounted(() => {
   .description {
     font-size: 12px;
     color: #6c757d;
-    // max-width: 200px;
-    // max-width: 330px;
+
     max-width: 270px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1280,8 +1215,6 @@ onUnmounted(() => {
   font-size: 14px;
 }
 
-
-
 .actions-group {
   display: flex;
   gap: 8px;
@@ -1324,7 +1257,6 @@ onUnmounted(() => {
   }
 
   .tasks-container {
-    // height: calc(100vh - 280px);
     margin: 0 -20px;
     border-radius: 0;
   }

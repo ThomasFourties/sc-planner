@@ -6,16 +6,14 @@
       </div>
       <div class="right">
         <!-- <MarkCompletedButton v-model="form.status" @completed="handleTaskCompleted" :disabled="!taskId" /> -->
-        <TaskActionsMenu v-if="taskId" :task-id="taskId" @share="handleShare" @duplicate="handleDuplicate"
-          @export="handleExport" @archive="handleArchive" @delete="handleDelete" />
+        <TaskActionsMenu v-if="taskId" :task-id="taskId" @share="handleShare" @duplicate="handleDuplicate" @export="handleExport" @archive="handleArchive" @delete="handleDelete" />
         <EllipsisVertical v-else />
       </div>
     </div>
 
     <div class="form-body">
       <div class="form-top">
-        <input v-model="form.name" class="title-input"
-          :placeholder="taskId ? 'Nom de la tâche' : 'Créer une nouvelle tâche'" required />
+        <input v-model="form.name" class="title-input" :placeholder="taskId ? 'Nom de la tâche' : 'Créer une nouvelle tâche'" required />
 
         <PrioritySelector v-model="form.priority" />
       </div>
@@ -25,10 +23,14 @@
       <div class="project-info">
         <div v-if="projectInfo">
           <div class="project-info-item">
-            <label class="label">Projet: <a :href="`/projects/${projectInfo.id}`">{{ projectInfo.name }}</a></label>
+            <label class="label"
+              >Projet: <a :href="`/projects/${projectInfo.id}`">{{ projectInfo.name }}</a></label
+            >
           </div>
           <div v-if="clientInfo" class="client-info-item">
-            <label class="label">Client: <a :href="`/clients/${clientInfo.id}`">{{ clientInfo.name }}</a></label>
+            <label class="label"
+              >Client: <a :href="`/clients/${clientInfo.id}`">{{ clientInfo.name }}</a></label
+            >
           </div>
         </div>
         <div v-else>
@@ -47,8 +49,7 @@
       <!-- <UserSelector v-model="createdBy" :users="[currentUser]" label="Créé par" :disabled="true" /> -->
 
       <div class="form-nav">
-        <div v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
-          :class="['tab', { active: activeTab === tab.id }]">
+        <div v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="['tab', { active: activeTab === tab.id }]">
           {{ tab.label }}
         </div>
       </div>
@@ -122,9 +123,16 @@
     </div>
 
     <!-- Modal de confirmation de suppression -->
-    <ConfirmModal :is-visible="showDeleteConfirm" title="Supprimer la tâche"
-      message="Êtes-vous sûr de vouloir supprimer cette tâche ? Cette action est irréversible." confirm-text="Supprimer"
-      cancel-text="Annuler" :is-danger="true" @confirm="confirmDelete" @cancel="cancelDelete" />
+    <ConfirmModal
+      :is-visible="showDeleteConfirm"
+      title="Supprimer la tâche"
+      message="Êtes-vous sûr de vouloir supprimer cette tâche ? Cette action est irréversible."
+      confirm-text="Supprimer"
+      cancel-text="Annuler"
+      :is-danger="true"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
@@ -141,30 +149,26 @@ import TaskActionsMenu from '~/components/form/TaskActionsMenu.vue';
 import MarkCompletedButton from '~/components/form/MarkCompletedButton.vue';
 import ConfirmModal from '~/components/base/ConfirmModal.vue';
 
-// Props
 const props = defineProps({
   taskId: {
     type: [String, Number],
-    default: null
+    default: null,
   },
   initialTask: {
     type: Object,
-    default: null
+    default: null,
   },
   projectId: {
     type: String,
-    default: null
-  }
+    default: null,
+  },
 });
 
-// Émissions
 const emit = defineEmits(['taskCreated', 'taskUpdated', 'closeComplete', 'taskDeleted']);
 
-// Stores
 const authStore = useAuthStore();
 const currentUser = computed(() => authStore.currentUser);
 
-// État du formulaire
 const form = reactive({
   name: '',
   description: '',
@@ -173,15 +177,13 @@ const form = reactive({
   start_date: null,
   priority: 'medium',
   status: 'todo',
-  project_id: props.projectId || null
+  project_id: props.projectId || null,
 });
 
-// Initialiser le project_id si il est fourni en prop
 if (props.projectId) {
   form.project_id = props.projectId;
 }
 
-// État de l'interface
 const loading = ref(false);
 const error = ref('');
 const success = ref('');
@@ -189,35 +191,17 @@ const users = ref([]);
 const activeTab = ref('description');
 const createdBy = ref(null);
 
-// Informations du projet et client
 const projectInfo = ref(null);
 const clientInfo = ref(null);
 
-// État de la modal de confirmation
 const showDeleteConfirm = ref(false);
 const taskToDelete = ref(null);
 
-// Configuration des onglets
 const tabs = [
   { id: 'description', label: 'Description' },
   { id: 'comments', label: 'Commentaires' },
-  { id: 'history', label: 'Historique' }
+  { id: 'history', label: 'Historique' },
 ];
-
-// const mockFiles = ref([
-//   {
-//     id: 1,
-//     name: 'Guidelines.pdf',
-//     type: 'PDF',
-//     thumbnail: 'https://picsum.photos/40/40?random=1'
-//   },
-//   {
-//     id: 2,
-//     name: 'Screenshot.png',
-//     type: 'PNG',
-//     thumbnail: 'https://picsum.photos/40/40?random=2'
-//   }
-// ]);
 
 const loadTaskData = (task) => {
   Object.assign(form, {
@@ -228,10 +212,9 @@ const loadTaskData = (task) => {
     start_date: task.start_date || null,
     priority: task.priority || 'medium',
     status: task.status || 'todo',
-    project_id: task.project_id || props.projectId || null
+    project_id: task.project_id || props.projectId || null,
   });
 
-  // Charger les informations du projet et client si disponibles
   if (task.project) {
     projectInfo.value = task.project;
     if (task.project.client) {
@@ -240,7 +223,6 @@ const loadTaskData = (task) => {
   }
 };
 
-// Fonction pour charger les informations du projet
 const loadProjectInfo = async (projectId) => {
   if (!projectId) return;
 
@@ -254,12 +236,9 @@ const loadProjectInfo = async (projectId) => {
     }
   } catch (error) {
     console.error('Erreur lors du chargement du projet:', error);
-    // Ne pas vider les informations existantes en cas d'erreur
-    // projectInfo.value et clientInfo.value gardent leurs valeurs précédentes
   }
 };
 
-// Charger les données initiales
 onMounted(async () => {
   await loadUsers();
 
@@ -272,26 +251,29 @@ onMounted(async () => {
   } else if (props.initialTask) {
     loadTaskData(props.initialTask);
   } else if (props.projectId) {
-    // Charger les informations du projet si on crée une nouvelle tâche
     await loadProjectInfo(props.projectId);
   }
 });
 
-// Surveiller les changements de projectId pour recharger les informations
-watch(() => props.projectId, async (newProjectId) => {
-  if (newProjectId && !props.taskId) {
-    await loadProjectInfo(newProjectId);
+watch(
+  () => props.projectId,
+  async (newProjectId) => {
+    if (newProjectId && !props.taskId) {
+      await loadProjectInfo(newProjectId);
+    }
   }
-});
+);
 
-// Watcher pour les changements de tâche initiale
-watch(() => props.initialTask, (newTask) => {
-  if (newTask) {
-    loadTaskData(newTask);
-  }
-}, { immediate: true });
+watch(
+  () => props.initialTask,
+  (newTask) => {
+    if (newTask) {
+      loadTaskData(newTask);
+    }
+  },
+  { immediate: true }
+);
 
-// Méthodes
 const loadUsers = async () => {
   try {
     users.value = await $fetch('/api/users');
@@ -299,8 +281,6 @@ const loadUsers = async () => {
     console.error('Erreur lors du chargement des utilisateurs:', err);
   }
 };
-
-
 
 const handleSubmit = async () => {
   if (!form.name.trim()) {
@@ -315,21 +295,18 @@ const handleSubmit = async () => {
   try {
     const taskData = { ...form };
 
-    // Nettoyer les champs vides (mais garder les valeurs null explicites)
     if (taskData.duration === null || taskData.duration === undefined || taskData.duration === '') {
       taskData.duration = 0;
     } else {
-      // S'assurer que duration est un nombre
       taskData.duration = Number(taskData.duration);
     }
-    // Ne pas supprimer assigned_to_id car null est une valeur valide (pas d'assignation)
+
     if (!taskData.start_date) delete taskData.start_date;
     if (!taskData.description) delete taskData.description;
 
     let result;
 
     if (props.taskId) {
-      // Modification d'une tâche existante
       result = await $fetch(`/api/tasks/${props.taskId}`, {
         method: 'PUT',
         body: taskData,
@@ -337,7 +314,6 @@ const handleSubmit = async () => {
 
       emit('taskUpdated', result);
     } else {
-      // Création d'une nouvelle tâche
       result = await $fetch('/api/tasks', {
         method: 'POST',
         body: taskData,
@@ -345,13 +321,10 @@ const handleSubmit = async () => {
 
       emit('taskCreated', result);
 
-      // Réinitialiser le formulaire pour une nouvelle création
       resetForm();
     }
 
-    // Fermer la modal immédiatement après création/modification
     emit('closeComplete');
-
   } catch (err) {
     console.error('Erreur détaillée:', err);
     let errorMessage = `Erreur lors de la ${props.taskId ? 'modification' : 'création'} de la tâche`;
@@ -379,44 +352,28 @@ const resetForm = () => {
     start_date: null,
     priority: 'medium',
     status: 'todo',
-    project_id: props.projectId || form.project_id // Préserver l'ID du projet
+    project_id: props.projectId || form.project_id,
   });
   activeTab.value = 'description';
-
-  // Ne pas réinitialiser projectInfo et clientInfo car ils sont liés au projet
-  // Ces informations doivent rester affichées même après création d'une tâche
 };
 
 const handleFileUpload = () => {
-  // TODO: Implémenter l'upload de fichiers avec S3
   console.log('Upload de fichier à implémenter');
 };
-
-// // Nouvelles méthodes pour les actions
-// const handleTaskCompleted = (isCompleted) => {
-//   if (isCompleted) {
-//     success.value = 'Tâche marquée comme terminée !';
-//   } else {
-//     success.value = 'Tâche remise en cours !';
-//   }
-// };
 
 const handleShare = (taskId) => {
   success.value = 'Lien de la tâche copié dans le presse-papiers !';
 };
 
 const handleDuplicate = (taskId) => {
-  // Logique pour dupliquer la tâche
   console.log('Dupliquer la tâche:', taskId);
 };
 
 const handleExport = (taskId) => {
-  // Logique pour exporter la tâche
   console.log('Exporter la tâche:', taskId);
 };
 
 const handleArchive = (taskId) => {
-  // Logique pour archiver la tâche
   console.log('Archiver la tâche:', taskId);
 };
 
@@ -431,7 +388,7 @@ const confirmDelete = async () => {
   try {
     loading.value = true;
     await $fetch(`/api/tasks/${taskToDelete.value}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     });
 
     emit('taskDeleted', taskToDelete.value);
@@ -458,8 +415,6 @@ const handleClose = async () => {
     await autoSave();
     emit('closeComplete');
   } else {
-    // Pour la création, on ne fait rien ici car handleSubmit() gère déjà la fermeture
-    // On ferme seulement si le formulaire est vide
     emit('closeComplete');
   }
 };
@@ -468,31 +423,26 @@ const autoSave = async () => {
   try {
     const taskData = { ...form };
 
-    // Nettoyer les champs vides (mais garder les valeurs null explicites)
     if (taskData.duration === null || taskData.duration === undefined || taskData.duration === '') {
       taskData.duration = 0;
     } else {
-      // S'assurer que duration est un nombre
       taskData.duration = Number(taskData.duration);
     }
-    // Ne pas supprimer assigned_to_id car null est une valeur valide (pas d'assignation)
+
     if (!taskData.start_date) delete taskData.start_date;
     if (!taskData.description) delete taskData.description;
 
-    // 1. Mettre à jour la tâche
     await $fetch(`/api/tasks/${props.taskId}`, {
       method: 'PUT',
       body: taskData,
     });
 
-    // 2. Récupérer la tâche complète avec les relations
     const updatedTask = await $fetch(`/api/tasks/${props.taskId}`);
 
     emit('taskUpdated', updatedTask);
   } catch (err) {
     console.error('Erreur lors de la sauvegarde automatique:', err);
 
-    // Gestion d'erreur améliorée
     let errorMessage = 'Erreur lors de la sauvegarde automatique';
     if (err.data?.message) {
       errorMessage = Array.isArray(err.data.message) ? err.data.message.join(', ') : err.data.message;
@@ -506,9 +456,8 @@ const autoSave = async () => {
   }
 };
 
-// Exposer les méthodes pour les refs parent
 defineExpose({
-  handleClose
+  handleClose,
 });
 </script>
 

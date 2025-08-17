@@ -25,9 +25,6 @@ export default defineEventHandler(async (event) => {
     return { message: 'Client supprimé avec succès' };
   } catch (error: any) {
     throw createError({
-      // statusCode: error.status || error.statusCode || 500,
-      // statusMessage: error.data?.message || error.message || 'Erreur lors de la suppression de la tâche',
-      // mettre une erreur plus explicite avec le message d'erreur
       statusCode: 500,
       statusMessage: error.data?.message || error.message || 'Erreur lors de la suppression du client',
     });

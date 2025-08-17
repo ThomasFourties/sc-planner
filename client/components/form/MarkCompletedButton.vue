@@ -84,7 +84,7 @@ const toggleCompleted = () => {
     background-color: #dcfce7;
     color: #166534;
     border: 1px solid #bbf7d0;
-    opacity: 0.4; // Effet d'opacité demandé
+    opacity: 0.4; 
     
     &:hover {
       background-color: #bbf7d0;
@@ -130,12 +130,10 @@ const toggleCompleted = () => {
   }
 }
 
-// Animation pour l'icône
 .mark-completed-btn:not(.disabled):active {
   transform: scale(0.95);
 }
 
-// Animation de succès
 .mark-completed-btn.completed .icon-wrapper {
   animation: successPulse 0.3s ease-out;
 }

@@ -25,8 +25,6 @@
 </template>
 
 <script setup>
-// Le middleware global gère l'authentification
-
 const tasks = ref([]);
 const loadingTasks = ref(true);
 

@@ -6,8 +6,6 @@ import { MetricsInterceptor } from './monitoring/metrics.interceptor';
 import { MonitoringService } from './monitoring/monitoring.service';
 import { setupSwagger } from './config/swagger';
 
-// comments
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -28,7 +26,6 @@ async function bootstrap() {
   const monitoringService = app.get(MonitoringService);
   app.useGlobalInterceptors(new MetricsInterceptor(monitoringService));
 
-  // Configuration Swagger
   setupSwagger(app);
 
   await app.listen(3002);

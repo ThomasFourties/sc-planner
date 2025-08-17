@@ -3,7 +3,6 @@ import { defineEventHandler, createError, getCookie } from 'h3';
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   
-  // Récupérer le token depuis les cookies
   const token = getCookie(event, 'auth-token');
   
   if (!token) {
@@ -13,7 +12,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Récupérer l'ID du projet depuis les paramètres
   const projectId = getRouterParam(event, 'id');
   
   if (!projectId) {
