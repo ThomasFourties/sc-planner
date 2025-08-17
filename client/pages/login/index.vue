@@ -21,7 +21,7 @@
 
             <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
 
-            <button class="btn" type="submit" :disabled="loading">
+            <button class="btn" type="submit" :disabled="loading" aria-label="Se connecter">
               <span>Se connecter</span>
             </button>
           </form>

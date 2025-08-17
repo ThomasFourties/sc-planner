@@ -112,7 +112,7 @@
       <!-- <div v-if="error" class="error-message">{{ error }}</div> -->
       <!-- <div v-if="success" class="success-message">{{ success }}</div> -->
 
-      <button v-if="!taskId" @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn">
+      <button v-if="!taskId" @click="handleSubmit" :disabled="loading || !form.name.trim()" class="submit-btn" aria-label="Créer la tâche">
         {{ loading ? 'Création...' : 'Créer la tâche' }}
       </button>
 

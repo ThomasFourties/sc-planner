@@ -11,10 +11,10 @@
       </div>
 
       <div class="modal-actions">
-        <button @click="handleCancel" class="btn-cancel">
+        <button @click="handleCancel" class="btn-cancel" aria-label="Annuler l'action">
           {{ cancelText }}
         </button>
-        <button @click="handleConfirm" class="btn-confirm" :class="{ 'danger': isDanger }">
+        <button @click="handleConfirm" class="btn-confirm" :class="{ 'danger': isDanger }" :aria-label="isDanger ? 'Confirmer la suppression' : 'Confirmer l\'action'">
           {{ confirmText }}
         </button>
       </div>

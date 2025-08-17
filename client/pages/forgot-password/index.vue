@@ -19,7 +19,7 @@
               <p class="msg" :class="{ active: error, red: error }">{{ error }}</p>
               <p class="msg" :class="{ active: success, green: success }">{{ message }}</p>
 
-              <button class="btn" type="submit" :disabled="loading || cooldown > 0">
+              <button class="btn" type="submit" :disabled="loading || cooldown > 0" aria-label="Envoyer le lien de réinitialisation">
                 <span v-if="!loading && cooldown === 0">Envoyer</span>
                 <span v-else-if="loading">Envoi...</span>
                 <span v-else>Renvoyer dans {{ cooldown }}s</span>
