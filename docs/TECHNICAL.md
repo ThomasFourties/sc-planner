@@ -1,5 +1,7 @@
 # Documentation Technique SC Planner
 
+Ce document détaille les aspects techniques de SC Planner, un outil professionnel de gestion de projet et de planification de tâches, conçu pour l'agence Supercolor.
+
 ## 1. Documentation de Réalisation
 
 ### 1.1 Organisation des Dossiers et Fichiers
@@ -44,13 +46,12 @@ server/
 
 ### 1.2 Conventions de Code
 
-#### Frontend
-- **Linting**: ESLint avec configuration Nuxt
-- **Formatage**: Prettier
-- **Style**: 
-  - SCSS avec SMACSS (Scalable and Modular Architecture for CSS)
-  - Stylelint avec règles standards SCSS
-  - Variables et mixins dans `assets/scss`
+### Frontend
+- **Framework**: Nuxt.js 4
+- **State Management**: Pinia
+- **UI/UX**: SCSS + TailwindCSS
+- **Composants**: Vue 3
+- **Animations**: GSAP
 
 #### Backend
 - **Linting**: ESLint avec TypeScript
@@ -94,9 +95,7 @@ server/
 - **Tests Unitaires**: Jest
 - **Tests E2E**: Jest + Supertest
 - **Coverage**: Istanbul
-- Seuils de couverture:
-  - Tests unitaires: 80%
-  - Tests E2E: 70%
+- **Seuil global**: >80% de couverture
 
 #### Configuration des Tests
 ```javascript
@@ -153,16 +152,32 @@ server/
 ### 2.2 Variables d'Environnement
 
 ```bash
-# Backend (.env)
-DATABASE_URL=postgresql://user:password@localhost:5432/sc_planner
-JWT_SECRET=your_jwt_secret
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=user@example.com
-SMTP_PASS=password
+# Base de données (requis)
+DATABASE_HOST=localhost        # Hôte de la base de données
+DATABASE_PORT=5432            # Port PostgreSQL (par défaut: 5432)
+DATABASE_USER=your_user       # Nom d'utilisateur
+DATABASE_PASSWORD=your_pass    # Mot de passe
+DATABASE_NAME=sc_planner      # Nom de la base de données
 
-# Frontend (.env)
-API_URL=http://localhost:3002/api
+DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+
+# JWT (requis)
+JWT_SECRET=your-secret-key    # Clé secrète pour les tokens JWT
+
+# Email SMTP (optionnel en développement)
+EMAIL_HOST=smtp.example.com    # Serveur SMTP
+EMAIL_PORT=587                # Port SMTP
+EMAIL_USER=your_email         # Adresse email
+EMAIL_PASS=your_pass          # Mot de passe
+EMAIL_SECURE=false            # true pour SSL/TLS
+
+# URLs et environnement
+FRONTEND_URL=http://localhost:3000  # URL du frontend
+NODE_ENV=development               # development ou production
+API_URL=http://server:3002/api      # URL de l'API
+
+# Github Token (optionnel en développement)
+GITHUB_TOKEN=your-github-token
 ```
 
 ### 2.3 Commandes Principales
