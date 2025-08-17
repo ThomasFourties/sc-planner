@@ -67,7 +67,7 @@ jobs:
 
   build:
     name: 🚀 Build & Push Images
-    needs: changes
+    needs: [changes, test]
     if: ${{ fromJSON(needs.changes.outputs.client) || fromJSON(needs.changes.outputs.server) }}
     runs-on: ubuntu-22.04
     outputs:
