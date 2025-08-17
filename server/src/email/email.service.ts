@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
@@ -28,7 +28,7 @@ export class EmailService {
         socketTimeout: 60000,
       });
     } else {
-      throw new BadRequestException('Configuration SMTP manquante.');
+      this.logger.warn("Configuration SMTP manquante - le service d'email sera désactivé");
     }
   }
 
