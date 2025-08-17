@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   rootDir: '..',
   testMatch: ['**/test/**/*.e2e-spec.ts'],
-  collectCoverage: true, // Force la collecte
+  collectCoverage: true,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.spec.ts',
@@ -16,9 +16,9 @@ module.exports = {
     '!src/**/*.dto.ts',
     '!src/**/*.entity.ts',
     '!src/**/*.enum.ts',
-    '!src/**/*.service.ts', // ← Ignore les services
-    '!src/**/guards/**', // ← (optionnel) si tu veux aussi exclure les guards
-    '!src/**/*.interceptor.ts', // idem pour interceptors
+    '!src/**/*.service.ts',
+    '!src/**/guards/**',
+    '!src/**/*.interceptor.ts',
   ],
   coverageDirectory: './coverage-e2e',
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
