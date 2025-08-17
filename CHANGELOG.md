@@ -2,6 +2,58 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/ThomasFourties/sc-planner/compare/v1.1.2...v2.0.0) (2025-08-17)
+
+
+### ✨ Features
+
+* adding bug tracker tpl for issues ([331a2b0](https://github.com/ThomasFourties/sc-planner/commit/331a2b05fcac0d13e995e8a59b16b907ddeaee93))
+* adding env conf. for testing ([cb83893](https://github.com/ThomasFourties/sc-planner/commit/cb83893ea31b1abb4507ce84c3fab28eea435afd))
+* adding swagger configuration ([b855cc1](https://github.com/ThomasFourties/sc-planner/commit/b855cc1796efdc881d1d5bd3a5c240ff2aafefc2))
+* enhance exceptions and validation for Clients, Projects and Tasks entries ([c7db851](https://github.com/ThomasFourties/sc-planner/commit/c7db8518e8b422c8f5df8962d911fe07411aac60))
+* **tests:** add end-to-end tests for projects and tasks modules ([6ca7e71](https://github.com/ThomasFourties/sc-planner/commit/6ca7e71ac35b848a5d687fc2f3fa6b94ecb6a148))
+
+
+### 📝 Documentation
+
+* adding TECHNICAL docs ([055c1c1](https://github.com/ThomasFourties/sc-planner/commit/055c1c1863b6e1a99db41cc8ad1ba3f1cadf2895))
+* update README ([3a6a2d0](https://github.com/ThomasFourties/sc-planner/commit/3a6a2d08c26a4c3faa1ef090a0e99992ad500451))
+* update README ([8e12269](https://github.com/ThomasFourties/sc-planner/commit/8e12269c9e988f0dfe70b73b07adb66443acb3ae))
+* update TECHNICAL ([b134323](https://github.com/ThomasFourties/sc-planner/commit/b134323741ee80c5842b845fa3f4a2b8d62f461d))
+
+
+### 💅 Styles
+
+* remove commented lines in app.vue and main.ts ([94b1234](https://github.com/ThomasFourties/sc-planner/commit/94b1234cd5b2534b117507388a8d90d2dc25bd8f))
+
+
+### 🐛 Bug Fixes
+
+* add coverageThreshold configuration ([b074313](https://github.com/ThomasFourties/sc-planner/commit/b074313c61588a6056305c038f96c598297e5a17))
+* add PostgreSQL service configuration for test server ([69df21f](https://github.com/ThomasFourties/sc-planner/commit/69df21fb3f53b9f690f76e10b9511281369448b7))
+* deploy file ([8c18da5](https://github.com/ThomasFourties/sc-planner/commit/8c18da5e454fb81a77eeae27cf907b1e51c63d16))
+* email service ([95a4307](https://github.com/ThomasFourties/sc-planner/commit/95a43075bf78994d17812cb32c44f52f3a6e84e2))
+* replace the exception with a warning for missing SMTP configuration ([655be39](https://github.com/ThomasFourties/sc-planner/commit/655be393891681db68c2e6837cb584d70943401b))
+* update env example ([f493fe3](https://github.com/ThomasFourties/sc-planner/commit/f493fe340549183a13d584ed8d06d66dac7a5e15))
+
+
+### 🛠️ Chore
+
+* add .env smtp to CI ([8266c9a](https://github.com/ThomasFourties/sc-planner/commit/8266c9a03c8a62ed018ac460cd8939bd0e041e19))
+* adding more aria attributs for enhancing accessibility ([30d7341](https://github.com/ThomasFourties/sc-planner/commit/30d734183bce2ebfa88525d81c5aecf6e2e6573c))
+* comments ([3ad7a39](https://github.com/ThomasFourties/sc-planner/commit/3ad7a3963604a46ff2893297185661fdb8cddc18))
+* comments ([4ac97c0](https://github.com/ThomasFourties/sc-planner/commit/4ac97c04a1993d27bf5ce1d7a0b5253b85af684c))
+* remove bug issues tpl ([5869c64](https://github.com/ThomasFourties/sc-planner/commit/5869c64fe5e45bd2275f66af8b72f711fc0ff6c0))
+* remove comments ([44bacce](https://github.com/ThomasFourties/sc-planner/commit/44baccef81dae7a5a3845615e05dc37d70e3b93f))
+* remove comments ([501bb7b](https://github.com/ThomasFourties/sc-planner/commit/501bb7b4e3cb3dce586d0d8f7e0cb03d8aeea9ad))
+* remove unused env test ([4cf8e24](https://github.com/ThomasFourties/sc-planner/commit/4cf8e242fb02557f8ba9ce3434bd52b2ec3a0c65))
+* some fixes test ([8e33004](https://github.com/ThomasFourties/sc-planner/commit/8e33004ab3c3d043b4c42ae4bb9daec80702fa37))
+* some tests fixes ([3af3ebe](https://github.com/ThomasFourties/sc-planner/commit/3af3ebe1bb0a2894dd0046fd86b21344844c0aa2))
+* try run all tests ([11f8c80](https://github.com/ThomasFourties/sc-planner/commit/11f8c8061b369224dfca2f5d6d319e8691892547))
+* try run all tests ([4e7bdd0](https://github.com/ThomasFourties/sc-planner/commit/4e7bdd0eed0f0b1f02d6ea74debdfbfdebda1a97))
+* update CI ([a9aacfd](https://github.com/ThomasFourties/sc-planner/commit/a9aacfd73341ee4e87dc769ce9443924ba8e3f1d))
+* update dependencies ([eeebd9b](https://github.com/ThomasFourties/sc-planner/commit/eeebd9ba40f16563e976839792cba27459571060))
+
 ### [1.1.2](https://github.com/ThomasFourties/sc-planner/compare/v1.1.1...v1.1.2) (2025-08-03)
 
 
