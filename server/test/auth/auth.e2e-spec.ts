@@ -17,6 +17,8 @@ import { EmailModule } from '../../src/email/email.module';
 import { ConfigModule } from '@nestjs/config';
 import { EmailService } from '../../src/email/email.service';
 
+// comments
+
 const mockEmailService = {
   sendEmail: jest.fn().mockResolvedValue(true),
   sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
