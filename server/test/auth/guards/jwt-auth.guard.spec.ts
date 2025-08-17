@@ -54,12 +54,9 @@ describe('JwtAuthGuard', () => {
       const result = await guard.canActivate(mockContext);
 
       expect(result).toBe(true);
-      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(
-        'valid-token-here',
-        {
-          secret: process.env.JWT_SECRET,
-        },
-      );
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith('valid-token-here', {
+        secret: process.env.JWT_SECRET,
+      });
       expect(mockRequest['user']).toEqual(mockUser);
     });
 
@@ -74,12 +71,8 @@ describe('JwtAuthGuard', () => {
         }),
       } as ExecutionContext;
 
-      await expect(guard.canActivate(mockContext)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      await expect(guard.canActivate(mockContext)).rejects.toThrow(
-        "Token d'authentification manquant",
-      );
+      await expect(guard.canActivate(mockContext)).rejects.toThrow(UnauthorizedException);
+      await expect(guard.canActivate(mockContext)).rejects.toThrow("Token d'authentification manquant");
 
       expect(mockJwtService.verifyAsync).not.toHaveBeenCalled();
     });
@@ -99,12 +92,8 @@ describe('JwtAuthGuard', () => {
 
       mockJwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
 
-      await expect(guard.canActivate(mockContext)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      await expect(guard.canActivate(mockContext)).rejects.toThrow(
-        "Token d'authentification invalide",
-      );
+      await expect(guard.canActivate(mockContext)).rejects.toThrow(UnauthorizedException);
+      await expect(guard.canActivate(mockContext)).rejects.toThrow("Token d'authentification invalide");
 
       expect(mockJwtService.verifyAsync).toHaveBeenCalledWith('invalid-token', {
         secret: process.env.JWT_SECRET,
@@ -124,16 +113,10 @@ describe('JwtAuthGuard', () => {
         }),
       } as ExecutionContext;
 
-      mockJwtService.verifyAsync.mockRejectedValue(
-        new Error('TokenExpiredError'),
-      );
+      mockJwtService.verifyAsync.mockRejectedValue(new Error('TokenExpiredError'));
 
-      await expect(guard.canActivate(mockContext)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      await expect(guard.canActivate(mockContext)).rejects.toThrow(
-        "Token d'authentification invalide",
-      );
+      await expect(guard.canActivate(mockContext)).rejects.toThrow(UnauthorizedException);
+      await expect(guard.canActivate(mockContext)).rejects.toThrow("Token d'authentification invalide");
 
       expect(mockJwtService.verifyAsync).toHaveBeenCalledWith('expired-token', {
         secret: process.env.JWT_SECRET,
@@ -183,17 +166,13 @@ describe('JwtAuthGuard', () => {
         }),
       } as ExecutionContext;
 
-      // Test the private method indirectly through canActivate
       mockJwtService.verifyAsync.mockResolvedValue(mockUser);
 
       guard.canActivate(mockContext);
 
-      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(
-        'valid-token-123',
-        {
-          secret: process.env.JWT_SECRET,
-        },
-      );
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith('valid-token-123', {
+        secret: process.env.JWT_SECRET,
+      });
     });
   });
 });

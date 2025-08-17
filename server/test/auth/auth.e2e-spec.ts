@@ -15,6 +15,12 @@ import { ProjectsModule } from '../../src/projects/projects.module';
 import { TasksModule } from '../../src/tasks/tasks.module';
 import { EmailModule } from '../../src/email/email.module';
 import { ConfigModule } from '@nestjs/config';
+import { EmailService } from '../../src/email/email.service';
+
+const mockEmailService = {
+  sendEmail: jest.fn().mockResolvedValue(true),
+  sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
+};
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -40,11 +46,11 @@ describe('AuthController (e2e)', () => {
         }),
         TypeOrmModule.forRoot({
           type: 'postgres',
-          host: process.env.DATABASE_HOST,
-          port: parseInt(process.env.DATABASE_PORT || '5433'),
-          username: process.env.DATABASE_USER,
-          password: process.env.DATABASE_PASSWORD,
-          database: process.env.DATABASE_NAME,
+          host: 'localhost',
+          port: 5433,
+          username: 'test_user',
+          password: 'test_password',
+          database: 'sc-planner-db-test',
           entities: [User, Client, Project, Task],
           synchronize: true,
           dropSchema: true,
@@ -57,11 +63,13 @@ describe('AuthController (e2e)', () => {
         TasksModule,
         EmailModule,
       ],
-    }).compile();
+    })
+      .overrideProvider(EmailService)
+      .useValue(mockEmailService)
+      .compile();
 
     app = moduleFixture.createNestApplication();
 
-    // Configuration des pipes de validation comme dans votre main.ts
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -77,12 +85,13 @@ describe('AuthController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   beforeEach(async () => {
-    // La base de données est recréée automatiquement avec dropSchema: true
-    // Pas besoin de nettoyer manuellement
+    jest.clearAllMocks();
   });
 
   describe('/auth/register (POST)', () => {
@@ -93,7 +102,6 @@ describe('AuthController (e2e)', () => {
         message: 'Compte créé avec succès',
       });
 
-      // Vérifier que l'utilisateur a été créé en base
       const createdUser = await userRepository.findOne({
         where: { email: testUser.email },
       });
@@ -105,17 +113,14 @@ describe('AuthController (e2e)', () => {
       expect(createdUser!.email).toBe(testUser.email);
       expect(createdUser!.role).toBe('CLIENT');
       expect(createdUser!.is_admin).toBe(false);
-      // Vérifier que le mot de passe a été hashé
       expect(createdUser!.password).not.toBe(testUser.password);
     });
 
     it('should fail when email already exists', async () => {
       const uniqueUser = createTestUser('unique.email@example.com');
 
-      // Créer un utilisateur d'abord
       await request(app.getHttpServer()).post('/auth/register').send(uniqueUser).expect(201);
 
-      // Essayer de créer le même utilisateur
       const response = await request(app.getHttpServer()).post('/auth/register').send(uniqueUser).expect(409);
 
       expect(response.body.message).toBe("L'email est deja associe à un compte");
@@ -160,7 +165,6 @@ describe('AuthController (e2e)', () => {
       const incompleteUser = {
         email: testUser.email,
         password: testUser.password,
-        // Manque first_name, last_name, confirm_password
       };
 
       const response = await request(app.getHttpServer()).post('/auth/register').send(incompleteUser).expect(400);
@@ -185,7 +189,6 @@ describe('AuthController (e2e)', () => {
     let loginUser: any;
 
     beforeEach(async () => {
-      // Créer un utilisateur unique pour les tests de login
       loginUser = createTestUser(`login.test.${Date.now()}@example.com`);
       await request(app.getHttpServer()).post('/auth/register').send(loginUser).expect(201);
     });
@@ -207,7 +210,6 @@ describe('AuthController (e2e)', () => {
       expect(response.body.user.is_admin).toBe(false);
       expect(typeof response.body.token).toBe('string');
 
-      // Vérifier que le token JWT est valide
       const decoded = jwtService.verify(response.body.token);
       expect(decoded.email).toBe(loginUser.email);
       expect(decoded.sub).toBeDefined();
@@ -271,7 +273,6 @@ describe('AuthController (e2e)', () => {
     let forgotPasswordUser: any;
 
     beforeEach(async () => {
-      // Créer un utilisateur unique pour les tests
       forgotPasswordUser = createTestUser(`forgot.password.${Date.now()}@example.com`);
       await request(app.getHttpServer()).post('/auth/register').send(forgotPasswordUser).expect(201);
     });
@@ -284,6 +285,8 @@ describe('AuthController (e2e)', () => {
       const response = await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordData).expect(201);
 
       expect(response.body.message).toBe('Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.');
+
+      expect(mockEmailService.sendPasswordResetEmail).toHaveBeenCalledWith(forgotPasswordUser.email, expect.any(String));
     });
 
     it('should return same message for non-existing email (security)', async () => {
@@ -294,6 +297,8 @@ describe('AuthController (e2e)', () => {
       const response = await request(app.getHttpServer()).post('/auth/forgot-password').send(forgotPasswordData).expect(201);
 
       expect(response.body.message).toBe('Si le mail est associé à un compte, vous recevrez un lien de réinitialisation.');
+
+      expect(mockEmailService.sendPasswordResetEmail).not.toHaveBeenCalled();
     });
 
     it('should fail with invalid email format', async () => {
@@ -318,11 +323,9 @@ describe('AuthController (e2e)', () => {
     let resetPasswordUser: any;
 
     beforeEach(async () => {
-      // Créer un utilisateur unique
       resetPasswordUser = createTestUser(`reset.password.${Date.now()}@example.com`);
       await request(app.getHttpServer()).post('/auth/register').send(resetPasswordUser).expect(201);
 
-      // Générer un token de reset valide
       resetToken = jwtService.sign({ email: resetPasswordUser.email }, { expiresIn: '1h' });
     });
 
@@ -336,7 +339,6 @@ describe('AuthController (e2e)', () => {
 
       expect(response.body.message).toBe('Votre mot de passe a été réinitialisé avec succès.');
 
-      // Vérifier qu'on peut se connecter avec le nouveau mot de passe
       const loginResponse = await request(app.getHttpServer())
         .post('/auth/login')
         .send({
@@ -399,11 +401,7 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should fail with expired token', async () => {
-      // Créer un token expiré
-      const expiredToken = jwtService.sign(
-        { email: resetPasswordUser.email },
-        { expiresIn: '-1h' }, // Token expiré
-      );
+      const expiredToken = jwtService.sign({ email: resetPasswordUser.email }, { expiresIn: '-1h' });
 
       const resetPasswordData = {
         new_password: 'newpassword123',
@@ -419,11 +417,9 @@ describe('AuthController (e2e)', () => {
   describe('Integration scenarios', () => {
     it('should complete full registration and login flow', async () => {
       const integrationUser = createTestUser(`integration.flow.${Date.now()}@example.com`);
-      
-      // 1. Register
+
       await request(app.getHttpServer()).post('/auth/register').send(integrationUser).expect(201);
 
-      // 2. Login
       const loginResponse = await request(app.getHttpServer())
         .post('/auth/login')
         .send({
@@ -438,14 +434,11 @@ describe('AuthController (e2e)', () => {
 
     it('should complete full password reset flow', async () => {
       const resetFlowUser = createTestUser(`reset.flow.${Date.now()}@example.com`);
-      
-      // 1. Register
+
       await request(app.getHttpServer()).post('/auth/register').send(resetFlowUser).expect(201);
 
-      // 2. Request password reset
       await request(app.getHttpServer()).post('/auth/forgot-password').send({ email: resetFlowUser.email }).expect(201);
 
-      // 3. Reset password with valid token
       const resetToken = jwtService.sign({ email: resetFlowUser.email }, { expiresIn: '1h' });
 
       await request(app.getHttpServer())
@@ -456,7 +449,6 @@ describe('AuthController (e2e)', () => {
         })
         .expect(201);
 
-      // 4. Login with new password
       const loginResponse = await request(app.getHttpServer())
         .post('/auth/login')
         .send({

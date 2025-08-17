@@ -6,12 +6,11 @@ import { User } from '../../src/users/entities/user.entity';
 import { Project, ProjectStatus } from '../../src/projects/entities/project.entity';
 import { Task } from '../../src/tasks/entities/task.entity';
 import { UserRole } from '../../src/users/enums/user-role.enum';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 
 describe('ClientsService', () => {
   let service: ClientsService;
 
-  // Mock QueryBuilder
   const mockQueryBuilder = {
     update: jest.fn().mockReturnThis(),
     set: jest.fn().mockReturnThis(),
@@ -19,7 +18,6 @@ describe('ClientsService', () => {
     execute: jest.fn(),
   };
 
-  // Mock Repositories
   const mockClientRepository = {
     create: jest.fn(),
     save: jest.fn(),
@@ -48,7 +46,6 @@ describe('ClientsService', () => {
     delete: jest.fn(),
   };
 
-  // Mock Data selon les vraies entités
   const mockClient: Client = {
     id: 'client-1',
     name: 'Test Client',
@@ -58,8 +55,8 @@ describe('ClientsService', () => {
     website_preprod: 'https://preprod.test.com',
     created_at: new Date('2023-01-01'),
     updated_at: new Date('2023-01-01'),
-    users: [], // OneToMany - peut être vide
-    projects: [], // OneToMany - peut être vide
+    users: [],
+    projects: [],
   };
 
   const mockUser: User = {
@@ -70,10 +67,10 @@ describe('ClientsService', () => {
     password: 'hashed_password',
     role: UserRole.CLIENT,
     is_admin: false,
-    client_id: 'client-1', // ManyToOne - optionnel
+    client_id: 'client-1',
     created_at: new Date('2023-01-01'),
     updated_at: new Date('2023-01-01'),
-    client: mockClient, // Relation optionnelle
+    client: mockClient,
   };
 
   const mockProject: Project = {
@@ -85,11 +82,11 @@ describe('ClientsService', () => {
     end_date: new Date('2023-06-01'),
     sold_hours: 100,
     spent_hours: 80,
-    client_id: 'client-1', // ManyToOne - obligatoire
+    client_id: 'client-1',
     created_at: new Date('2023-01-01'),
     updated_at: new Date('2023-01-01'),
-    client: mockClient, // Relation obligatoire
-    tasks: [], // OneToMany - peut être vide
+    client: mockClient,
+    tasks: [],
   };
 
   beforeEach(async () => {
@@ -167,17 +164,29 @@ describe('ClientsService', () => {
       expect(result).toEqual(savedClient);
     });
 
+    it('should throw NotFoundException when client is not found after creation', async () => {
+      const createClientDto = {
+        name: 'New Client',
+        description: 'New client description',
+      };
+
+      const savedClient = { ...mockClient, ...createClientDto };
+      mockClientRepository.create.mockReturnValue(savedClient);
+      mockClientRepository.save.mockResolvedValue(savedClient);
+      // Simuler que findOne ne trouve pas le client après la création
+      mockClientRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.create(createClientDto)).rejects.toThrow(NotFoundException);
+      await expect(service.create(createClientDto)).rejects.toThrow('Client non trouvé');
+    });
+
     it('should throw an error if the client name is not provided', async () => {
       const createClientDto = {
         name: '',
       };
 
-      await expect(service.create(createClientDto)).rejects.toThrow(
-        BadRequestException,
-      );
-      await expect(service.create(createClientDto)).rejects.toThrow(
-        'Le nom du client est requis',
-      );
+      await expect(service.create(createClientDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create(createClientDto)).rejects.toThrow('Le nom du client est requis');
 
       expect(mockClientRepository.save).not.toHaveBeenCalled();
       expect(mockUserRepository.createQueryBuilder).not.toHaveBeenCalled();
@@ -201,23 +210,72 @@ describe('ClientsService', () => {
       expect(mockClientRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockClient.id },
       });
-      expect(mockClientRepository.update).toHaveBeenCalledWith(
-        mockClient.id,
-        updateClientDto,
-      );
+      expect(mockClientRepository.update).toHaveBeenCalledWith(mockClient.id, updateClientDto);
       expect(result).toEqual(updatedClient);
+    });
+
+    it('should update client with user_ids', async () => {
+      const updateClientDto = {
+        name: 'Updated Client',
+        user_ids: ['user-1', 'user-2'],
+      };
+
+      const updatedClient = { ...mockClient, ...updateClientDto };
+      mockClientRepository.findOne.mockResolvedValue(mockClient);
+      mockClientRepository.update.mockResolvedValue({ affected: 1 });
+      mockUserRepository.manager.query.mockResolvedValue({ affected: 1 });
+      mockQueryBuilder.execute.mockResolvedValue({ affected: 2 });
+      jest.spyOn(service, 'findOne').mockResolvedValue(updatedClient);
+
+      const result = await service.update(mockClient.id, updateClientDto);
+
+      expect(mockUserRepository.manager.query).toHaveBeenCalledWith('UPDATE users SET client_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE client_id = $1', [mockClient.id]);
+      expect(mockUserRepository.createQueryBuilder).toHaveBeenCalled();
+      expect(result).toEqual(updatedClient);
+    });
+
+    it('should update client with empty user_ids array', async () => {
+      const updateClientDto = {
+        name: 'Updated Client',
+        user_ids: [],
+      };
+
+      const updatedClient = { ...mockClient, ...updateClientDto };
+      mockClientRepository.findOne.mockResolvedValue(mockClient);
+      mockClientRepository.update.mockResolvedValue({ affected: 1 });
+      mockUserRepository.manager.query.mockResolvedValue({ affected: 1 });
+      jest.spyOn(service, 'findOne').mockResolvedValue(updatedClient);
+
+      const result = await service.update(mockClient.id, updateClientDto);
+
+      expect(mockUserRepository.manager.query).toHaveBeenCalledWith('UPDATE users SET client_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE client_id = $1', [mockClient.id]);
+      // Ne doit pas appeler createQueryBuilder pour un tableau vide
+      expect(mockUserRepository.createQueryBuilder).not.toHaveBeenCalled();
+      expect(result).toEqual(updatedClient);
+    });
+
+    it('should handle error during user update', async () => {
+      const updateClientDto = {
+        name: 'Updated Client',
+        user_ids: ['user-1'],
+      };
+
+      mockClientRepository.findOne.mockResolvedValue(mockClient);
+      mockClientRepository.update.mockResolvedValue({ affected: 1 });
+
+      // Simuler une erreur lors de la mise à jour des utilisateurs
+      const updateError = new Error('Database connection failed');
+      mockUserRepository.manager.query.mockRejectedValue(updateError);
+
+      await expect(service.update(mockClient.id, updateClientDto)).rejects.toThrow(updateError);
     });
 
     it('should throw NotFoundException when client does not exist', async () => {
       const updateClientDto = { name: 'Updated Client' };
       mockClientRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.update('nonexistent-id', updateClientDto),
-      ).rejects.toThrow(NotFoundException);
-      await expect(
-        service.update('nonexistent-id', updateClientDto),
-      ).rejects.toThrow('Client non trouvé');
+      await expect(service.update('nonexistent-id', updateClientDto)).rejects.toThrow(NotFoundException);
+      await expect(service.update('nonexistent-id', updateClientDto)).rejects.toThrow('Client non trouvé');
     });
 
     it('should throw an error if the client name is empty', async () => {
@@ -225,12 +283,8 @@ describe('ClientsService', () => {
         name: '',
       };
 
-      await expect(
-        service.update(mockClient.id, updateClientDto),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        service.update(mockClient.id, updateClientDto),
-      ).rejects.toThrow('Le nom du client est requis');
+      await expect(service.update(mockClient.id, updateClientDto)).rejects.toThrow(BadRequestException);
+      await expect(service.update(mockClient.id, updateClientDto)).rejects.toThrow('Le nom du client est requis');
 
       expect(mockClientRepository.update).not.toHaveBeenCalled();
     });
@@ -286,6 +340,89 @@ describe('ClientsService', () => {
       expect(mockClientRepo.delete).toHaveBeenCalledWith({ id: mockClient.id });
     });
 
+    it('should remove client without projects', async () => {
+      const clientWithoutProjects = {
+        ...mockClient,
+        projects: [],
+      };
+
+      const mockClientRepo = {
+        findOne: jest.fn().mockResolvedValue(clientWithoutProjects),
+        delete: jest.fn().mockResolvedValue({ affected: 1 }),
+      };
+      const mockUserRepo = {
+        createQueryBuilder: jest.fn(() => mockQueryBuilder),
+      };
+      const mockProjectRepo = {
+        delete: jest.fn(),
+      };
+      const mockTaskRepo = {
+        delete: jest.fn(),
+      };
+
+      mockClientRepository.manager.transaction.mockImplementation((callback) =>
+        callback({
+          getRepository: jest.fn((entity) => {
+            if (entity === Client) return mockClientRepo;
+            if (entity === User) return mockUserRepo;
+            if (entity === Project) return mockProjectRepo;
+            if (entity === Task) return mockTaskRepo;
+          }),
+        }),
+      );
+
+      mockQueryBuilder.execute.mockResolvedValue({ affected: 1 });
+
+      await service.remove(mockClient.id);
+
+      expect(mockClientRepo.findOne).toHaveBeenCalledWith({
+        where: { id: mockClient.id },
+        relations: ['projects', 'users'],
+      });
+      expect(mockUserRepo.createQueryBuilder).toHaveBeenCalled();
+      // Ne doit pas supprimer les projets/tâches car il n'y en a pas
+      expect(mockTaskRepo.delete).not.toHaveBeenCalled();
+      expect(mockProjectRepo.delete).not.toHaveBeenCalled();
+      expect(mockClientRepo.delete).toHaveBeenCalledWith({ id: mockClient.id });
+    });
+
+    it('should handle InternalServerErrorException during removal', async () => {
+      const clientWithProjects = {
+        ...mockClient,
+        projects: [mockProject],
+      };
+
+      const mockClientRepo = {
+        findOne: jest.fn().mockResolvedValue(clientWithProjects),
+        delete: jest.fn().mockRejectedValue(new Error('Database error')),
+      };
+      const mockUserRepo = {
+        createQueryBuilder: jest.fn(() => mockQueryBuilder),
+      };
+      const mockProjectRepo = {
+        delete: jest.fn().mockResolvedValue({ affected: 1 }),
+      };
+      const mockTaskRepo = {
+        delete: jest.fn().mockResolvedValue({ affected: 1 }),
+      };
+
+      mockClientRepository.manager.transaction.mockImplementation((callback) =>
+        callback({
+          getRepository: jest.fn((entity) => {
+            if (entity === Client) return mockClientRepo;
+            if (entity === User) return mockUserRepo;
+            if (entity === Project) return mockProjectRepo;
+            if (entity === Task) return mockTaskRepo;
+          }),
+        }),
+      );
+
+      mockQueryBuilder.execute.mockResolvedValue({ affected: 1 });
+
+      await expect(service.remove(mockClient.id)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.remove(mockClient.id)).rejects.toThrow('Impossible de supprimer le client: Database error');
+    });
+
     it('should throw NotFoundException when client does not exist', async () => {
       const mockClientRepo = {
         findOne: jest.fn().mockResolvedValue(null),
@@ -297,12 +434,8 @@ describe('ClientsService', () => {
         }),
       );
 
-      await expect(service.remove('nonexistent-id')).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.remove('nonexistent-id')).rejects.toThrow(
-        'Client non trouvé',
-      );
+      await expect(service.remove('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('nonexistent-id')).rejects.toThrow('Client non trouvé');
     });
   });
 
@@ -335,12 +468,8 @@ describe('ClientsService', () => {
     it('should throw NotFoundException when client not found', async () => {
       mockClientRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent-id')).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.findOne('nonexistent-id')).rejects.toThrow(
-        'Client non trouvé',
-      );
+      await expect(service.findOne('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent-id')).rejects.toThrow('Client non trouvé');
     });
   });
 

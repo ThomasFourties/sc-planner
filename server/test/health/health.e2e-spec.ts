@@ -10,6 +10,35 @@ import { Task } from '../../src/tasks/entities/task.entity';
 import { HealthModule } from '../../src/health/health.module';
 import { UsersModule } from '../../src/users/users.module';
 import { EmailModule } from '../../src/email/email.module';
+import { EmailService } from '../../src/email/email.service';
+import { MonitoringService } from '../../src/monitoring/monitoring.service';
+
+// Mock pour l'EmailService
+const mockEmailService = {
+  sendEmail: jest.fn().mockResolvedValue(true),
+  sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
+};
+
+// Mock pour MonitoringService
+const mockMonitoringService = {
+  getMetrics: jest.fn().mockReturnValue('# Mock metrics'),
+  setMemoryUsage: jest.fn(),
+  setCpuUsage: jest.fn(),
+  observeDbResponseTime: jest.fn(),
+  setServiceStatus: jest.fn(),
+};
+
+// Configuration test en dur
+const TEST_CONFIG = {
+  JWT_SECRET: 'c5a74971ef18f3e94faa2c132c0e18f898c826b6453f87e0b95253570622e59de6926eedd58be27b35e1a0d9dcda7eabe16cac3d1e2118703da13cdeb6f9868b',
+  NODE_ENV: 'test',
+  EMAIL_HOST: 'fake-smtp-host.test',
+  EMAIL_PORT: 587,
+  EMAIL_USER: 'test@example.com',
+  EMAIL_PASS: 'fake-password',
+  EMAIL_SECURE: false,
+  FRONTEND_URL: 'http://localhost:3000',
+};
 
 describe('HealthController (e2e)', () => {
   let app: INestApplication;
@@ -18,16 +47,17 @@ describe('HealthController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
+          load: [() => TEST_CONFIG],
           envFilePath: '.env.test',
           isGlobal: true,
         }),
         TypeOrmModule.forRoot({
           type: 'postgres',
-          host: process.env.DATABASE_HOST,
+          host: process.env.DATABASE_HOST || 'database',
           port: parseInt(process.env.DATABASE_PORT || '5433'),
-          username: process.env.DATABASE_USER,
-          password: process.env.DATABASE_PASSWORD,
-          database: process.env.DATABASE_NAME,
+          username: process.env.DATABASE_USER || 'test_user',
+          password: process.env.DATABASE_PASSWORD || 'test_password',
+          database: process.env.DATABASE_NAME || 'sc-planner-db-test',
           entities: [User, Client, Project, Task],
           synchronize: true,
           dropSchema: true,
@@ -37,14 +67,25 @@ describe('HealthController (e2e)', () => {
         UsersModule,
         EmailModule,
       ],
-    }).compile();
+    })
+      .overrideProvider(EmailService)
+      .useValue(mockEmailService)
+      .overrideProvider(MonitoringService)
+      .useValue(mockMonitoringService)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
+  });
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
   });
 
   describe('/health (GET)', () => {
@@ -137,6 +178,18 @@ describe('HealthController (e2e)', () => {
       expect(res.body).toHaveProperty('uptime');
       expect(typeof res.body.uptime).toBe('number');
       expect(res.body.uptime).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe('/health/metrics (GET)', () => {
+    it('should return Prometheus metrics', async () => {
+      const res = await request(app.getHttpServer()).get('/health/metrics').expect(200);
+
+      expect(res.text).toBe('# Mock metrics');
+      expect(res.headers['content-type']).toContain('text/plain');
+
+      // Vérifier que les métriques ont été mises à jour
+      expect(mockMonitoringService.setServiceStatus).toHaveBeenCalled();
     });
   });
 
