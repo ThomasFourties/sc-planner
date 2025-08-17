@@ -84,47 +84,59 @@ export class ClientsService {
   }
 
   async findOne(id: string): Promise<any> {
-    const client = await this.clientRepository.findOne({
-      where: { id },
-      relations: ['projects', 'users'],
-    });
+    try {
+      const client = await this.clientRepository.findOne({
+        where: { id },
+        relations: ['projects', 'users'],
+      });
 
-    if (!client) {
-      throw new NotFoundException('Client non trouvé');
+      if (!client) {
+        throw new NotFoundException('Client non trouvé');
+      }
+
+      return {
+        ...client,
+        stats: {
+          projectsCount: client.projects?.length || 0,
+          totalSoldHours:
+            client.projects?.reduce(
+              (sum, project) => sum + Number(project.sold_hours || 0),
+              0,
+            ) || 0,
+          totalSpentHours:
+            client.projects?.reduce(
+              (sum, project) => sum + Number(project.spent_hours || 0),
+              0,
+            ) || 0,
+        },
+      };
+    } catch (error: any) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      // Si l'erreur est liée à un UUID invalide
+      if (error?.message?.includes('invalid input syntax for type uuid')) {
+        throw new NotFoundException('Client non trouvé');
+      }
+      throw error;
     }
-
-    return {
-      ...client,
-      stats: {
-        projectsCount: client.projects?.length || 0,
-        totalSoldHours:
-          client.projects?.reduce(
-            (sum, project) => sum + Number(project.sold_hours || 0),
-            0,
-          ) || 0,
-        totalSpentHours:
-          client.projects?.reduce(
-            (sum, project) => sum + Number(project.spent_hours || 0),
-            0,
-          ) || 0,
-      },
-    };
   }
 
   async update(id: string, updateClientDto: UpdateClientDto): Promise<any> {
-    const { user_ids, ...updateData } = updateClientDto;
+    try {
+      const { user_ids, ...updateData } = updateClientDto;
 
-    if (!updateClientDto.name) {
-      throw new BadRequestException('Le nom du client est requis');
-    }
+      if (!updateClientDto.name) {
+        throw new BadRequestException('Le nom du client est requis');
+      }
 
-    const existingClient = await this.clientRepository.findOne({
-      where: { id },
-    });
+      const existingClient = await this.clientRepository.findOne({
+        where: { id },
+      });
 
-    if (!existingClient) {
-      throw new NotFoundException('Client non trouvé');
-    }
+      if (!existingClient) {
+        throw new NotFoundException('Client non trouvé');
+      }
 
     await this.clientRepository.update(id, updateData);
 
@@ -151,52 +163,72 @@ export class ClientsService {
 
     const updatedClient = await this.findOne(id);
     return updatedClient;
+  } catch (error: any) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      // Si l'erreur est liée à un UUID invalide
+      if (error?.message?.includes('invalid input syntax for type uuid')) {
+        throw new NotFoundException('Client non trouvé');
+      }
+      throw error;
+    }
   }
 
   async remove(id: string): Promise<void> {
-    return await this.clientRepository.manager.transaction(async (manager) => {
-      const clientRepo = manager.getRepository(Client);
-      const userRepo = manager.getRepository(User);
-      const projectRepo = manager.getRepository(Project);
-      const taskRepo = manager.getRepository(Task);
+    try {
+      return await this.clientRepository.manager.transaction(async (manager) => {
+        const clientRepo = manager.getRepository(Client);
+        const userRepo = manager.getRepository(User);
+        const projectRepo = manager.getRepository(Project);
+        const taskRepo = manager.getRepository(Task);
 
-      const client = await clientRepo.findOne({
-        where: { id },
-        relations: ['projects', 'users'],
-      });
+        const client = await clientRepo.findOne({
+          where: { id },
+          relations: ['projects', 'users'],
+        });
 
-      if (!client) throw new NotFoundException('Client non trouvé');
+        if (!client) throw new NotFoundException('Client non trouvé');
 
-      try {
-        // ✅ CORRECTION ICI
-        await userRepo
-          .createQueryBuilder()
-          .update(User)
-          .set({ client_id: () => 'NULL' })
-          .where('client_id = :id', { id })
-          .execute();
+        try {
+          await userRepo
+            .createQueryBuilder()
+            .update(User)
+            .set({ client_id: () => 'NULL' })
+            .where('client_id = :id', { id })
+            .execute();
 
-        if (client.projects?.length) {
-          for (const project of client.projects) {
-            await taskRepo.delete({
-              project_id: project.id,
+          if (client.projects?.length) {
+            for (const project of client.projects) {
+              await taskRepo.delete({
+                project_id: project.id,
+              });
+            }
+
+            await projectRepo.delete({
+              client_id: id,
             });
           }
 
-          await projectRepo.delete({
-            client_id: id,
-          });
+          await clientRepo.delete({ id });
+        } catch (error: any) {
+          console.error('Erreur lors de la suppression du client:', error);
+          const errorMessage =
+            error instanceof Error ? error.message : 'Erreur inconnue';
+          throw new InternalServerErrorException(
+            `Impossible de supprimer le client: ${errorMessage}`,
+          );
         }
-
-        await clientRepo.delete({ id });
-      } catch (error: any) {
-        console.error('Erreur lors de la suppression du client:', error);
-        const errorMessage =
-          error instanceof Error ? error.message : 'Erreur inconnue';
-        throw new InternalServerErrorException(
-          `Impossible de supprimer le client: ${errorMessage}`,
-        );
+      });
+    } catch (error: any) {
+      if (error instanceof NotFoundException || error instanceof InternalServerErrorException) {
+        throw error;
       }
-    });
+      // Si l'erreur est liée à un UUID invalide
+      if (error?.message?.includes('invalid input syntax for type uuid')) {
+        throw new NotFoundException('Client non trouvé');
+      }
+      throw error;
+    }
   }
 }
