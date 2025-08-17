@@ -45,10 +45,21 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v3
+
+      - name: Load test environment variables
+        run: |
+          cd server
+          if [ -f .env.test ]; then
+            export $(cat .env.test | grep -v '^#' | xargs)
+            # Rendre les variables disponibles pour les étapes suivantes
+            cat .env.test | grep -v '^#' >> $GITHUB_ENV
+          fi
+
       - name: Install server dependencies
         run: |
           cd server
           npm install
+
       - name: Run unit tests only
         run: |
           cd server
