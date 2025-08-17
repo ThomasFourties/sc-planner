@@ -11,7 +11,6 @@ SC Planner est un outil professionnel de gestion de projet et de planification d
 - ✔️ Gestion des tâches avec statuts
 - 👥 Gestion des équipes et clients
 - 📈 Métriques et reporting
-- 📱 Interface responsive
 
 ## 🛠️ Stack technique
 
@@ -33,7 +32,6 @@ SC Planner est un outil professionnel de gestion de projet et de planification d
 - **Conteneurisation**: Docker + Compose
 - **CI/CD**: GitHub Actions
 - **Monitoring**: Prometheus + Grafana
-- **Hébergement**: VPS Ionos
 
 ## 🚦 Qualité & Tests
 
@@ -83,20 +81,58 @@ docker compose -f docker-compose.prod.yml exec server pnpm migration:run
 - [API Swagger](http://localhost:3002/api/docs)
 - [Métriques](http://localhost:3002/api/metrics)
 
-## 🔑 Variables d'environnement
+## 🔑 Configuration initiale
 
-Créer un fichier `.env` basé sur `.env.example` :
+1. **Variables d'environnement**
 
-```bash
-# Frontend
-API_URL=http://localhost:3002/api
-NODE_ENV=development
+   Copiez le fichier `.env.example` vers `.env` :
+   ```bash
+   cp .env.example .env
+   ```
 
-# Backend
-DATABASE_URL=postgresql://user:pass@localhost:5432/sc_planner
-JWT_SECRET=your_secret_key
-SMTP_HOST=smtp.example.com
-```
+   Modifiez les variables selon votre environnement :
+
+   ```bash
+   # Base de données (requis)
+   DATABASE_HOST=localhost        # Hôte de la base de données
+   DATABASE_PORT=5432            # Port PostgreSQL (par défaut: 5432)
+   DATABASE_USER=your_user       # Nom d'utilisateur
+   DATABASE_PASSWORD=your_pass    # Mot de passe
+   DATABASE_NAME=sc_planner      # Nom de la base de données
+
+   DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+
+   # JWT (requis)
+   JWT_SECRET=your-secret-key    # Clé secrète pour les tokens JWT
+
+   # Email SMTP (optionnel en développement)
+   EMAIL_HOST=smtp.example.com    # Serveur SMTP
+   EMAIL_PORT=587                 # Port SMTP
+   EMAIL_USER=your_email         # Adresse email
+   EMAIL_PASS=your_pass          # Mot de passe
+   EMAIL_SECURE=false            # true pour SSL/TLS
+
+   # URLs et environnement
+   FRONTEND_URL=http://localhost:3000  # URL du frontend
+   NODE_ENV=development                # development ou production
+   API_URL=http://server:3002/api      # URL de l'API
+
+   # Github Token (optionnel en développement)
+   GITHUB_TOKEN=your-github-token
+   ```
+
+2. **Ports des services**
+   
+   Si vous avez besoin de modifier les ports par défaut, ajustez-les dans les fichiers Docker Compose :
+   - `docker-compose.dev.yml` pour le développement
+   - `docker-compose.prod.yml` pour la production
+
+   Ports par défaut :
+   - Frontend : 3000
+   - Backend : 3002
+   - PostgreSQL : 5432
+   - Prometheus : 9090
+   - Grafana : 3000
 
 ## 📈 Monitoring
 
